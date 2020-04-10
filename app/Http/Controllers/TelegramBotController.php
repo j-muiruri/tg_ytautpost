@@ -19,7 +19,7 @@ class TelegramBotController extends Controller
      */
     public function runCommands()
     {
-        $update = Telegram::commandsHandler(false, ['timeout' => 30]);
+        $update = Telegram::commandsHandler(false, ['timeout' => 0]);
         return response()->json(['status' => 'success']);
     }
 }
