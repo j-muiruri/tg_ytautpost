@@ -41,8 +41,7 @@
         },
         "classmap": [
             "database/seeds",
-            "database/factories",
-            "vendor/google-api-php-client-master/src/Google/autoload.php"
+            "database/factories"
         ]
     },
     "autoload-dev": {
