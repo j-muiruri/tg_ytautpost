@@ -15,9 +15,9 @@ use App\Videos;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::group(['middleware' => 'auth:api'], function() {
     Route::get('videos', 'VideosController@index');
@@ -26,6 +26,3 @@ Route::group(['middleware' => 'auth:api'], function() {
     Route::put('videos/{video}', 'VideosController@update');
     Route::delete('videos/{video}', 'VideosController@delete');
 });
-Route::post('register', 'Auth\RegisterController@register');
-Route::post('login', 'Auth\LoginController@login');
-Route::post('logout', 'Auth\LoginController@logout');

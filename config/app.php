@@ -162,6 +162,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Telegram\Bot\Laravel\TelegramServiceProvider::class,
+        Alaouy\Youtube\YoutubeServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -228,6 +229,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
+        'Youtube' => Alaouy\Youtube\Facades\Youtube::class,
 
     ],
 

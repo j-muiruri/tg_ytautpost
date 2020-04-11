@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Auth::routes();
 
@@ -24,3 +24,7 @@ Route::get('/updated-activity', 'TelegramBotController@updatedActivity');
 Route::get('/run', 'TelegramBotController@runCommands');
 Route::get('/run-webhook', 'TelegramBotController@runWebhook');
 Route::post(env('TELEGRAM_BOT_TOKEN') . '/webhook', 'TelegramBotController@tgWebhook');
+
+Route::post('register', 'Auth\RegisterController@register');
+Route::post('login', 'Auth\LoginController@login');
+Route::any('logout', 'Auth\LoginController@logout');
