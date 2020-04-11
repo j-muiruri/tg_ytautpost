@@ -22,4 +22,5 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/updated-activity', 'TelegramBotController@updatedActivity');
 Route::get('/run', 'TelegramBotController@runCommands');
-Route::post('/run', 'TelegramBotController@runWebhook');
+Route::get('/run-webhook', 'TelegramBotController@runWebhook');
+Route::post(env('TELEGRAM_BOT_TOKEN') . '/webhook', 'TelegramController@handleRequest');
