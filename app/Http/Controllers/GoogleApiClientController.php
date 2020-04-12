@@ -40,19 +40,19 @@ class GoogleApiClientController extends Controller
 
         $client->setRedirectUri($redirect_uri);
 
-        $url = $client->createAuthUrl();
+        // $url = $client->createAuthUrl();
 
-        // Exchange authorization code for an access token.
+        // // Exchange authorization code for an access token.
 
-        if (isset($_GET['code'])) {
+        // if (isset($_GET['code'])) {
 
-            $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+        //     $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
 
-            $client->setAccessToken($accessToken);
+        //     $client->setAccessToken($accessToken);
 
-            return response()->json($accessToken);
-        }
-        return Redirect::intended($url);
+        //     return response()->json($accessToken);
+        // }
+        // return Redirect::intended($url);
     }
 
     /**
@@ -63,7 +63,8 @@ class GoogleApiClientController extends Controller
         // Define service object for making API requests.
 
         $this->getAuthGoogleApi();
-        $client = new Google_Client();
+        // $client = new Google_Client();
+        $this->getAuthGoogleApi()->client;
 
         if (isset($_GET['code'])) {
 
@@ -71,14 +72,14 @@ class GoogleApiClientController extends Controller
 
             $client->setAccessToken($accessToken);
 
-            return response()->json($accessToken);
+            return $accessToken;
         }
         return Redirect::intended($client->createAuthUrl());
 
 
         //$client = new Google_Client();
 
-        $service = new Google_Service_YouTube($access_token);
+        $service = new Google_Service_YouTube($accessToken);
 
         $queryParams = [
             'maxResults' => 25,
