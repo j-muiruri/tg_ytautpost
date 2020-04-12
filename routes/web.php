@@ -35,4 +35,4 @@ Route::get('channel-details', 'YoutubeApiController@getChannelById');
 Route::get('channel-playlists', 'YoutubeApiController@getPlaylistByChannelId');
 
 Route::get('my-playlists', 'GoogleApiClientController@getPlaylists');
-Route::get('my-auth', 'GoogleApiClientController@getAuthGoogleApi');
+Route::any('my-auth', 'GoogleApiClientController@getAuthGoogleApi');

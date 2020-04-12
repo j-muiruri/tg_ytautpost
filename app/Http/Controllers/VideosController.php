@@ -12,7 +12,7 @@ class VideosController extends Controller
         return Videos::all();
     }
 
-    public function show(Article $video)
+    public function show(Videos $video)
     {
         return $video;
     }
@@ -24,14 +24,14 @@ class VideosController extends Controller
         return response()->json($video, 201);
     }
 
-    public function update(Request $request, Article $video)
+    public function update(Request $request, Videos $video)
     {
         $video->update($request->all());
 
         return response()->json($video, 200);
     }
 
-    public function delete(Article $video)
+    public function delete(Videos $video)
     {
         $video->delete();
 
