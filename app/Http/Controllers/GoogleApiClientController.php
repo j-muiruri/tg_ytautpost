@@ -15,10 +15,9 @@ class GoogleApiClientController extends Controller
     /**
      * Perform Authentication
      */
-    public function getAuthGoogleApi()
+    public function getAuthGoogleApi(Request $request)
     {
         $client = new Google_Client();
-
 
         $client->setApplicationName('Autopost Telegram Bot');
 
@@ -35,7 +34,7 @@ class GoogleApiClientController extends Controller
         $client->setAccessType('offline');
 
         //Redirect PAth or URL
-        $redirect_uri = URL::current();
+        $redirect_uri = $request->input('return');
 
         $client->setRedirectUri($redirect_uri);
 
@@ -44,33 +43,43 @@ class GoogleApiClientController extends Controller
 
         // Exchange authorization code for an access token.
 
-        if (isset($_GET['code'])) {
-
-            $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
-
-            $client->setAccessToken($accessToken);
-
-            return URL::previous();
-        }
         return Redirect::intended($url);
     }
 
     /**
      * Get Playlists
      */
-    public function getPlaylists()
+    public function getPlaylists(Request $request)
     {
         // Define service object for making API requests.
 
-        // $redirect_uri = URL::current();
+
 
         $client = new Google_Client();
 
-        if (isset($_GET['code'])) {
+        $code = $request->input('return');
 
-            $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+        if (isset($code)) {
 
-            $client->setAccessToken($accessToken);
+            $client->authenticate($code);
+
+            $_SESSION['access_token'] = $client->getAccessToken();
+
+            $client->setAccessToken($_SESSION['access_token']);
+
+            $service = new Google_Service_YouTube($client);
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
+
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+            return response()->json($response);
+
+        } else if (isset($_SESSION['access_token'])) {
+
+            $client->setAccessToken($_SESSION['access_token']);
 
             $service = new Google_Service_YouTube($client);
 
@@ -84,7 +93,9 @@ class GoogleApiClientController extends Controller
             return response()->json($response);
         } else {
 
-        return Redirect::action('GoogleApiClientController@getAuthGoogleApi');
+            $redirect_uri = URL::current();
+            
+            return Redirect::action('GoogleApiClientController@getAuthGoogleApi', ['return' => $redirect_uri]);
+        }
     }
-}
 }

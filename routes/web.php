@@ -34,5 +34,7 @@ Route::post(env('TELEGRAM_BOT_TOKEN') . '/webhook', 'TelegramBotController@tgWeb
 Route::get('channel-details', 'YoutubeApiController@getChannelById');
 Route::get('channel-playlists', 'YoutubeApiController@getPlaylistByChannelId');
 
-Route::get('my-playlists', 'GoogleApiClientController@getPlaylists');
-Route::any('my-auth', 'GoogleApiClientController@getAuthGoogleApi');
+Route::get('my-playlists{auth}', 'GoogleApiClientController@getPlaylists');
+
+Route::any('my-auth/{id}', 'GoogleApiClientController@getAuthGoogleApi');
+);
