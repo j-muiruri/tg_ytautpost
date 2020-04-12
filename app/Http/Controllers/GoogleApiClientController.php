@@ -22,23 +22,22 @@ class GoogleApiClientController extends Controller
         
         $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly',]);
         
-        $client->setAuthConfig('../googleapi_keys.json'); 
+        //$client->setAuthConfig(env('CLIENT_SECRET')); 
+
+        $client->setClientId(env('CLIENT_ID'));
+        
+        $client->setClientSecret(env('CLIENT_SECRET_PASS'));
 
         $client->setDeveloperKey(env('YOUTUBE_API_KEY', 'YOUR_API_KEY'));
         
         $client->setAccessType('offline'); 
 
-
-        // Your redirect URI can be any registered URI, but in this example
-        // we redirect back to this same page
-       
-        $url = $client->createAuthUrl();
-
+        //Redirect PAth or URL
         $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
         
         $client->setRedirectUri($redirect_uri);
-
-        return Redirect::intended($url);
+       
+        $url = $client->createAuthUrl();
 
         // Exchange authorization code for an access token.
          
@@ -50,6 +49,7 @@ class GoogleApiClientController extends Controller
 
             return response()->json($accessToken);
         }
+        return Redirect::intended($url);
     }
 
     /**
