@@ -37,7 +37,7 @@ class GoogleApiClientController extends Controller
 
             //Redirect PAth or URL
             $redirect_uri = URL::current();
-            
+
         $client->setRedirectUri($redirect_uri);
 
         $url = $client->createAuthUrl();
@@ -62,19 +62,23 @@ class GoogleApiClientController extends Controller
     {
         // Define service object for making API requests.
 
-        // $access_token = $request;
+        $this->getAuthGoogleApi();
+        $client = new Google_Client();
+
+        if (isset($_GET['code'])) {
+
+            $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+
+            $client->setAccessToken($accessToken);
+
+            return response()->json($accessToken);
+        }
+        return Redirect::intended($client->createAuthUrl());
+
 
         //$client = new Google_Client();
 
-        // $httpClient = new Client([
-        //     'headers' => [
-        //         'Authorization: Bearer '.$access_token
-        //     ]
-        // ]);
-        // $client->setHttpClient($httpClient);
-
-
-        $service = new Google_Service_YouTube($client);
+        $service = new Google_Service_YouTube($access_token);
 
         $queryParams = [
             'maxResults' => 25,
