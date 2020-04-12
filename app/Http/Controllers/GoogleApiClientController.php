@@ -35,10 +35,10 @@ class GoogleApiClientController extends Controller
         $client->setAccessType('offline');
 
         if (App::environment() === 'production') {
-            $redirect_uri = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+            $redirect_uri = 'https://' . $_SERVER['HTTP_HOST'] .'/my-auth';
         } else {
             //Redirect PAth or URL
-            $redirect_uri = 'http://'. $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+            $redirect_uri = 'http://'. $_SERVER['HTTP_HOST'] .'my-auth';
         }
         $client->setRedirectUri($redirect_uri);
 
@@ -66,7 +66,7 @@ class GoogleApiClientController extends Controller
 
         // $access_token = $request;
 
-        $client = new Google_Client();
+        //$client = new Google_Client();
 
         // $httpClient = new Client([
         //     'headers' => [
