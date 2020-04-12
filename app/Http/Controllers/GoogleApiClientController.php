@@ -22,33 +22,34 @@ class GoogleApiClientController extends Controller
         
         $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly',]);
         
-        // $client->setAuthConfig('../googleapi_keys.json'); 
+        $client->setAuthConfig('../googleapi_keys.json'); 
 
         $client->setDeveloperKey(env('YOUTUBE_API_KEY', 'YOUR_API_KEY'));
         
         $client->setAccessType('offline'); 
 
+
         // Your redirect URI can be any registered URI, but in this example
         // we redirect back to this same page
        
-        // $url = $client->createAuthUrl();
+        $url = $client->createAuthUrl();
 
-        // $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+        $redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
         
-        // $client->setRedirectUri($redirect_uri);
+        $client->setRedirectUri($redirect_uri);
 
-        // return Redirect::intended($url);
+        return Redirect::intended($url);
 
-        // // Exchange authorization code for an access token.
+        // Exchange authorization code for an access token.
          
-        // if (isset($_GET['code'])) {
+        if (isset($_GET['code'])) {
 
-        //     $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+            $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
             
-        //     $client->setAccessToken($accessToken); 
+            $client->setAccessToken($accessToken); 
 
-        //     return response()->json($accessToken);
-        // }
+            return response()->json($accessToken);
+        }
     }
 
     /**
@@ -67,6 +68,7 @@ class GoogleApiClientController extends Controller
         //     ]
         // ]);
         // $client->setHttpClient($httpClient);
+   
         
         $service = new Google_Service_YouTube($client);
 
