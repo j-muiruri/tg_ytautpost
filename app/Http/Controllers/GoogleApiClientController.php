@@ -8,6 +8,7 @@ use Google_Service_YouTube;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\URL;
 
 class GoogleApiClientController extends Controller
 {
@@ -34,12 +35,9 @@ class GoogleApiClientController extends Controller
 
         $client->setAccessType('offline');
 
-        if (App::environment() === 'production') {
-            $redirect_uri = 'https://' . $_SERVER['HTTP_HOST'] .'/my-auth';
-        } else {
             //Redirect PAth or URL
-            $redirect_uri = 'http://'. $_SERVER['HTTP_HOST'] .'my-auth';
-        }
+            $redirect_uri = URL::current();
+            
         $client->setRedirectUri($redirect_uri);
 
         $url = $client->createAuthUrl();
