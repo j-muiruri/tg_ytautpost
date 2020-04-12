@@ -21,6 +21,8 @@ Auth::routes();
 /**
  * User  Auth routes
  */
+Route::group(
+Route::permanentRedirect('/here', '/there');
 Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::any('logout', 'Auth\LoginController@logout');
