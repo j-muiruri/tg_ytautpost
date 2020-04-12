@@ -34,7 +34,7 @@ class GoogleApiClientController extends Controller
 
         //Redirect PAth or URL
         //$redirect_uri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-        $redirect_uri = Redirect::action('GoogleApiClientController@getAuthGoogleApi');
+        $redirect_uri = Redirect::route('my-auth');
         
         $client->setRedirectUri($redirect_uri);
        
