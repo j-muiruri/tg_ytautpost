@@ -17,7 +17,6 @@ class GoogleApiClientController extends Controller
      */
     public function getAuthGoogleApi()
     {
-
         $client = new Google_Client();
 
 
@@ -35,24 +34,25 @@ class GoogleApiClientController extends Controller
 
         $client->setAccessType('offline');
 
-            //Redirect PAth or URL
-            $redirect_uri = URL::current();
+        //Redirect PAth or URL
+        $redirect_uri = URL::current();
 
         $client->setRedirectUri($redirect_uri);
 
-        // $url = $client->createAuthUrl();
 
-        // // Exchange authorization code for an access token.
+        $url = $client->createAuthUrl();
 
-        // if (isset($_GET['code'])) {
+        // Exchange authorization code for an access token.
 
-        //     $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
+        if (isset($_GET['code'])) {
 
-        //     $client->setAccessToken($accessToken);
+            $accessToken = $client->fetchAccessTokenWithAuthCode($_GET['code']);
 
-        //     return response()->json($accessToken);
-        // }
-        // return Redirect::intended($url);
+            $client->setAccessToken($accessToken);
+
+            return URL::previous();
+        }
+        return Redirect::intended($url);
     }
 
     /**
@@ -62,9 +62,9 @@ class GoogleApiClientController extends Controller
     {
         // Define service object for making API requests.
 
-        $this->getAuthGoogleApi();
-        // $client = new Google_Client();
-        $this->getAuthGoogleApi()->client;
+        // $redirect_uri = URL::current();
+
+        $client = new Google_Client();
 
         if (isset($_GET['code'])) {
 
@@ -72,22 +72,19 @@ class GoogleApiClientController extends Controller
 
             $client->setAccessToken($accessToken);
 
-            return $accessToken;
-        }
-        return Redirect::intended($client->createAuthUrl());
+            $service = new Google_Service_YouTube($client);
 
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
 
-        //$client = new Google_Client();
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
 
-        $service = new Google_Service_YouTube($accessToken);
+            return response()->json($response);
+        } else {
 
-        $queryParams = [
-            'maxResults' => 25,
-            'mine' => true
-        ];
-
-        $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-        return response()->json($response);
+        return Redirect::action('GoogleApiClientController@getAuthGoogleApi');
     }
+}
 }
