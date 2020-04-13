@@ -44,7 +44,7 @@ class GoogleApiClientController extends Controller
 
             $redirect_uri = URL::current();
 
-            return response()->json($redirect_uri);
+            return response()->$redirect_uri;
         }
 
         //rset Callback
