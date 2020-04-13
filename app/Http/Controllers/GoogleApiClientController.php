@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
 use Google_Client;
 use Google_Service_YouTube;
@@ -41,7 +42,9 @@ class GoogleApiClientController extends Controller
             $redirect_uri = URL::current();
         } else {
 
-            $redirect_uri = URL::full();
+            $redirect_uri = URL::current();
+
+            return response()->json($redirect_uri);
         }
 
         //rset Callback
