@@ -98,18 +98,19 @@ class GoogleApiClientController extends Controller
 
             //Save refresh Token to file
             Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+        } else {
+
+            //Init Service
+            $service = new Google_Service_YouTube($client);
+
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
+
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+            return response()->json($response);
         }
-
-        //Init Service
-        $service = new Google_Service_YouTube($client);
-
-        $queryParams = [
-            'maxResults' => 25,
-            'mine' => true
-        ];
-
-        $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-        return response()->json($response);
     }
 }
