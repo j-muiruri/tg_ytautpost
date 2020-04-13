@@ -37,32 +37,36 @@ class GoogleApiClientController extends Controller
         // $client->setLoginHint(env('LOGIN_HINT'));
 
         //Callback URL
-        $redirect_uri = URL::current();
+        if (env('APP_ENV') === 'local') {
+            $redirect_uri = URL::current();
+        } else {
+            $redirecr_url = "postmessage";
 
-        //rset Callback
-        $client->setRedirectUri($redirect_uri);
+            //rset Callback
+            $client->setRedirectUri($redirect_uri);
 
-        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+            $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
-        //check if file xists on the disk
-        if ($fileExists != false) {
+            //check if file xists on the disk
+            if ($fileExists != false) {
 
-            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+                $file = Storage::disk('private')->get(env('TOKEN_FILE'));
 
-            // when the session Exists containing refresh tokens for offline use
-            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
-            $client->setAccessToken($file);
+                // when the session Exists containing refresh tokens for offline use
+                //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+                $client->setAccessToken($file);
 
-            /* Refresh token when expired */
-            if ($client->isAccessTokenExpired()) {
+                /* Refresh token when expired */
+                if ($client->isAccessTokenExpired()) {
 
-                // the new access token comes with a refresh token as well
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+                    // the new access token comes with a refresh token as well
+                    $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
 
-                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+                    Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+                }
             }
+            return $client;
         }
-        return $client;
     }
 
     /**
