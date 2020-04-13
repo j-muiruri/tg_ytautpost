@@ -69,7 +69,7 @@ class GoogleApiClientController extends Controller
         // create auth url
         $url = $client->createAuthUrl();
 
-        $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
         
         //check if auth code returned
         $code = $request->input('code');
@@ -86,8 +86,21 @@ class GoogleApiClientController extends Controller
 
             //Save refresh Token to file
             Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
+
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+            return response()->json($response);
         } 
-        if ($file != null) {
+
+        //check if file xists on the disk
+        if ($fileExists != false) {
+
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
             
             // when the session Exists containing refresh tokens for offline use
             //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
