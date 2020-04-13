@@ -44,11 +44,6 @@ class GoogleApiClientController extends Controller
 
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
-        // create auth url
-        $url = $client->createAuthUrl();
-
-
-
         //check if file xists on the disk
         if ($fileExists != false) {
 
@@ -66,10 +61,14 @@ class GoogleApiClientController extends Controller
 
                 Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
             }
-        }
+        } else {
 
-        Redirect::intended($url);
-        return $client;
+            // create auth url
+            $url = $client->createAuthUrl();
+
+            Redirect::intended($url);
+            return $client;
+        }
     }
 
     /**
