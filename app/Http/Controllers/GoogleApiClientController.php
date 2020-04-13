@@ -16,7 +16,7 @@ class GoogleApiClientController extends Controller
     /**
      * Perform Authentication
      */
-    public function getAuthGoogleApi()
+    public function getAuthGoogleApi(Request $request)
     {
         $client = new Google_Client();
 
@@ -36,41 +36,18 @@ class GoogleApiClientController extends Controller
 
         $client->setLoginHint(env('LOGIN_HINT'));
 
-        //Redirect PAth or URL
-
-        //$redirect_uri = $request->input('return');
-
-        // $client->setRedirectUri($redirect_uri);
-
-
-        // $url = $client->createAuthUrl();
-
-        // Exchange authorization code for an access token.
-        // if (isset($_SESSION['access_token'])) {
-
-        //     echo $_SESSION['access_token'];
-        // }
-        return $client;
-    }
-
-    /**
-     * Get User Playlists
-     */
-    public function getPlaylists(Request $request)
-    {
         //Callback URL
         $redirect_uri = URL::current();
-        // Google Client Object
-        $client = $this->getAuthGoogleApi();
+
         //rset Callback
         $client->setRedirectUri($redirect_uri);
-        //Init Service
-        $service = new Google_Service_YouTube($client);
+
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+
         // create auth url
         $url = $client->createAuthUrl();
 
-        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
-        
+
         //check if auth code returned
         $code = $request->input('code');
 
@@ -86,22 +63,12 @@ class GoogleApiClientController extends Controller
 
             //Save refresh Token to file
             Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
-
-            $queryParams = [
-                'maxResults' => 25,
-                'mine' => true
-            ];
-
-            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-            return response()->json($response);
-        } 
-
+        }
         //check if file xists on the disk
         if ($fileExists != false) {
 
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
-            
+
             // when the session Exists containing refresh tokens for offline use
             //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
             $client->setAccessToken($file);
@@ -114,18 +81,31 @@ class GoogleApiClientController extends Controller
 
                 Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken(), 'private'));
             }
-
-            $queryParams = [
-                'maxResults' => 25,
-                'mine' => true
-            ];
-
-            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-            return response()->json($response);
-        } else {
-
-            return Redirect::intended($url);
         }
+
+        return $client;
+    }
+
+    /**
+     * Get User Playlists
+     */
+    public function getPlaylists(Request $request)
+    {
+        //check if auth code returned
+        $code = $request->input('code');
+        // Google Client Object
+        $client = $this->getAuthGoogleApi($code);
+
+        //Init Service
+        $service = new Google_Service_YouTube($client);
+
+        $queryParams = [
+            'maxResults' => 25,
+            'mine' => true
+        ];
+
+        $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+        return response()->json($response);
     }
 }
