@@ -8,6 +8,7 @@ use Google_Service_YouTube;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 class GoogleApiClientController extends Controller
@@ -68,7 +69,8 @@ class GoogleApiClientController extends Controller
         // create auth url
         $url = $client->createAuthUrl();
 
-
+        $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+        
         //check if auth code returned
         $code = $request->input('code');
 
@@ -83,13 +85,14 @@ class GoogleApiClientController extends Controller
             // $refreshToken = $client->getRefreshToken();
 
             //Save refresh Token to file
-            file_put_contents(env('TOKEN_FILE'), json_encode($accessToken));
-        } else if (env('TOKEN_FILE') != null) {
+            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+        } 
+        if ($file != null) {
 
 
             // when the session Exists containing refresh tokens for offline use
             //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
-            $client->setAccessToken(env('TOKEN_FILE'));
+            $client->setAccessToken($file);
 
             /* Refresh token when expired */
             if ($client->isAccessTokenExpired()) {
@@ -97,7 +100,7 @@ class GoogleApiClientController extends Controller
                 // the new access token comes with a refresh token as well
                 $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
 
-                file_put_contents(env('TOKEN_FILE'), json_encode($client->getAccessToken()));
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken(), 'private'));
             }
 
             $queryParams = [
