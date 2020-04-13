@@ -41,7 +41,7 @@ class GoogleApiClientController extends Controller
             $redirect_uri = URL::current();
         } else {
 
-            $redirect_uri = "postmessage";
+            $redirect_uri = URL::full();
         }
 
         //rset Callback
