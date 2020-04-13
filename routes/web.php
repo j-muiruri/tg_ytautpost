@@ -21,8 +21,6 @@ Auth::routes();
 /**
  * User  Auth routes
  */
-Route::group(
-Route::permanentRedirect('/here', '/there');
 Route::post('register', 'Auth\RegisterController@register');
 Route::post('login', 'Auth\LoginController@login');
 Route::any('logout', 'Auth\LoginController@logout');
@@ -39,4 +37,4 @@ Route::get('channel-playlists', 'YoutubeApiController@getPlaylistByChannelId');
 Route::get('my-playlists/{auth}', 'GoogleApiClientController@getPlaylists');
 
 Route::any('my-auth/{id}', 'GoogleApiClientController@getAuthGoogleApi');
-);
+
