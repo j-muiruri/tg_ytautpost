@@ -16,7 +16,7 @@ class GoogleApiClientController extends Controller
     /**
      * Perform Authentication
      */
-    public function getAuthGoogleApi(Request $request)
+    public function getAuthGoogleApi()
     {
         $client = new Google_Client();
 
@@ -48,6 +48,41 @@ class GoogleApiClientController extends Controller
         $url = $client->createAuthUrl();
 
 
+
+        //check if file xists on the disk
+        if ($fileExists != false) {
+
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+
+            // when the session Exists containing refresh tokens for offline use
+            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+            }
+        }
+
+        Redirect::intended($url);
+        return $client;
+    }
+
+    /**
+     * Get User Playlists
+     */
+    public function getPlaylists(Request $request)
+    {
+        //check if auth code returned
+        $code = $request->input('code');
+
+        // Google Client Object
+        $client = $this->getAuthGoogleApi();
+
         //check if auth code returned
         $code = $request->input('code');
 
@@ -64,38 +99,6 @@ class GoogleApiClientController extends Controller
             //Save refresh Token to file
             Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
         }
-        //check if file xists on the disk
-        if ($fileExists != false) {
-
-            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
-
-            // when the session Exists containing refresh tokens for offline use
-            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
-            $client->setAccessToken($file);
-
-            /* Refresh token when expired */
-            if ($client->isAccessTokenExpired()) {
-
-                // the new access token comes with a refresh token as well
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-
-                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken(), 'private'));
-            }
-        }
-
-        Redirect::intended($url);
-        return $client;
-    }
-
-    /**
-     * Get User Playlists
-     */
-    public function getPlaylists(Request $request)
-    {
-        //check if auth code returned
-        $code = $request->input('code');
-        // Google Client Object
-        $client = $this->getAuthGoogleApi($code);
 
         //Init Service
         $service = new Google_Service_YouTube($client);
