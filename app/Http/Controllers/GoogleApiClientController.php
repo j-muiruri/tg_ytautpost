@@ -42,32 +42,32 @@ class GoogleApiClientController extends Controller
         } else {
 
             $redirect_uri = "postmessage";
-
-            //rset Callback
-            $client->setRedirectUri($redirect_uri);
-
-            $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
-
-            //check if file xists on the disk
-            if ($fileExists != false) {
-
-                $file = Storage::disk('private')->get(env('TOKEN_FILE'));
-
-                // when the session Exists containing refresh tokens for offline use
-                //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
-                $client->setAccessToken($file);
-
-                /* Refresh token when expired */
-                if ($client->isAccessTokenExpired()) {
-
-                    // the new access token comes with a refresh token as well
-                    $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-
-                    Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
-                }
-            }
-            return $client;
         }
+
+        //rset Callback
+        $client->setRedirectUri($redirect_uri);
+
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+
+        //check if file xists on the disk
+        if ($fileExists != false) {
+
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+
+            // when the session Exists containing refresh tokens for offline use
+            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+            }
+        }
+        return $client;
     }
 
     /**
