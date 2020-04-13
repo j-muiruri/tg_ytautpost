@@ -88,8 +88,7 @@ class GoogleApiClientController extends Controller
             Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
         } 
         if ($file != null) {
-
-
+            
             // when the session Exists containing refresh tokens for offline use
             //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
             $client->setAccessToken($file);
