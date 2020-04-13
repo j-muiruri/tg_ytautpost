@@ -15,7 +15,7 @@ class GoogleApiClientController extends Controller
     /**
      * Perform Authentication
      */
-    public function getAuthGoogleApi(Request $request)
+    public function getAuthGoogleApi()
     {
         $client = new Google_Client();
 
@@ -33,41 +33,61 @@ class GoogleApiClientController extends Controller
 
         $client->setAccessType('offline');
 
+        $client->setLoginHint(env('LOGIN_HINT'));
+
+        session_start();
+
         //Redirect PAth or URL
-        $redirect_uri = $request->input('return');
+        //$redirect_uri = $request->input('return');
 
-        $client->setRedirectUri($redirect_uri);
+        // $client->setRedirectUri($redirect_uri);
 
 
-        $url = $client->createAuthUrl();
+        // $url = $client->createAuthUrl();
 
         // Exchange authorization code for an access token.
+        // if (isset($_SESSION['access_token'])) {
 
-        return Redirect::intended($url);
+        //     echo $_SESSION['access_token'];
+        // }
+        return $client;
     }
 
     /**
-     * Get Playlists
+     * Get User Playlists
      */
     public function getPlaylists(Request $request)
     {
-        // Define service object for making API requests.
+        //Callback URL
+        $redirect_uri = URL::current();
+        // Google Client Object
+        $client = $this->getAuthGoogleApi();
+        //rset Callback
+        $client->setRedirectUri($redirect_uri);
+        //Init Service
+        $service = new Google_Service_YouTube($client);
+        // create auth url
+        $url = $client->createAuthUrl();
 
 
-
-        $client = new Google_Client();
-
-        $code = $request->input('return');
+        //check if auth code returned
+        $code = $request->input('code');
 
         if (isset($code)) {
-
+            // authenticate then  get access and Refresh token
             $client->authenticate($code);
 
-            $_SESSION['access_token'] = $client->getAccessToken();
+            $accessToken = $client->getAccessToken();
 
-            $client->setAccessToken($_SESSION['access_token']);
+            $client->setAccessToken($accessToken);
 
-            $service = new Google_Service_YouTube($client);
+            $refreshToken = $client->getRefreshToken();
+
+            //Save refresh Token
+
+            session_start();
+            $_SESSION['refresh_token'] = $refreshToken;
+
             $queryParams = [
                 'maxResults' => 25,
                 'mine' => true
@@ -76,12 +96,11 @@ class GoogleApiClientController extends Controller
             $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
 
             return response()->json($response);
+        } else if (isset($_SESSION['refresh_token'])) {
+            $client = new Google_Client();
 
-        } else if (isset($_SESSION['access_token'])) {
-
-            $client->setAccessToken($_SESSION['access_token']);
-
-            $service = new Google_Service_YouTube($client);
+            // when the session Exists containing refresh tokens for offline use
+            $client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
 
             $queryParams = [
                 'maxResults' => 25,
@@ -93,9 +112,7 @@ class GoogleApiClientController extends Controller
             return response()->json($response);
         } else {
 
-            $redirect_uri = URL::current();
-            
-            return Redirect::action('GoogleApiClientController@getAuthGoogleApi', ['return' => $redirect_uri]);
+            return Redirect::intended($url);
         }
     }
 }
