@@ -8,6 +8,7 @@ use Google_Service_YouTube;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 class GoogleApiClientController extends Controller
@@ -34,8 +35,6 @@ class GoogleApiClientController extends Controller
         $client->setAccessType('offline');
 
         $client->setLoginHint(env('LOGIN_HINT'));
-
-        session_start();
 
         //Redirect PAth or URL
 
@@ -70,7 +69,8 @@ class GoogleApiClientController extends Controller
         // create auth url
         $url = $client->createAuthUrl();
 
-
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+        
         //check if auth code returned
         $code = $request->input('code');
 
@@ -82,12 +82,10 @@ class GoogleApiClientController extends Controller
 
             $client->setAccessToken($accessToken);
 
-            $refreshToken = $client->getRefreshToken();
+            // $refreshToken = $client->getRefreshToken();
 
-            //Save refresh Token
-
-            session_start();
-            $_SESSION['refresh_token'] = $refreshToken;
+            //Save refresh Token to file
+            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
 
             $queryParams = [
                 'maxResults' => 25,
@@ -97,11 +95,25 @@ class GoogleApiClientController extends Controller
             $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
 
             return response()->json($response);
-        } else if (isset($_SESSION['refresh_token'])) {
-            $client = new Google_Client();
+        } 
 
+        //check if file xists on the disk
+        if ($fileExists != false) {
+
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+            
             // when the session Exists containing refresh tokens for offline use
-            $client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken(), 'private'));
+            }
 
             $queryParams = [
                 'maxResults' => 25,
