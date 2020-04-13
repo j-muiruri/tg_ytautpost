@@ -35,8 +35,6 @@ class GoogleApiClientController extends Controller
 
         $client->setLoginHint(env('LOGIN_HINT'));
 
-        session_start();
-
         //Redirect PAth or URL
 
         //$redirect_uri = $request->input('return');
@@ -98,7 +96,6 @@ class GoogleApiClientController extends Controller
 
             return response()->json($response);
         } else if (isset($_SESSION['refresh_token'])) {
-            $client = new Google_Client();
 
             // when the session Exists containing refresh tokens for offline use
             $client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
