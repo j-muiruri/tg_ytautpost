@@ -83,6 +83,7 @@ class GoogleApiClientController extends Controller
             }
         }
 
+        Redirect::intended($url);
         return $client;
     }
 
