@@ -40,7 +40,8 @@ class GoogleApiClientController extends Controller
         if (env('APP_ENV') === 'local') {
             $redirect_uri = URL::current();
         } else {
-            $redirecr_url = "postmessage";
+            
+            $redirect_url = "postmessage";
 
             //rset Callback
             $client->setRedirectUri($redirect_uri);
