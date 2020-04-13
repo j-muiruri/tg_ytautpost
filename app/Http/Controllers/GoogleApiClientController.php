@@ -35,8 +35,6 @@ class GoogleApiClientController extends Controller
 
         $client->setLoginHint(env('LOGIN_HINT'));
 
-        session_start();
-
         //Redirect PAth or URL
 
         //$redirect_uri = $request->input('return');
@@ -82,26 +80,25 @@ class GoogleApiClientController extends Controller
 
             $client->setAccessToken($accessToken);
 
-            $refreshToken = $client->getRefreshToken();
+            // $refreshToken = $client->getRefreshToken();
 
-            //Save refresh Token
+            //Save refresh Token to file
+            file_put_contents(env('TOKEN_FILE'), json_encode($accessToken));
+        } else if (env('TOKEN_FILE') != null) {
 
-            session_start();
-            $_SESSION['refresh_token'] = $refreshToken;
-
-            $queryParams = [
-                'maxResults' => 25,
-                'mine' => true
-            ];
-
-            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-            return response()->json($response);
-        } else if (isset($_SESSION['refresh_token'])) {
-            $client = new Google_Client();
 
             // when the session Exists containing refresh tokens for offline use
-            $client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
+            $client->setAccessToken(env('TOKEN_FILE'));
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                file_put_contents(env('TOKEN_FILE'), json_encode($client->getAccessToken()));
+            }
 
             $queryParams = [
                 'maxResults' => 25,
