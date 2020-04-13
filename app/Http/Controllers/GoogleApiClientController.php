@@ -34,7 +34,7 @@ class GoogleApiClientController extends Controller
 
         $client->setAccessType('offline');
 
-        $client->setLoginHint(env('LOGIN_HINT'));
+        // $client->setLoginHint(env('LOGIN_HINT'));
 
         //Callback URL
         $redirect_uri = URL::current();
