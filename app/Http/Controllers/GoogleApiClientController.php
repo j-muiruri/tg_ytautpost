@@ -112,18 +112,18 @@ class GoogleApiClientController extends Controller
         } else {
 
             $this->getAuthGoogleApi();
-
-            //Init Service
-            $service = new Google_Service_YouTube($client);
-
-            $queryParams = [
-                'maxResults' => 25,
-                'mine' => true
-            ];
-
-            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-            return response()->json($response);
         }
+
+        //Init Service
+        $service = new Google_Service_YouTube($client);
+
+        $queryParams = [
+            'maxResults' => 25,
+            'mine' => true
+        ];
+
+        $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+        return response()->json($response);
     }
 }
