@@ -37,15 +37,15 @@ class GoogleApiClientController extends Controller
 
         $client->setLoginHint(env('LOGIN_HINT'));
 
-        //Callback URL
-        // if (env('APP_ENV') === 'local') {
-        //     $redirect_uri = URL::current();
-        // } else {
+        Callback URL
+        if (env('APP_ENV') === 'local') {
+            $redirect_uri = URL::current();
+        } else {
 
-        //     $redirect_uri = URL::current();
+            $redirect_uri = env('APP_URL');
 
-        //     // return   print($redirect_uri);
-        // }
+            // return   print($redirect_uri);
+        }
 
 
         $redirect_uri = URL::current();
@@ -126,14 +126,6 @@ class GoogleApiClientController extends Controller
         $url = $client->createAuthUrl();
 
         return Redirect::intended($url);
-
-        // return $client;
-
-        // $queryParams = [
-        //     'myRating' => 'like'
-        // ];
-
-        // $response = $service->videos->listVideos('', $queryParams);
     }
 
     /**
@@ -168,7 +160,7 @@ class GoogleApiClientController extends Controller
                 'myRating' => 'like'
             ];
 
-            $response = $service->videos->listVideos('', $queryParams);
+            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
             $response = response()->json($response);
 
@@ -193,10 +185,11 @@ class GoogleApiClientController extends Controller
 
 
             $queryParams = [
-                'myRating' => 'like'
+                'myRating' => 'like',
+                'maxResults' => 25
             ];
 
-            $response = $service->videos->listVideos('', $queryParams);
+            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
             $response = response()->json($response);
 
