@@ -39,13 +39,20 @@ class GoogleApiClientController extends Controller
 
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
+        //Callback URL
+        // if (env('APP_ENV') === 'local') {
+        //     $redirect_uri = URL::current();
+        // } else {
+
+        //     $redirect_uri = URL::current();
+
+        //     // return   print($redirect_uri);
+        // }
         //check if file xists on the disk
         if ($fileExists != false) {
 
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
 
-            // when the session Exists containing refresh tokens for offline use
-            //$client->fetchAccessTokenWithRefreshToken($_SESSION['refresh_token']);
             $client->setAccessToken($file);
 
             /* Refresh token when expired */
@@ -58,30 +65,19 @@ class GoogleApiClientController extends Controller
 
                 return $client;
             }
-            return $client;
-        }
-
-        //Callback URL
-        // if (env('APP_ENV') === 'local') {
-        //     $redirect_uri = URL::current();
-        // } else {
-
-        //     $redirect_uri = URL::current();
-
-        //     // return   print($redirect_uri);
-        // }
-        if (isset($code)) {
-
-            // Google Client Object
-            $accessToken = $client->getAccessToken();
-
-            $client->setAccessToken($accessToken);
-
-            //Save refresh Token to file
-            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
 
             return $client;
         }
+
+        $redirect_uri = URL::current();
+        //set redirect URL
+        $client->setRedirectUri($redirect_uri);
+
+        // create auth url
+        $url = $client->createAuthUrl();
+
+        return Redirect::intended($url);
+
     }
 
     /**
@@ -95,10 +91,18 @@ class GoogleApiClientController extends Controller
 
         $client = $this->getAuthGoogleApi();
 
-        if ($client != null) {
+        if (isset($code)) {
+
+            // Google Client Object
+            $accessToken = $client->getAccessToken();
+
+            $client->setAccessToken($accessToken);
+
+            //Save refresh Token to file
+            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
 
             //Init Service
-            $service = new Google_Service_YouTube($client);
+            $service =  new Google_Service_YouTube($client);
 
             $queryParams = [
                 'maxResults' => 25,
@@ -107,29 +111,11 @@ class GoogleApiClientController extends Controller
 
             $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
 
-
-
-            if ($code) {
-
-                $this->getAuthGoogleApi($code);
-
-                $response = response()->json($response);
-                return $response;
-            }
-
             $response = response()->json($response);
-
             return $response;
+
         }
 
-
-        $redirect_uri = URL::current();
-        //set redirect URL
-        $client->setRedirectUri($redirect_uri);
-
-        // create auth url
-        $url = $client->createAuthUrl();
-
-        Redirect::intended($url);
+        return $client;
     }
 }
