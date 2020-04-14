@@ -37,18 +37,7 @@ class GoogleApiClientController extends Controller
 
         // $client->setLoginHint(env('LOGIN_HINT'));
 
-        //Callback URL
-        if (env('APP_ENV') === 'local') {
-            $redirect_uri = URL::current();
-        } else {
 
-            $redirect_uri = URL::current().'/';
-
-            // return   print($redirect_uri);
-        }
-
-        //rset Callback
-        $client->setRedirectUri($redirect_uri);
 
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
@@ -68,9 +57,29 @@ class GoogleApiClientController extends Controller
                 $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
 
                 Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+
+                return $client;
             }
+            return $client;
         }
-        return $client;
+
+        //Callback URL
+        if (env('APP_ENV') === 'local') {
+            $redirect_uri = URL::current();
+        } else {
+
+            $redirect_uri = URL::current();
+
+            // return   print($redirect_uri);
+        }
+
+        //rset Callback
+        $client->setRedirectUri($redirect_uri);
+
+        // create auth url
+        $url = $client->createAuthUrl();
+
+        return Redirect::intended($url);
     }
 
     /**
@@ -78,6 +87,7 @@ class GoogleApiClientController extends Controller
      */
     public function getPlaylists(Request $request)
     {
+        // $callback = "";
         //check if auth code returned
         $code = $request->input('code');
 
@@ -101,21 +111,19 @@ class GoogleApiClientController extends Controller
             Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
         } else {
 
-            // create auth url
-            $url = $client->createAuthUrl();
+            $this->getAuthGoogleApi();
 
-            return Redirect::intended($url);
+            //Init Service
+            $service = new Google_Service_YouTube($client);
+
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
+
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+            return response()->json($response);
         }
-        //Init Service
-        $service = new Google_Service_YouTube($client);
-
-        $queryParams = [
-            'maxResults' => 25,
-            'mine' => true
-        ];
-
-        $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
-
-        return response()->json($response);
     }
 }
