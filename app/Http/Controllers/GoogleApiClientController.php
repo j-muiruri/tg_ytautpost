@@ -37,8 +37,6 @@ class GoogleApiClientController extends Controller
 
         $client->setLoginHint(env('LOGIN_HINT'));
 
-        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
-
         //Callback URL
         // if (env('APP_ENV') === 'local') {
         //     $redirect_uri = URL::current();
@@ -48,36 +46,13 @@ class GoogleApiClientController extends Controller
 
         //     // return   print($redirect_uri);
         // }
-        //check if file xists on the disk
-        if ($fileExists != false) {
 
-            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
-
-            $client->setAccessToken($file);
-
-            /* Refresh token when expired */
-            if ($client->isAccessTokenExpired()) {
-
-                // the new access token comes with a refresh token as well
-                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
-
-                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
-
-                return $client;
-            }
-
-            return $client;
-        }
 
         $redirect_uri = URL::current();
         //set redirect URL
         $client->setRedirectUri($redirect_uri);
 
-        // create auth url
-        $url = $client->createAuthUrl();
-
-        return Redirect::intended($url);
-
+        return $client;
     }
 
     /**
@@ -91,8 +66,11 @@ class GoogleApiClientController extends Controller
 
         $client = $this->getAuthGoogleApi();
 
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+
         if (isset($code)) {
 
+            $client->authenticate($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
 
@@ -112,10 +90,124 @@ class GoogleApiClientController extends Controller
             $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
 
             $response = response()->json($response);
-            return $response;
 
+            return $response;
+        } else if ($fileExists != false) {
+
+            //check if file xists on the disk
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+            }
+            //Init Service
+            $service =  new Google_Service_YouTube($client);
+
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
+
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+
+            $response = response()->json($response);
+
+            return $response;
         }
 
-        return $client;
+        // create auth url
+        $url = $client->createAuthUrl();
+
+        return Redirect::intended($url);
+
+        // return $client;
+
+        // $queryParams = [
+        //     'myRating' => 'like'
+        // ];
+
+        // $response = $service->videos->listVideos('', $queryParams);
+    }
+
+    /**
+     * Get User Liked iked videosideos
+     */
+    public function getMyRated(Request $request)
+    {
+        // $callback = "";
+        //check if auth code returned
+        $code = $request->input('code');
+
+        $client = $this->getAuthGoogleApi();
+
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+
+        if (isset($code)) {
+
+            $client->authenticate($code);
+            // Google Client Object
+            $accessToken = $client->getAccessToken();
+
+            $client->setAccessToken($accessToken);
+
+            //Save refresh Token to file
+            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+
+            //Init Service
+            $service =  new Google_Service_YouTube($client);
+
+
+            $queryParams = [
+                'myRating' => 'like'
+            ];
+
+            $response = $service->videos->listVideos('', $queryParams);
+
+            $response = response()->json($response);
+
+            return $response;
+        } else if ($fileExists != false) {
+
+            //check if file xists on the disk
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($client->getAccessToken()), 'private');
+            }
+            //Init Service
+            $service =  new Google_Service_YouTube($client);
+
+
+            $queryParams = [
+                'myRating' => 'like'
+            ];
+
+            $response = $service->videos->listVideos('', $queryParams);
+
+            $response = response()->json($response);
+
+            return $response;
+        }
+
+        // create auth url
+        $url = $client->createAuthUrl();
+
+        return Redirect::intended($url);
+
+        // return $client;
     }
 }
