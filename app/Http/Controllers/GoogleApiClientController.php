@@ -35,9 +35,7 @@ class GoogleApiClientController extends Controller
 
         $client->setAccessType('offline');
 
-        // $client->setLoginHint(env('LOGIN_HINT'));
-
-
+        $client->setLoginHint(env('LOGIN_HINT'));
 
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
@@ -64,22 +62,26 @@ class GoogleApiClientController extends Controller
         }
 
         //Callback URL
-        if (env('APP_ENV') === 'local') {
-            $redirect_uri = URL::current();
-        } else {
+        // if (env('APP_ENV') === 'local') {
+        //     $redirect_uri = URL::current();
+        // } else {
 
-            $redirect_uri = URL::current();
+        //     $redirect_uri = URL::current();
 
-            // return   print($redirect_uri);
+        //     // return   print($redirect_uri);
+        // }
+        if (isset($code)) {
+
+            // Google Client Object
+            $accessToken = $client->getAccessToken();
+
+            $client->setAccessToken($accessToken);
+
+            //Save refresh Token to file
+            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+
+            return $client;
         }
-
-        //rset Callback
-        $client->setRedirectUri($redirect_uri);
-
-        // create auth url
-        $url = $client->createAuthUrl();
-
-        return Redirect::intended($url);
     }
 
     /**
@@ -91,39 +93,43 @@ class GoogleApiClientController extends Controller
         //check if auth code returned
         $code = $request->input('code');
 
-        // Google Client Object
         $client = $this->getAuthGoogleApi();
 
-        //check if auth code returned
-        $code = $request->input('code');
+        if ($client != null) {
 
-        if (isset($code)) {
-            // authenticate then  get access and Refresh token
-            $client->authenticate($code);
+            //Init Service
+            $service = new Google_Service_YouTube($client);
 
-            $accessToken = $client->getAccessToken();
+            $queryParams = [
+                'maxResults' => 25,
+                'mine' => true
+            ];
 
-            $client->setAccessToken($accessToken);
+            $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
 
-            // $refreshToken = $client->getRefreshToken();
 
-            //Save refresh Token to file
-            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
-        } else {
 
-            $this->getAuthGoogleApi();
+            if ($code) {
+
+                $this->getAuthGoogleApi($code);
+
+                $response = response()->json($response);
+                return $response;
+            }
+
+            $response = response()->json($response);
+
+            return $response;
         }
 
-        //Init Service
-        $service = new Google_Service_YouTube($client);
 
-        $queryParams = [
-            'maxResults' => 25,
-            'mine' => true
-        ];
+        $redirect_uri = URL::current();
+        //set redirect URL
+        $client->setRedirectUri($redirect_uri);
 
-        $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
+        // create auth url
+        $url = $client->createAuthUrl();
 
-        return response()->json($response);
+        Redirect::intended($url);
     }
 }
