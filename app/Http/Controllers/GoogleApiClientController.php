@@ -37,7 +37,7 @@ class GoogleApiClientController extends Controller
 
         $client->setLoginHint(env('LOGIN_HINT'));
 
-        Callback URL
+        //Callback URL
         if (env('APP_ENV') === 'local') {
             $redirect_uri = URL::current();
         } else {
