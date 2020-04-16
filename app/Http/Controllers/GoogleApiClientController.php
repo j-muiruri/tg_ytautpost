@@ -129,7 +129,7 @@ class GoogleApiClientController extends Controller
     }
 
     /**
-     * Get User Liked iked videosideos
+     * Get User Liked videos
      */
     public function getMyRated(Request $request)
     {
@@ -189,7 +189,7 @@ class GoogleApiClientController extends Controller
                 'maxResults' => 25
             ];
 
-            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
+            $response = $service->videos->listVideos('snippet.title,contentDetails', $queryParams);
 
             $response = response()->json($response);
 
