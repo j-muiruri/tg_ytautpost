@@ -13,10 +13,16 @@ class CreateYoutubeVideosTable extends Migration
      */
     public function up()
     {
-        Schema::create('youtube_videos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        Schema::create(
+            'youtube_videos',
+            function (Blueprint $table) {
+                $table->id();
+                $table->string('link');
+                $table->string('title');
+                $table->text('description');
+                $table->timestamps();
+            }
+        );
     }
 
     /**

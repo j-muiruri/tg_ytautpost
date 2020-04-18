@@ -13,10 +13,16 @@ class CreateTelegramBotsTable extends Migration
      */
     public function up()
     {
-        Schema::create('telegram_bots', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        Schema::create(
+            'telegram_bots',
+
+            function (Blueprint $table) {
+                $table->id();
+                $table->string('chat_id');
+                $table->string('message');
+                $table->timestamps();
+            }
+        );
     }
 
     /**
