@@ -38,3 +38,5 @@ Route::get('channel-playlists', 'YoutubeApiController@getPlaylistByChannelId');
 Route::get('my-playlists', 'GoogleApiClientController@getPlaylists');
 Route::any('my-rated', 'GoogleApiClientController@getMyrated');
 Route::any('my-auth', 'GoogleApiClientController@getAuthGoogleApi');
+
+Route::get('yt-liked', 'MyTests@index');

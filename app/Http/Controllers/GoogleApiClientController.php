@@ -143,6 +143,8 @@ class GoogleApiClientController extends Controller
         //check if auth code returned
         $code = $request->input('code');
 
+        $pageToken = $request->input('next');
+
         $client = $this->getAuthGoogleApi();
 
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
@@ -195,30 +197,36 @@ class GoogleApiClientController extends Controller
             $service =  new Google_Service_YouTube($client);
 
 
+
+
             $queryParams = [
                 'myRating' => 'like',
-                'maxResults' => 25
+                'maxResults' => 50
             ];
 
+            if (isset($pageToken)) {
+                //nextpagetoken set
+                $queryParams['pageToken'] = $pageToken;
+            }
             $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
-            $responseArray = (array) $response;
+            // $responseArray = (array) $response;
             // $responseJson = response()->json($request);
-            $responseCollection = collect($response);
+            // $responseCollection = collect($response);
 
             // access items array/key from Google object reponse
             $items = $response->items;
 
             //pick only id, title and description
+            // $ids = json_encode(Arr::pluck($items, ['id']));
 
+            // $snippet = Arr::pluck($items, ['snippet']);
 
-            $ids = json_encode(Arr::pluck($items, ['id']));
+            // $titles = json_encode(Arr::pluck($snippet, ['title']));
+            // $descs = json_encode(Arr::pluck($snippet, ['description']));
 
-            $snippet = Arr::pluck($items, ['snippet']);
-            // $title = Arr::collapse($snippet);
-
-            $titles = json_encode(Arr::pluck($snippet, ['title']));
-            $descs = json_encode(Arr::pluck($snippet, ['description']));
+            $entries = 0;
+            $exists = 0;
 
             foreach ($items as $t) {
 
@@ -226,26 +234,60 @@ class GoogleApiClientController extends Controller
                 // $results = print_r($idtemp);
 
                 $link = "https://youtube.com/watch?v=";
-                $results = YoutubeVideos::create(
-                    [
-                        'link' => $link.$t['id'],
-                        'title' => $t['snippet']['title'],
-                        'description' => $t['snippet']['description'],
-                    ]
-                );
+
+                $id = $link . $t['id'];
+
+                $idExists = YoutubeVideos::where('link', '=', $id)->first();
+
+
+                if ($idExists === null) {
+                    // video link doesn't exist in db
+
+                    //insert video to db
+                    YoutubeVideos::create(
+                        [
+                            'link' => $link . $t['id'],
+                            'title' => $t['snippet']['title'],
+                            'description' => $t['snippet']['description'],
+                        ]
+                    );
+
+                    $results = $id . "  Inserted";
+
+                    $entries++;
+
+                    print_r(json_encode($results));
+                } else {
+
+                    $results = $id . "  Exists!";
+
+                    $exists++;
+
+                    print_r(json_encode($results));
+                }
+
+                
             }
 
-            // foreach ($descs as $d) {
-            //         echo $d;
-            // }
-            // foreach ($ids as $i) {
-            //         echo $i;
-            // }
+            if ($entries < 2) {
 
 
-            // $mergeArray = echo $id ;
+                $Url = URL::current();
 
-            return $results;
+                $tokenInput = $response->nextPageToken;
+
+                echo "Records Inserted: " . $entries . "  Entries Skipped: " . $exists;
+
+                return Redirect::intended($Url . "?next=" . $tokenInput);
+            } else {
+                // $mergeArray = echo $id ;
+                // $response = $response->nextPageToken;
+                // $response = response()->json($response);
+
+                return var_dump ("Records Inserted: ".$entries."  Entries Skipped: ".$exists);
+
+                // return $results;
+            }
         }
         // create auth url
         $url = $client->createAuthUrl();
