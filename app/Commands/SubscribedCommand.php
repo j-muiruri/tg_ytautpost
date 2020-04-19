@@ -50,7 +50,7 @@ class SubscribedCommand extends Command
             // echo $link;
             $no++;
 
-            $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channels/' . $link]);
+            $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
         }
 
         // Trigger another command dynamically from within this command
