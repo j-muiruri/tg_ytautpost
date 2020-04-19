@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Arr;
 use App\YoutubeVideos;
+use App\MySubscriptions;
 
 class GoogleApiClientController extends Controller
 {
@@ -265,8 +266,6 @@ class GoogleApiClientController extends Controller
 
                     print_r(json_encode($results));
                 }
-
-                
             }
 
             if ($entries < 2) {
@@ -284,9 +283,170 @@ class GoogleApiClientController extends Controller
                 // $response = $response->nextPageToken;
                 // $response = response()->json($response);
 
-                return var_dump ("Records Inserted: ".$entries."  Entries Skipped: ".$exists);
+                return var_dump("Records Inserted: " . $entries . "  Entries Skipped: " . $exists);
 
                 // return $results;
+            }
+        }
+        // create auth url
+        $url = $client->createAuthUrl();
+
+        return Redirect::intended($url);
+
+        // return $client;
+    }
+
+    /**
+     * Get User Liked videos
+     */
+    public function getMySubscriptions(Request $request)
+    {
+        // $callback = "";
+        //check if auth code returned
+        $code = $request->input('code');
+
+        $pageToken = $request->input('next');
+
+        $client = $this->getAuthGoogleApi();
+
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+
+        if (isset($code)) {
+
+            $client->authenticate($code);
+            // Google Client Object
+            $accessToken = $client->getAccessToken();
+
+            $client->setAccessToken($accessToken);
+
+            //Save refresh Token to file
+            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+
+            //Init Service
+            $service =  new Google_Service_YouTube($client);
+
+
+            $queryParams = [
+                'mine' => 'like',
+                'maxResults' => 50
+            ];
+
+            $response = $service->subscriptions->listSubscriptions('snippet,contentDetails', $queryParams);
+
+            $response = response()->json($request);
+
+            return $response;
+        } else if ($fileExists != false) {
+
+            //check if file xists on the disk
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                $newAccessToken = $client->getAccessToken();
+
+                //append new refresh token to new accestoken
+                $newAccessToken['refresh_token'] = $client->getRefreshToken();
+
+                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($newAccessToken), 'private');
+            }
+            //Init Service
+            $service =  new Google_Service_YouTube($client);
+
+
+
+
+            $queryParams = [
+                'mine' => 'true',
+                'maxResults' => 50
+            ];
+
+            if (isset($pageToken)) {
+                //nextpagetoken set
+                $queryParams['pageToken'] = $pageToken;
+            }
+            $response = $service->subscriptions->listSubscriptions('snippet,contentDetails', $queryParams);
+
+            // $responseArray = (array) $response;
+            // $responseJson = response()->json($request);
+            // $responseCollection = collect($response);
+
+            // access items array/key from Google object reponse
+            $items = $response->items;
+
+            //pick only id, title and description
+            // $ids = json_encode(Arr::pluck($items, ['id']));
+
+            // $snippet = Arr::pluck($items, ['snippet']);
+
+            // $titles = json_encode(Arr::pluck($snippet, ['title']));
+            // $descs = json_encode(Arr::pluck($snippet, ['description']));
+
+            $entries = 0;
+            $exists = 0;
+
+            foreach ($items as $t) {
+
+                $idtemp = "Yotube Channel Link is: https://youtube.com/channel/" . $t['snippet']['resourceId']['channelId'] . "   Channel Title: " . $t['snippet']['title'] . '    ' . $t['snippet']['description'];
+                $results = print_r($idtemp);
+
+                $link = "https://youtube.com/channel/";
+
+                $id = $link . $t['id'];
+
+                $idExists = MySubscriptions::where('channel', '=', $id)->first();
+
+
+                if ($idExists === null) {
+                    // video link doesn't exist in db
+
+                    //insert video to db
+                    MySubscriptions::create(
+                        [
+                            'link' => $link . $t['snippet']['resourceId']['channelId'],
+                            'title' => $t['snippet']['title'],
+                            'description' => $t['snippet']['description'],
+                        ]
+                    );
+
+                    $results = $id . "  Inserted";
+
+                    $entries++;
+
+                    print_r(json_encode($results));
+                } else {
+
+                    $results = $id . "  Exists!";
+
+                    $exists++;
+
+                    print_r(json_encode($results));
+                }
+            }
+
+            if ($entries < 2) {
+
+                $Url = URL::current();
+
+                $tokenInput = $response->nextPageToken;
+
+                echo "Records Inserted: " . $entries . "  Entries Skipped: " . $exists;
+
+                return Redirect::intended($Url . "?next=" . $tokenInput);
+            } else {
+                // $mergeArray = echo $id ;
+                // $response = $response->nextPageToken;
+                // $response = response()->json($response);
+
+                return var_dump("Records Inserted: " . $entries . "  Entries Skipped: " . $exists);
+
+                // return response()->json($results);
             }
         }
         // create auth url
