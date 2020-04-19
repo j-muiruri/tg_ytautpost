@@ -46,7 +46,7 @@ class LikedCommand extends Command
         foreach ($videos as $video) {
 
             $link = $video['link'];
-            $title = $video['videos'];
+            $title = $video['title'];
             // echo $link;
             $no++;
 
