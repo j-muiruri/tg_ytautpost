@@ -35,12 +35,12 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        $uid = User::getId();
+        $uid = $this->chat_id;
 
         $user = User::getUsername();
         //check if user is subscribed to bot updates
 
-        $newUser = Subscribers::where('user_id', '=', $uid)->first();
+        $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
         if ($newUser === null) {
 
@@ -48,8 +48,7 @@ class SubscribersCommand extends Command
 
             Subscribers::create(
                 [
-                    'user_id' => $uid,
-                    'username' => $user
+                    'chat_id' => $uid
                 ]
             );
 

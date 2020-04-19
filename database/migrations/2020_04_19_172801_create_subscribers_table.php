@@ -13,12 +13,14 @@ class CreateSubscribersTable extends Migration
      */
     public function up()
     {
-        Schema::create('subscribers', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
-            $table->string('username');
-            $table->timestamps();
-        });
+        Schema::create(
+            'subscribers',
+            function (Blueprint $table) {
+                $table->id();
+                $table->string('chat_id');
+                $table->timestamps();
+            }
+        );
     }
 
     /**

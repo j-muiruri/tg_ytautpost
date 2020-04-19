@@ -8,5 +8,5 @@ class Subscribers extends Model
 {
     //
 
-    protected $fillable = ['user_id', 'username'];
+    protected $fillable = ['chat_id'];
 }

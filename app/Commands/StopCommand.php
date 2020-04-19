@@ -35,12 +35,12 @@ class StopCommand extends Command
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        $uid = User::getId();
+        $uid = $this->chat_id;
 
         Subscribers::delete(
             [
 
-                'user_id' => $uid
+                'chat_id' => $uid
             ]
         );
 
