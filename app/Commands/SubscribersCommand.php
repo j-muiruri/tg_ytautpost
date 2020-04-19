@@ -36,28 +36,28 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        $uid = $this->id;
-        // $uid = $this->chat_id;
+        // $uid = $this->id;
+        // // $uid = $this->chat_id;
 
-        $newUser = Subscribers::where('chat_id', '=', $uid)->first();
+        // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
-        if ($newUser === null) {
+        // if ($newUser === null) {
 
-            //user doesnt exist so create
+        //     //user doesnt exist so create
 
-            Subscribers::create(
-                [
-                    'chat_id' => $uid
-                ]
-            );
+        //     Subscribers::create(
+        //         [
+        //             'chat_id' => $uid
+        //         ]
+        //     );
 
 
 
             //Send Message
             $this->replyWithMessage(['text' => 'Great! You have been added to the Selecta Autopost Subscribers List']);
-        } else {
-            exit;
-        }
+        // } else {
+        //     exit;
+        // }
         // Trigger another command dynamically from within this command
         // $this->triggerCommand('subscribe');
     }

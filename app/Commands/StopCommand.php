@@ -35,14 +35,14 @@ class StopCommand extends Command
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        $uid = $this->chat_id;
+        // $uid = $this->chat_id;
 
-        Subscribers::delete(
-            [
+        // Subscribers::delete(
+        //     [
 
-                'chat_id' => $uid
-            ]
-        );
+        //         'chat_id' => $uid
+        //     ]
+        // );
 
         //Send Message
         $this->replyWithMessage(['text' => 'Ooops! You have will stop receiving updates from Seleqta Autopost']);
