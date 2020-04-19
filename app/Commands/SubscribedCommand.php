@@ -8,6 +8,7 @@ use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
 use App\YoutubeVideos;
 use App\TelegramBot;
+
 /**
  * Class LikedCommand.
  * Get list of liked videos
@@ -32,7 +33,7 @@ class SubscribedCommand extends Command
     public function handle($arguments)
     {
         //Send Message
-        $this->replyWithMessage(['text' => 'Great! Selecta Autopost has found the following Channel subscriptions:']);
+        $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following Channel subscriptions:']);
 
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
@@ -51,9 +52,9 @@ class SubscribedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
-        }
 
-        // Trigger another command dynamically from within this command
-        // $this->triggerCommand('subscribe');
+            // Trigger another command dynamically from within this command
+            // $this->triggerCommand('subscribe');
+        }
     }
 }

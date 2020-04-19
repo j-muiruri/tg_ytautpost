@@ -32,7 +32,7 @@ class LikedCommand extends Command
     public function handle($arguments)
     {
         //Send Message
-        $this->replyWithMessage(['text' => 'Great! Selecta Autopost has found the following videos:']);
+        $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
 
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
