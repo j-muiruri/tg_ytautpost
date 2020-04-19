@@ -36,7 +36,7 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        $uid = $chatId = $this->getTelegram()->getWebhookUpdates()->getMessage()->getChat()->getId();
+        $uid = $this->chat_id = $arguments['message']['chat']['id'];
         // $uid = $this->chat_id;
 
         $user = User::getUsername();
