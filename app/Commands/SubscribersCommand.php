@@ -36,7 +36,8 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        $uid = $this->chat_id;
+        $uid = $this->chat_id = $arguments['message']['chat']['id'];
+        // $uid = $this->chat_id;
 
         $user = User::getUsername();
         //check if user is subscribed to bot updates
