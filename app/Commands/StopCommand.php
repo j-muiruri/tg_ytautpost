@@ -14,7 +14,7 @@ use Telegram\Bot\Commands\CommandInterface;
  * 
  * @author John Muiruri <jontedev@gmail.com>
  */
-class SubscribersCommand extends Command
+class StopCommand extends Command
 {
     /**
      * @var string Command Name

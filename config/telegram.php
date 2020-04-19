@@ -61,6 +61,7 @@ return [
         App\Commands\LikedCommand::class,
         App\Commands\SubscribedCommand::class,
         App\Commands\SubscribersCommand::class,
+        App\Commands\StopCommand::class,
         // Vendor\Project\Commands\SettingsCommand::class,
     ],
 ];
