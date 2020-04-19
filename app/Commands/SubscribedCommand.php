@@ -1,58 +1,59 @@
 <?php
+
 namespace App\Commands;
 
+use App\MySubscriptions;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
-
+use App\YoutubeVideos;
+use App\TelegramBot;
 /**
- * Class SubscribedCommand.
- * Get list of subscribers
+ * Class LikedCommand.
+ * Get list of liked videos
+ * 
  * @author John Muiruri <jontedev@gmail.com>
  */
-class SubscribedCommand extends Command{
-      /**
+class SubscribedCommand extends Command
+{
+    /**
      * @var string Command Name
      */
-    protected $name = 'start';
+    protected $name = 'subscriptions';
 
     /**
      * @var string Command Description
      */
-    protected $description = "Start Command to get you started";
+    protected $description = "List Channels I have Subscribed to";
 
     /**
      * @inheritdoc
      */
     public function handle($arguments)
     {
-        // This will send a message using `sendMessage` method behind the scenes to
-        // the user/chat id who triggered this command.
-        // `replyWith<Message|Photo|Audio|Video|Voice|Document|Sticker|Location|ChatAction>()` all the available methods are dynamically
-        // handled when you replace `send<Method>` with `replyWith` and use the same parameters - except chat_id does NOT need to be included in the array.
-        $this->replyWithMessage(['text' => 'Hello! Welcome to the Youtubez Here are our available commands:']);
+        //Send Message
+        $this->replyWithMessage(['text' => 'Great! Selecta Autopost has found the following Channel subscriptions:']);
 
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        // This will prepare a list of available commands and send the user.
-        // First, Get an array of all registered commands
-        // They'll be in 'command-name' => 'Command Handler Class' format.
-        $commands = $this->getTelegram()->getCommands();
+        $channels = MySubscriptions::paginate(10);
 
-        // Build the list
-        $response = '';
-        foreach ($commands as $name => $command) {
-            $response .= sprintf('/%s - %s' . PHP_EOL, $name, $command->getDescription());
+        // Reply with the Videos List
+
+        $no = 0;
+
+        foreach ($channels as $ch) {
+
+            $link = $ch['link'];
+            $title = $ch['title'];
+            // echo $link;
+            $no++;
+
+            $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channels/' . $link]);
         }
 
-        // Reply with the commands list
-        $this->replyWithMessage(['text' => $response]);
-
         // Trigger another command dynamically from within this command
-        // When you want to chain multiple commands within one or process the request further.
-        // The method supports second parameter arguments which you can optionally pass, By default
-        // it'll pass the same arguments that are received for this command originally.
         // $this->triggerCommand('subscribe');
     }
 }

@@ -393,14 +393,14 @@ class GoogleApiClientController extends Controller
 
             foreach ($items as $t) {
 
-                $idtemp = "Yotube Channel Link is: https://youtube.com/channel/" . $t['snippet']['resourceId']['channelId'] . "   Channel Title: " . $t['snippet']['title'] . '    ' . $t['snippet']['description'];
-                $results = print_r($idtemp);
+                // $idtemp = "Yotube Channel Link is: https://youtube.com/channel/" . $t['snippet']['resourceId']['channelId'] . "   Channel Title: " . $t['snippet']['title'] . '    ' . $t['snippet']['description'];
+                // $results = print_r($idtemp);
 
-                $link = "https://youtube.com/channel/";
+                $link = 'https://youtube.com/channel/';
 
-                $id = $link . $t['id'];
+                $id =$t['snippet']['resourceId']['channelId'];
 
-                $idExists = MySubscriptions::where('channel', '=', $id)->first();
+                $idExists = MySubscriptions::where('link', '=', $id)->first();
 
 
                 if ($idExists === null) {
@@ -409,7 +409,7 @@ class GoogleApiClientController extends Controller
                     //insert video to db
                     MySubscriptions::create(
                         [
-                            'link' => $link . $t['snippet']['resourceId']['channelId'],
+                            'link' => $t['snippet']['resourceId']['channelId'],
                             'title' => $t['snippet']['title'],
                             'description' => $t['snippet']['description'],
                         ]

@@ -59,6 +59,7 @@ return [
         Telegram\Bot\Commands\HelpCommand::class,
         App\Commands\StartCommand::class,
         App\Commands\LikedCommand::class,
+        App\Commands\SubscribedCommand::class,
         // Vendor\Project\Commands\SettingsCommand::class,
     ],
 ];
