@@ -42,7 +42,7 @@ class TelegramBotController extends Controller
     }
 
     /**
-     * Run Webhook
+     * SetWebhook
      */
     public function runWebhook()
     {
