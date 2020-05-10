@@ -51,6 +51,15 @@ class TelegramBotController extends Controller
         return response()->json($updates);
     }
 
+     /**
+     * Get Webhook Info
+     */
+    public function getWebhook()
+    {
+        $response = Telegram::getWebhookInfo();
+        return response()->json($response);
+    }
+
     /**
      * Remove Webhook
      */
