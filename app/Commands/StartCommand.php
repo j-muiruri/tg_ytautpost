@@ -58,7 +58,7 @@ class StartCommand extends Command
         //check if user is subscribed to bot updates
 
 
-            $this->triggerCommand('subscribe');
+           // $this->triggerCommand('subscribe');
         
     }
 }

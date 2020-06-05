@@ -6,10 +6,10 @@ namespace App\Http\Controllers;
 use Telegram\Bot\Laravel\Facades\Telegram;
 
 /**
- * The Telegram Bot  Class                                         
- *+ 
+ * The Telegram Bot  Class
+ *+
  * @author John Muiruri  <jontedev@gmail.com>
- * 
+ *
  */
 class TelegramBotController extends Controller
 {
@@ -51,7 +51,7 @@ class TelegramBotController extends Controller
         return response()->json($updates);
     }
 
-     /**
+    /**
      * Get Webhook Info
      */
     public function getWebhook()
