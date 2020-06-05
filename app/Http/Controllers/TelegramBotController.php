@@ -42,13 +42,22 @@ class TelegramBotController extends Controller
     }
 
     /**
-     * Run Webhook
+     * Set Webhook
      */
     public function runWebhook()
     {
-        $url = 'https://tgytautopost.herokuapp.com/' . env('TELEGRAm_BOT_TOKEN') . '/webhook';
+        $url = 'https://tgytautopost.herokuapp.com/' . env('TELEGRAM_BOT_TOKEN') . '/webhook';
         $updates = Telegram::setWebhook(['url' => $url]);
         return response()->json($updates);
+    }
+
+     /**
+     * Get Webhook Info
+     */
+    public function getWebhook()
+    {
+        $response = Telegram::getWebhookInfo();
+        return response()->json($response);
     }
 
     /**

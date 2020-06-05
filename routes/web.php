@@ -30,6 +30,8 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/updated-activity', 'TelegramBotController@updatedActivity');
 Route::get('/run', 'TelegramBotController@runCommands');
 Route::get('/run-webhook', 'TelegramBotController@runWebhook');
+Route::get('/check-webhook', 'TelegramBotController@getWebhook');
+Route::get('/rm-webhook', 'TelegramBotController@removeWebhook');
 Route::post(env('TELEGRAM_BOT_TOKEN') . '/webhook', 'TelegramBotController@tgWebhook');
 
 Route::get('channel-details', 'YoutubeApiController@getChannelById');
