@@ -38,8 +38,9 @@ class TelegramBotController extends Controller
     public function tgWebhook()
     {
         //$response = $update = Telegram::commandsHandler(true);
-        $updates = Telegram::getWebhookUpdates();
-        return response()->json($updates);
+         Telegram::commandsHandler(true);
+         Telegram::getWebhookUpdates();
+         return response()->json(['status' => 'success']);
     }
 
     /**
