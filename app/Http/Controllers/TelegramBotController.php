@@ -33,12 +33,13 @@ class TelegramBotController extends Controller
     }
 
     /**
-     * Register Webhook (eg. /start, /help)
+     * Get Webhook Updates
      */
     public function tgWebhook()
     {
-        $response = $update = Telegram::commandsHandler(true);
-        return response()->json(['status' => 'success']);
+        //$response = $update = Telegram::commandsHandler(true);
+        $updates = Telegram::getWebhookUpdates();
+        return response()->json($updates);
     }
 
     /**
