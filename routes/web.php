@@ -23,11 +23,12 @@ Auth::routes();
  * User  Auth routes
  */
 // Route::post('register', 'Auth\RegisterController@register');
+Route::get('/', 'HomeController@index')->name('root');
 Route::post('login', 'Auth\LoginController@login');
 Route::any('logout', 'Auth\LoginController@logout');
-
-//Telegram Name
 Route::get('/home', 'HomeController@index')->name('home');
+
+//Telegram Bot
 Route::get('/updated-activity', 'TelegramBotController@updatedActivity');
 Route::get('/run', 'TelegramBotController@runCommands');
 Route::get('/run-webhook', 'TelegramBotController@runWebhook');
