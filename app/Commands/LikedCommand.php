@@ -7,6 +7,7 @@ use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
 use App\YoutubeVideos;
 use App\TelegramBot;
+use Illuminate\Pagination\Paginator;
 
 /**
  * Class LikedCommand.
@@ -31,6 +32,7 @@ class LikedCommand extends Command
      */
     public function handle($arguments)
     {
+        $paginator = new Paginator;
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
 
@@ -51,6 +53,7 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
+            $this->replyWithMessage(['text' =>$paginator->nextPageUrl()]);
         }
 
         // Trigger another command dynamically from within this command
