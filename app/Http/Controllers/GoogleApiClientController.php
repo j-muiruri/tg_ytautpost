@@ -172,7 +172,6 @@ class GoogleApiClientController extends Controller
 
            
               echo $response;
-              
               sleep(10);
             return redirect('my-rated');
         } else if ($fileExists != false) {

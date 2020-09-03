@@ -32,7 +32,6 @@ class LikedCommand extends Command
      */
     public function handle($arguments)
     {
-        $paginator = new Paginator;
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
 
@@ -53,7 +52,7 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            $this->replyWithMessage(['text' =>$videos->nextPageUrl()]);
+            $this->replyWithMessage(['text' =>YoutubeVideos::nextPageUrl()]);
         }
 
         // Trigger another command dynamically from within this command
