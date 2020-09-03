@@ -172,7 +172,8 @@ class GoogleApiClientController extends Controller
 
            
               echo $response;
-
+              
+              sleep(10);
             return redirect('my-rated');
         } else if ($fileExists != false) {
 
@@ -274,7 +275,11 @@ class GoogleApiClientController extends Controller
 
                 echo "Records Inserted: " . $entries . "  Entries Skipped: " . $exists;
 
+                echo "Redirect to Next Page in 5 seconds......... ";
+                sleep(10);
                 return Redirect::intended($Url . "?next=" . $tokenInput);
+
+
             } else {
                 // $mergeArray = echo $id ;
                 // $response = $response->nextPageToken;

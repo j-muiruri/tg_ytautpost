@@ -53,7 +53,7 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            $this->replyWithMessage(['text' =>$paginator->nextPageUrl()]);
+            $this->replyWithMessage(['text' =>$videos->nextPageUrl()]);
         }
 
         // Trigger another command dynamically from within this command
