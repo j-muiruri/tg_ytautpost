@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Session;
 
 class GoogleApiClientController extends Controller
 {
@@ -169,11 +170,10 @@ class GoogleApiClientController extends Controller
 
             $response = response()->json($request);
 
-            // return $response;
-            $redirect_uri = URL::current();
-            $referer = request()->headers->get('referer');
-             echo $referer;
-              return $response;
+           
+              echo $response;
+
+            return redirect('my-rated');
         } else if ($fileExists != false) {
 
             //check if file xists on the disk
