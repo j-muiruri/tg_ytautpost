@@ -4,6 +4,9 @@ namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;
 
+use Illuminate\Foundation\Application;
+    use Illuminate\Contracts\Encryption\Encrypter;
+
 class VerifyCsrfToken extends Middleware
 {
     /**
@@ -15,8 +18,7 @@ class VerifyCsrfToken extends Middleware
     //     '/*/webhook',
     // ];
 
-    use Illuminate\Foundation\Application;
-    use Illuminate\Contracts\Encryption\Encrypter;
+    
 
     public function __construct(Application $app, Encrypter $encrypter)
     {
