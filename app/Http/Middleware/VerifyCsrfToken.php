@@ -14,7 +14,12 @@ class VerifyCsrfToken extends Middleware
     // protected $except = [
     //     '/*/webhook',
     // ];
-    public function __construct(Application $app, Encrypter $encrypter) {
+
+    use Illuminate\Foundation\Application;
+    use Illuminate\Contracts\Encryption\Encrypter;
+
+    public function __construct(Application $app, Encrypter $encrypter)
+    {
         parent::__construct($app, $encrypter);
         $this->except = [
           env("TELEGRAM_BOT_TOKEN") . '/webhook'
