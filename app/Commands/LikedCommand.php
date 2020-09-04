@@ -52,9 +52,12 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            $this->replyWithMessage(['text' =>YoutubeVideos::nextPageUrl()]);
+            
         }
+        // send next page link
 
+        $arrResult = $videos->toArray();
+        $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
         // Trigger another command dynamically from within this command
         // $this->triggerCommand('subscribe');
     }
