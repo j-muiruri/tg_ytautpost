@@ -24,7 +24,7 @@ class MyTests extends Controller
 
     public function index()
     {
-        $result =  YoutubeVideos::paginate(10);
+        $result =  YoutubeVideos::simplePaginate(10);
 
         $link= $result['data'];
         // $link =$link['data']; 
@@ -41,8 +41,9 @@ class MyTests extends Controller
 
         $jsonResult = json_encode($result['data']);
         $arrResult = $result->toArray();
-        var_dump($arrResult['next_page_url']);
+        // var_dump($arrResult['next_page_url']);
 
         // return $link;
+        print_r($arrResult);
     }
 }
