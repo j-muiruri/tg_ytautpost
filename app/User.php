@@ -10,7 +10,7 @@ use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasApiTokens; 
 
     /**
      * The attributes that are mass assignable.
@@ -40,10 +40,10 @@ class User extends Authenticatable
     ];
     public function generateToken()
     {
-        $this->api_token = Str::random(60);
+        $tokenResult = $this->createToken('Personal Access Token');
+        $this->api_token = $tokenResult->token;
         $this->save();
-
-        return $this->api_token;
+        print_r($this->api_token);
+        return $tokenResult;
     }
-    
 }
