@@ -41,9 +41,9 @@ class User extends Authenticatable
     public function generateToken()
     {
         $tokenResult = $this->createToken('Personal Access Token');
-        $this->api_token = $tokenResult->token;
-        $this->save();
-        print_r($this->api_token);
+        $token = $tokenResult->token;
+        $token->save();
+        print_r($token);
         return $tokenResult;
     }
 }
