@@ -43,7 +43,7 @@ class User extends Authenticatable
         $tokenResult = $this->createToken('Personal Access Token');
         $token = $tokenResult->token;
         $token->save();
-        print_r($token);
+        // print_r($token);
         return $tokenResult;
     }
 }
