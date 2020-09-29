@@ -29,7 +29,7 @@ class SubscribersCommand extends Command
     /**
      * @inheritdoc
      */
-    public function handle($arguments)
+    public function handle()
     {
 
         // This will update the chat status to typing...

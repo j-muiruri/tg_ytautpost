@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\YoutubeVideos;
+use Illuminate\Contracts\Support\Jsonable;
 
 /**
  * MyTests  Class                                         
@@ -23,7 +24,7 @@ class MyTests extends Controller
 
     public function index()
     {
-        $result =  YoutubeVideos::paginate(10);
+        $result =  YoutubeVideos::simplePaginate(10);
 
         $link= $result['data'];
         // $link =$link['data']; 
@@ -32,14 +33,17 @@ class MyTests extends Controller
         foreach ($result as $video) {
 
             $link = $video['link'];
-            echo $link;
+            // echo $link;
 
             $t = $video['title'];
-            echo $t;
+            // echo $t;
         }
 
-        // var_dump($link);
+        $jsonResult = json_encode($result['data']);
+        $arrResult = $result->toArray();
+        // var_dump($arrResult['next_page_url']);
 
         // return $link;
+        print_r($arrResult);
     }
 }

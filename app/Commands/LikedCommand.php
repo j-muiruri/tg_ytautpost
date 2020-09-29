@@ -7,6 +7,7 @@ use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
 use App\YoutubeVideos;
 use App\TelegramBot;
+use Illuminate\Pagination\Paginator;
 
 /**
  * Class LikedCommand.
@@ -29,7 +30,7 @@ class LikedCommand extends Command
     /**
      * @inheritdoc
      */
-    public function handle($arguments)
+    public function handle()
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
@@ -37,7 +38,7 @@ class LikedCommand extends Command
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        $videos = YoutubeVideos::paginate(10);
+        $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
 
         // Reply with the Videos List
 
@@ -51,8 +52,12 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
+            
         }
+        // send next page link
 
+        $arrResult = $videos->toArray();
+        $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
         // Trigger another command dynamically from within this command
         // $this->triggerCommand('subscribe');
     }

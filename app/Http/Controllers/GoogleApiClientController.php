@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\MySubscriptions;
+use App\YoutubeVideos;
 use Facade\FlareClient\Http\Response;
-use Illuminate\Http\Request;
 use Google_Client;
 use Google_Service_YouTube;
-use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Arr;
-use App\YoutubeVideos;
-use App\MySubscriptions;
+use Illuminate\Support\Facades\Session;
 
 class GoogleApiClientController extends Controller
 {
@@ -26,9 +25,9 @@ class GoogleApiClientController extends Controller
 
         $client->setApplicationName('Autopost Telegram Bot');
 
-        $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly',]);
+        $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly']);
 
-        //$client->setAuthConfig(env('CLIENT_SECRET')); 
+        //$client->setAuthConfig(env('CLIENT_SECRET'));
 
         $client->setClientId(env('CLIENT_ID'));
 
@@ -51,7 +50,6 @@ class GoogleApiClientController extends Controller
 
             // return   print($redirect_uri);
         }
-
 
         $redirect_uri = URL::current();
         //set redirect URL
@@ -82,14 +80,14 @@ class GoogleApiClientController extends Controller
             $client->setAccessToken($accessToken);
 
             //Save refresh Token to file
-            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+            Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
 
             //Init Service
-            $service =  new Google_Service_YouTube($client);
+            $service = new Google_Service_YouTube($client);
 
             $queryParams = [
                 'maxResults' => 25,
-                'mine' => true
+                'mine'       => true,
             ];
 
             $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
@@ -99,7 +97,7 @@ class GoogleApiClientController extends Controller
             return $response;
         } else if ($fileExists != false) {
 
-            //check if file xists on the disk
+            //check if file exists on the disk
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
 
             $client->setAccessToken($file);
@@ -112,14 +110,14 @@ class GoogleApiClientController extends Controller
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
 
-                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($newAccessToken), 'private');
+                Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
             }
             //Init Service
-            $service =  new Google_Service_YouTube($client);
+            $service = new Google_Service_YouTube($client);
 
             $queryParams = [
                 'maxResults' => 25,
-                'mine' => true
+                'mine'       => true,
             ];
 
             $response = $service->playlists->listPlaylists('snippet,contentDetails', $queryParams);
@@ -159,21 +157,23 @@ class GoogleApiClientController extends Controller
             $client->setAccessToken($accessToken);
 
             //Save refresh Token to file
-            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+            Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
 
             //Init Service
-            $service =  new Google_Service_YouTube($client);
-
+            $service = new Google_Service_YouTube($client);
 
             $queryParams = [
-                'myRating' => 'like'
+                'myRating' => 'like',
             ];
 
             $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
             $response = response()->json($request);
 
-            return $response;
+           
+              echo $response;
+              sleep(10);
+            return redirect('my-rated');
         } else if ($fileExists != false) {
 
             //check if file xists on the disk
@@ -192,17 +192,14 @@ class GoogleApiClientController extends Controller
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
 
-                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($newAccessToken), 'private');
+                Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
             }
             //Init Service
-            $service =  new Google_Service_YouTube($client);
-
-
-
+            $service = new Google_Service_YouTube($client);
 
             $queryParams = [
-                'myRating' => 'like',
-                'maxResults' => 50
+                'myRating'   => 'like',
+                'maxResults' => 50,
             ];
 
             if (isset($pageToken)) {
@@ -227,7 +224,7 @@ class GoogleApiClientController extends Controller
             // $descs = json_encode(Arr::pluck($snippet, ['description']));
 
             $entries = 0;
-            $exists = 0;
+            $exists  = 0;
 
             foreach ($items as $t) {
 
@@ -238,8 +235,8 @@ class GoogleApiClientController extends Controller
 
                 $id = $link . $t['id'];
 
+                // Check if the video link exists on the server
                 $idExists = YoutubeVideos::where('link', '=', $id)->first();
-
 
                 if ($idExists === null) {
                     // video link doesn't exist in db
@@ -247,20 +244,20 @@ class GoogleApiClientController extends Controller
                     //insert video to db
                     YoutubeVideos::create(
                         [
-                            'link' => $link . $t['id'],
-                            'title' => $t['snippet']['title'],
+                            'link'        => $link . $t['id'],
+                            'title'       => $t['snippet']['title'],
                             'description' => $t['snippet']['description'],
                         ]
                     );
 
-                    $results = $id . "  Inserted";
+                    $results = $id . "  Inserted\n";
 
                     $entries++;
 
                     print_r(json_encode($results));
                 } else {
 
-                    $results = $id . "  Exists!";
+                    $results = $id . "  Exists!\n";
 
                     $exists++;
 
@@ -268,8 +265,8 @@ class GoogleApiClientController extends Controller
                 }
             }
 
+            //Check no of inserted entries, if less than 2, redirect automatically and fetch more videos
             if ($entries < 2) {
-
 
                 $Url = URL::current();
 
@@ -277,7 +274,11 @@ class GoogleApiClientController extends Controller
 
                 echo "Records Inserted: " . $entries . "  Entries Skipped: " . $exists;
 
+                echo "Redirect to Next Page in 5 seconds......... ";
+                sleep(10);
                 return Redirect::intended($Url . "?next=" . $tokenInput);
+
+
             } else {
                 // $mergeArray = echo $id ;
                 // $response = $response->nextPageToken;
@@ -320,15 +321,14 @@ class GoogleApiClientController extends Controller
             $client->setAccessToken($accessToken);
 
             //Save refresh Token to file
-            Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($accessToken), 'private');
+            Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
 
             //Init Service
-            $service =  new Google_Service_YouTube($client);
-
+            $service = new Google_Service_YouTube($client);
 
             $queryParams = [
-                'mine' => 'like',
-                'maxResults' => 50
+                'mine'       => 'like',
+                'maxResults' => 50,
             ];
 
             $response = $service->subscriptions->listSubscriptions('snippet,contentDetails', $queryParams);
@@ -354,17 +354,14 @@ class GoogleApiClientController extends Controller
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
 
-                Storage::disk('private')->put(env('TOKEN_FILE'),  json_encode($newAccessToken), 'private');
+                Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
             }
             //Init Service
-            $service =  new Google_Service_YouTube($client);
-
-
-
+            $service = new Google_Service_YouTube($client);
 
             $queryParams = [
-                'mine' => 'true',
-                'maxResults' => 50
+                'mine'       => 'true',
+                'maxResults' => 50,
             ];
 
             if (isset($pageToken)) {
@@ -389,7 +386,7 @@ class GoogleApiClientController extends Controller
             // $descs = json_encode(Arr::pluck($snippet, ['description']));
 
             $entries = 0;
-            $exists = 0;
+            $exists  = 0;
 
             foreach ($items as $t) {
 
@@ -398,10 +395,9 @@ class GoogleApiClientController extends Controller
 
                 $link = 'https://youtube.com/channel/';
 
-                $id =$t['snippet']['resourceId']['channelId'];
+                $id = $t['snippet']['resourceId']['channelId'];
 
                 $idExists = MySubscriptions::where('link', '=', $id)->first();
-
 
                 if ($idExists === null) {
                     // video link doesn't exist in db
@@ -409,8 +405,8 @@ class GoogleApiClientController extends Controller
                     //insert video to db
                     MySubscriptions::create(
                         [
-                            'link' => $t['snippet']['resourceId']['channelId'],
-                            'title' => $t['snippet']['title'],
+                            'link'        => $t['snippet']['resourceId']['channelId'],
+                            'title'       => $t['snippet']['title'],
                             'description' => $t['snippet']['description'],
                         ]
                     );

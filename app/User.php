@@ -6,10 +6,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasApiTokens; 
 
     /**
      * The attributes that are mass assignable.
@@ -39,10 +40,10 @@ class User extends Authenticatable
     ];
     public function generateToken()
     {
-        $this->api_token = Str::random(60);
-        $this->save();
-
-        return $this->api_token;
+        $tokenResult = $this->createToken('Personal Access Token');
+        $token = $tokenResult->token;
+        $token->save();
+        // print_r($token);
+        return $tokenResult;
     }
-    
 }
