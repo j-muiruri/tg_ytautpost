@@ -7,6 +7,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Objects\User;
 use Telegram\Bot\Commands\Command;
+use Telegram\Bot\Objects\TelegramObject;
 
 /**
  * Class SubscribersCommand.
@@ -36,7 +37,7 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        dd($this);
+        dd($this->TelegramObject::user_id);
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
