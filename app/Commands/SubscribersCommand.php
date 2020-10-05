@@ -36,8 +36,8 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        $user_id = $this->id;
-        // $uid = $this->chat_id;
+        // $user_id = $this->id;
+        $user_id = $this->chat_id;
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
