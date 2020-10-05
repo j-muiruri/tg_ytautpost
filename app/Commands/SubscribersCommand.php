@@ -38,7 +38,8 @@ class SubscribersCommand extends Command
 
         // $user_id = $this->id;
         // $user_id = $this->chat_id;
-        $user_id = explode(',', $this);
+        // $user_id = explode(',', $this);
+        $user_id = Telegram::getUpdates('id');
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
