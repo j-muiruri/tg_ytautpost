@@ -37,7 +37,7 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        dd(Telegram::getWebhookUpdates());
+        print_r(Telegram::getWebhookUpdates());
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
