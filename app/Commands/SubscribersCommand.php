@@ -25,7 +25,7 @@ class SubscribersCommand extends Command
     /**
      * @var string Command Description
      */
-    protected $description = "Subscribe to Udates or Notifications from Selecta Autopost";
+    protected $description = "Subscribe to Updates or Notifications from Selecta Autopost";
 
     /**
      * @inheritdoc
@@ -37,7 +37,7 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        dd($this->TelegramObject::user_id);
+        dd($this->User);
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
