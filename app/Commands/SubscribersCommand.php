@@ -36,8 +36,8 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        // $uid = $this->id;
-        // // $uid = $this->chat_id;
+        $user_id = $this->id;
+        // $uid = $this->chat_id;
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
@@ -54,7 +54,7 @@ class SubscribersCommand extends Command
 
 
             //Send Message
-            $this->replyWithMessage(['text' => 'Great! You have been added to the Selecta Autopost Subscribers List']);
+            $this->replyWithMessage(['text' => 'Great! User:'.$user_id.'You have been added to the Selecta Autopost Subscribers List']);
         // } else {
         //     exit;
         // }
