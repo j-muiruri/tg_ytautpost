@@ -37,7 +37,7 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        print_r(Telegram::getWebhookUpdates());
+        $result = print_r(Telegram::getWebhookUpdates());
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
@@ -54,7 +54,7 @@ class SubscribersCommand extends Command
 
 
             //Send Message
-            $this->replyWithMessage(['text' => 'Great! User:, You have been added to the Selecta Autopost Subscribers List']);
+            $this->replyWithMessage(['text' => 'Great! User:'.$result.', You have been added to the Selecta Autopost Subscribers List']);
         // } else {
         //     exit;
         // }
