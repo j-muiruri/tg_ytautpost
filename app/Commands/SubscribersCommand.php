@@ -36,10 +36,7 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
 
-        // $user_id = $this->id;
-        // $user_id = $this->chat_id;
-        // $user_id = explode(',', $this);
-        $user_id = Telegram::getUpdates('id');
+        dd($this);
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
@@ -56,7 +53,7 @@ class SubscribersCommand extends Command
 
 
             //Send Message
-            $this->replyWithMessage(['text' => 'Great! User:'.$user_id.'You have been added to the Selecta Autopost Subscribers List']);
+            $this->replyWithMessage(['text' => 'Great! User:, You have been added to the Selecta Autopost Subscribers List']);
         // } else {
         //     exit;
         // }
