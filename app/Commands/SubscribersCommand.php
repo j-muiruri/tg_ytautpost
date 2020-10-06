@@ -8,7 +8,6 @@ use Telegram\Bot\Actions;
 use Telegram\Bot\Objects\User;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Objects\TelegramObject;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 /**
