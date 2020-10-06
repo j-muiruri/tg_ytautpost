@@ -38,7 +38,10 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
         // $user_id = $this->id;
-        $user_id = $this->getUpdate();
+        // $user_id = $this->getUpdate();
+        $user_id = [
+            'name', 'Mywork'
+        ];
         var_dump($user_id);
         Storage::disk('private')->put('userinfo.txt', json_decode($user_id), 'private');
 
