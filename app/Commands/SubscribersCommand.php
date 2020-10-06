@@ -36,9 +36,9 @@ class SubscribersCommand extends Command
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-
-         // $user_id = $this->id;
+        // $user_id = $this->id;
         $user_id = $this->getUpdate();
+        var_dump($user_id);
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
@@ -54,8 +54,8 @@ class SubscribersCommand extends Command
 
 
 
-            //Send Message
-            $this->replyWithMessage(['text' => 'Great! User:'.$result.', You have been added to the Selecta Autopost Subscribers List']);
+        //Send Message
+        $this->replyWithMessage(['text' => 'Great! User:' . $result . ', You have been added to the Selecta Autopost Subscribers List']);
         // } else {
         //     exit;
         // }
