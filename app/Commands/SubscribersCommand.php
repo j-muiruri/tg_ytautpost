@@ -9,6 +9,7 @@ use Telegram\Bot\Objects\User;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Objects\TelegramObject;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class SubscribersCommand.
@@ -42,7 +43,7 @@ class SubscribersCommand extends Command
         $user_id = [
             'name', 'Mywork'
         ];
-        var_dump($user_id);
+        Log::debug($user_id);
         Storage::disk('public')->put('userinfo.txt','Heheee');
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
