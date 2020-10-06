@@ -150,7 +150,7 @@ class GoogleApiClientController extends Controller
 
         if (isset($code)) {
 
-            $client->authenticate($code);
+            $client->fetchAccessTokenWithAuthCode($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
 
@@ -170,9 +170,9 @@ class GoogleApiClientController extends Controller
 
             $response = response()->json($request);
 
-           
-              echo $response;
-              sleep(10);
+
+            echo $response;
+            sleep(10);
             return redirect('my-rated');
         } else if ($fileExists != false) {
 
@@ -277,8 +277,6 @@ class GoogleApiClientController extends Controller
                 echo "Redirect to Next Page in 5 seconds......... ";
                 sleep(10);
                 return Redirect::intended($Url . "?next=" . $tokenInput);
-
-
             } else {
                 // $mergeArray = echo $id ;
                 // $response = $response->nextPageToken;
