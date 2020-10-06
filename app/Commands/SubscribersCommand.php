@@ -55,7 +55,7 @@ class SubscribersCommand extends Command
 
 
         //Send Message
-        $this->replyWithMessage(['text' => 'Great! User:' . $result . ', You have been added to the Selecta Autopost Subscribers List']);
+        $this->replyWithMessage(['text' => 'Great! User:, You have been added to the Selecta Autopost Subscribers List']);
         // } else {
         //     exit;
         // }
