@@ -39,12 +39,11 @@ class SubscribersCommand extends Command
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
         // $user_id = $this->id;
-        // $user_id = $this->getUpdate();
-        $user_id = [
-            'name', 'Mywork'
-        ];
+        $user_id = $this->getUpdate();
+        // $user_id = [
+        //     'name', 'Mywork'
+        // ];
         Log::debug($user_id);
-        Storage::disk('public')->put('userinfo.txt','Heheee');
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
