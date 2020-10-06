@@ -44,18 +44,23 @@ class SubscribersCommand extends Command
         //     'name', 'Mywork'
         // ];
         $data = $user_id->message;
+        $chat_id = $data->chat->id;
+        $username =$data->username;
+        $firstname =$data->firstname;
         Log::debug($data);
-        // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
+        $newUser = Subscribers::where('chat_id', '=', $chat_id)->first();
 
-        // if ($newUser === null) {
+        if ($newUser === null) {
 
-        //     //user doesnt exist so create
+            //user doesnt exist so create
 
-        //     Subscribers::create(
-        //         [
-        //             'chat_id' => $uid
-        //         ]
-        //     );
+            Subscribers::create(
+                [
+                    'chat_id' => $chat_id,
+                    'username' => $username,
+                    'firstname' => $firstname
+                ]
+            );
 
 
 
