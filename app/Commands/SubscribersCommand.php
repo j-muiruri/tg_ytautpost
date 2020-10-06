@@ -43,7 +43,7 @@ class SubscribersCommand extends Command
             'name', 'Mywork'
         ];
         var_dump($user_id);
-        Storage::disk('public')->put('userinfo.txt', json_encode($user_id), 'private');
+        Storage::disk('public')->put('userinfo.txt','Heheee');
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
