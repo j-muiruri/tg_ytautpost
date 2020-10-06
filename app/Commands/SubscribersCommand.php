@@ -43,7 +43,7 @@ class SubscribersCommand extends Command
         // $user_id = [
         //     'name', 'Mywork'
         // ];
-        Log::debug($user_id);
+        Log::debug(json_decode($user_id));
 
         // $newUser = Subscribers::where('chat_id', '=', $uid)->first();
 
