@@ -35,17 +35,21 @@ class StopCommand extends Command
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        // $uid = $this->chat_id;
+        // Get result from webhook update
+        $resultUpdate = $this->getUpdate();
 
-        // Subscribers::delete(
-        //     [
+        $data = $resultUpdate->message;
+        $chat_id = $data->chat->id;
+        $subscribe = new Subscribers;
+        $subscribe->delete(
+            [
 
-        //         'chat_id' => $uid
-        //     ]
-        // );
+                'chat_id' => $chat_id
+            ]
+        );
 
         //Send Message
-        $this->replyWithMessage(['text' => 'Ooops! You have will stop receiving updates from Seleqta Autopost']);
+        $this->replyWithMessage(['text' => 'Ooops! You have stopped receiving updates from Seleqta Autopost, Goodbye!']);
 
 
         // Trigger another command dynamically from within this command

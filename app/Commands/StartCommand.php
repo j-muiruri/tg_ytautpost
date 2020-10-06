@@ -29,9 +29,19 @@ class StartCommand extends Command
     {
         // This will send a message using `sendMessage` method behind the scenes to
         // the user/chat id who triggered this command.
+
+         // Trigger another command dynamically from within this command
+        // When you want to chain multiple commands within one or process the request further.
+        // The method supports second parameter arguments which you can optionally pass, By default
+        // it'll pass the same arguments that are received for this command originally.
+
+        //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription messgae
+        $this->triggerCommand('subscribe');
+
+
         // `replyWith<Message|Photo|Audio|Video|Voice|Document|Sticker|Location|ChatAction>()` all the available methods are dynamically
         // handled when you replace `send<Method>` with `replyWith` and use the same parameters - except chat_id does NOT need to be included in the array.
-        $this->replyWithMessage(['text' => 'Hello! Welcome to the Seleqta Autopost Here are our available commands:']);
+        $this->replyWithMessage(['text' => 'Seleqta Autopost Bot available commands:']);
 
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
@@ -50,15 +60,7 @@ class StartCommand extends Command
         // Reply with the commands list
         $this->replyWithMessage(['text' => $response]);
 
-        // Trigger another command dynamically from within this command
-        // When you want to chain multiple commands within one or process the request further.
-        // The method supports second parameter arguments which you can optionally pass, By default
-        // it'll pass the same arguments that are received for this command originally.
-
-        //check if user is subscribed to bot updates
-
-
-           // $this->triggerCommand('subscribe');
+       
         
     }
 }

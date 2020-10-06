@@ -37,16 +37,14 @@ class SubscribersCommand extends Command
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        // $user_id = $this->id;
-        $user_id = $this->getUpdate();
-        // $user_id = [
-        //     'name', 'Mywork'
-        // ];
-        $data = $user_id->message;
+        // Get result from webhook update
+        $resultUpdate = $this->getUpdate();
+
+        $data = $resultUpdate->message;
         $chat_id = $data->chat->id;
-        $username =$data->from->username;
-        $firstname =$data->from->first_name;
-        Log::debug($data);
+        $username = $data->from->username;
+        $firstname = $data->from->first_name;
+        // Log::debug($data);
         $newUser = Subscribers::where('chat_id', '=', $chat_id)->first();
 
         if ($newUser === null) {
@@ -64,12 +62,12 @@ class SubscribersCommand extends Command
 
 
             //Send Message
-            $this->replyWithMessage(['text' => 'Great! User:, You have been added to the Selecta Autopost Subscribers List']);
+            $this->replyWithMessage(['text' => 'Hello!  Welcome ' . $firstname . ',  You have succesfully subscribed to Selecta Autopost!']);
             // } else {
-        //     exit;
-        // }
-        // Trigger another command dynamically from within this command
-        // $this->triggerCommand('subscribe');
+            //     exit;
+            // }
+            // Trigger another command dynamically from within this command
+            // $this->triggerCommand('subscribe');
         }
     }
 }
