@@ -45,8 +45,8 @@ class SubscribersCommand extends Command
         // ];
         $data = $user_id->message;
         $chat_id = $data->chat->id;
-        $username =$data->username;
-        $firstname =$data->firstname;
+        $username =$data->from->username;
+        $firstname =$data->from->firstname;
         Log::debug($data);
         $newUser = Subscribers::where('chat_id', '=', $chat_id)->first();
 
