@@ -40,13 +40,7 @@ class StopCommand extends Command
 
         $data = $resultUpdate->message;
         $chat_id = $data->chat->id;
-        $subscribe = new Subscribers;
-        $subscribe->delete(
-            [
-
-                'chat_id' => $chat_id
-            ]
-        );
+        Subscribers::where('chat_id', '=', $chat_id)->delete();
 
         //Send Message
         $this->replyWithMessage(['text' => 'Ooops! You have stopped receiving updates from Seleqta Autopost, Goodbye!']);
