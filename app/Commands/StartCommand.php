@@ -41,7 +41,7 @@ class StartCommand extends Command
 
          // Get result from webhook update
          $resultUpdate = $this->getUpdate();
-         Log::debug($resultUpdate);
+        //  Log::debug($resultUpdate);
 
         // `replyWith<Message|Photo|Audio|Video|Voice|Document|Sticker|Location|ChatAction>()` all the available methods are dynamically
         // handled when you replace `send<Method>` with `replyWith` and use the same parameters - except chat_id does NOT need to be included in the array.

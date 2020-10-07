@@ -35,6 +35,11 @@ class LikedCommand extends Command
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
         sleep(1);
+
+        // Get result from webhook update
+        $resultUpdate = $this->getUpdate();
+        Log::debug($resultUpdate);
+
         // // This will update the chat status to typing...
         // $this->replyWithChatAction(['action' => Actions::TYPING]);
         // sleep(1);
@@ -53,7 +58,7 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            sleep(1); //1.5 secs
+            sleep(2); //1.5 secs
         }
         // send next page link
 
