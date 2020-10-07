@@ -40,32 +40,49 @@ class LikedCommand extends Command
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
         Log::debug($resultUpdate);
+        $type = $resultUpdate->message->chat->type;
 
-        // // This will update the chat status to typing...
-        // $this->replyWithChatAction(['action' => Actions::TYPING]);
-        // sleep(1);
-        $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
+        if ($type === 'supergroup') {
+            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(1);
 
-        // Reply with the Videos List
+            $no = 0;
+            foreach ($videos as $video) {
+                $link = $video['link'];
+                $title = $video['title'];
+                // echo $link;
+                $no++;
 
-        $no = 0;
+               $videoList= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
+            }
+            // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+            $this->replyWithMessage(['text' =>$videoList]);
+            sleep(2); 
+            // Reply with the Videos List
+        } else {
+            // // This will update the chat status to typing...
+            // $this->replyWithChatAction(['action' => Actions::TYPING]);
+            // sleep(1);
+            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
 
-        foreach ($videos as $video) {
+            // Reply with the Videos List
 
-            sleep(1);
-            $link = $video['link'];
-            $title = $video['title'];
-            // echo $link;
-            $no++;
+            $no = 0;
 
-            $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            sleep(2); //1.5 secs
+            foreach ($videos as $video) {
+                $link = $video['link'];
+                $title = $video['title'];
+                // echo $link;
+                $no++;
+
+                $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                sleep(1); //1.5 secs
+            }
+            // send next page link
+
+            $arrResult = $videos->toArray();
+            // $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
+            // Trigger another command dynamically from within this command
+            // $this->triggerCommand('subscribe');
         }
-        // send next page link
-
-        $arrResult = $videos->toArray();
-        // $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
-        // Trigger another command dynamically from within this command
-        // $this->triggerCommand('subscribe');
     }
 }
