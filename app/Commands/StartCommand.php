@@ -4,6 +4,7 @@ namespace App\Commands;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class StartCommand.
@@ -36,8 +37,11 @@ class StartCommand extends Command
         // it'll pass the same arguments that are received for this command originally.
 
         //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription messgae
-        $this->triggerCommand('subscribe');
+        // $this->triggerCommand('subscribe');
 
+         // Get result from webhook update
+         $resultUpdate = $this->getUpdate();
+         Log::debug($resultUpdate);
 
         // `replyWith<Message|Photo|Audio|Video|Voice|Document|Sticker|Location|ChatAction>()` all the available methods are dynamically
         // handled when you replace `send<Method>` with `replyWith` and use the same parameters - except chat_id does NOT need to be included in the array.
