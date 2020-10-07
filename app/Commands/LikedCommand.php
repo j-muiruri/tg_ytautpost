@@ -46,13 +46,14 @@ class LikedCommand extends Command
 
         foreach ($videos as $video) {
 
+            sleep(1);
             $link = $video['link'];
             $title = $video['title'];
             // echo $link;
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            usleep(1500000); //1.5 secs
+            sleep(1); //1.5 secs
         }
         // send next page link
 
