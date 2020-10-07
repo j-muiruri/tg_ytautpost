@@ -52,7 +52,7 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            sleep(3);
+            usleep(270000); //2.7 secs
         }
         // send next page link
 
