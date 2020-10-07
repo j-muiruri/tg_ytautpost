@@ -34,10 +34,10 @@ class LikedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
-
+        sleep(2);
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
-
+        sleep(3);
         $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
 
         // Reply with the Videos List
@@ -52,12 +52,12 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            
+            sleep(10);
         }
         // send next page link
 
         $arrResult = $videos->toArray();
-        $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
+        // $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
         // Trigger another command dynamically from within this command
         // $this->triggerCommand('subscribe');
     }
