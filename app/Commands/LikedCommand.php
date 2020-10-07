@@ -34,7 +34,7 @@ class LikedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
-        sleep(5);
+        sleep(1);
         // // This will update the chat status to typing...
         // $this->replyWithChatAction(['action' => Actions::TYPING]);
         // sleep(1);
