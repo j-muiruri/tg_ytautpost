@@ -64,7 +64,7 @@ class StartCommand extends Command
         // Reply with the commands list
         $this->replyWithMessage(['text' => $response]);
 
-       
+       sleep(5);
         
     }
 }
