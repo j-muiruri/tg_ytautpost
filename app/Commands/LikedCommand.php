@@ -37,7 +37,7 @@ class LikedCommand extends Command
         sleep(2);
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
-        sleep(3);
+        sleep(1);
         $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
 
         // Reply with the Videos List
@@ -52,7 +52,7 @@ class LikedCommand extends Command
             $no++;
 
             $this->replyWithMessage(['text' => $no.'. '.$title.' - '.$link]);
-            sleep(10);
+            sleep(3);
         }
         // send next page link
 
