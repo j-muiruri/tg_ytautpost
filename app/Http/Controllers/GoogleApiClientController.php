@@ -53,7 +53,7 @@ class GoogleApiClientController extends Controller
 
         $redirect_uri = URL::current();
         //set redirect URL
-        $client->setRedirectUri($redirect_uri);
+        $client->setRedirectUri(env('APP_URL'));
 
         return $client;
     }
