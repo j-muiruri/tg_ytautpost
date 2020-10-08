@@ -46,13 +46,14 @@ class LikedCommand extends Command
             $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(5);
 
             $no = 0;
+            $videoList ="";
             foreach ($videos as $video) {
                 $link = $video['link'];
                 $title = $video['title'];
                 // echo $link;
                 $no++;
 
-               $videoList= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
+               $videoList .= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
                
             }
             // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);

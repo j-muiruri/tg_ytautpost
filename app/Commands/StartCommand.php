@@ -47,11 +47,11 @@ class StartCommand extends Command
         // handled when you replace `send<Method>` with `replyWith` and use the same parameters - except chat_id does NOT need to be included in the array.
         $this->replyWithMessage(['text' => 'Seleqta Autopost Bot available commands:']);
 
-        sleep(3);
+        sleep(1);
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        sleep(3);
+        sleep(1);
         // This will prepare a list of available commands and send the user.
         // First, Get an array of all registered commands
         // They'll be in 'command-name' => 'Command Handler Class' format.
@@ -62,7 +62,7 @@ class StartCommand extends Command
         $response = '';
         foreach ($commands as $name => $command) {
             $response .= sprintf('/%s - %s' . PHP_EOL, $name, $command->getDescription());
-            sleep(3);
+            
         }
 
         // Reply with the commands list

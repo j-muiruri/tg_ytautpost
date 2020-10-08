@@ -45,6 +45,7 @@ class SubscribedCommand extends Command
 
         $no = 0;
 
+        $videoList = "";
         foreach ($channels as $ch) {
 
             $link = $ch['link'];
@@ -52,16 +53,15 @@ class SubscribedCommand extends Command
             // echo $link;
             $no++;
 
-            $videoList= sprintf('%s. %s - %s' . PHP_EOL, $no, $title, $link);
+            $videoList .= sprintf('%s. %s - https://youtube.com/channel/%s' . PHP_EOL, $no, $title, $link);
             // $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
 
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
-            
-        }
-        
-        $this->replyWithMessage(['text' =>$videoList]);
-        sleep(2);
 
+        }
+
+        $this->replyWithMessage(['text' => $videoList]);
+        sleep(2);
     }
 }
