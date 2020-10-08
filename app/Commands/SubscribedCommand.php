@@ -52,11 +52,16 @@ class SubscribedCommand extends Command
             // echo $link;
             $no++;
 
-            $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
+            $videoList= sprintf('%s. %s - %s' . PHP_EOL, $no, $title, $link);
+            // $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
 
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
-            sleep(2);
+            
         }
+        
+        $this->replyWithMessage(['text' =>$videoList]);
+        sleep(2);
+
     }
 }
