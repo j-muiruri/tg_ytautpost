@@ -43,7 +43,7 @@ class LikedCommand extends Command
         $type = $resultUpdate->message->chat->type;
 
         if ($type === 'supergroup') {
-            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
+            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(5);
 
             $no = 0;
             foreach ($videos as $video) {
@@ -53,11 +53,11 @@ class LikedCommand extends Command
                 $no++;
 
                $videoList= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
-               sleep(10); 
+               
             }
             // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
             $this->replyWithMessage(['text' =>$videoList]);
-            sleep(10); 
+            sleep(3); 
             // Reply with the Videos List
         } else {
             // // This will update the chat status to typing...
@@ -76,7 +76,7 @@ class LikedCommand extends Command
                 $no++;
 
                 $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
-                sleep(1); //1.5 secs
+                sleep(1.5); //1.5 secs
             }
             // send next page link
 
