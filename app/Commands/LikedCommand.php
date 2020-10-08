@@ -53,11 +53,11 @@ class LikedCommand extends Command
                 $no++;
 
                $videoList= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
-               sleep(1); 
+               sleep(10); 
             }
             // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
             $this->replyWithMessage(['text' =>$videoList]);
-            
+            sleep(10); 
             // Reply with the Videos List
         } else {
             // // This will update the chat status to typing...
