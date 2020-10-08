@@ -55,6 +55,7 @@ class SubscribedCommand extends Command
 
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
+            sleep(3);
         }
     }
 }
