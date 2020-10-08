@@ -62,6 +62,7 @@ return [
         App\Commands\SubscribedCommand::class,
         App\Commands\SubscribersCommand::class,
         App\Commands\StopCommand::class,
+        App\Commands\AuthCommand::class
         // Vendor\Project\Commands\SettingsCommand::class,
     ],
 ];

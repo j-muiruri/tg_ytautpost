@@ -73,7 +73,7 @@ class GoogleApiClientController extends Controller
 
         if (isset($code)) {
 
-            $client->authenticate($code);
+            $client->fetchAccessTokenWithAuthCode($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
 
