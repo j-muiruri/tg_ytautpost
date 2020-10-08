@@ -34,10 +34,11 @@ class SubscribedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following Channel subscriptions:']);
-
+        sleep(1);
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
+        sleep(1);
         $channels = MySubscriptions::paginate(10);
 
         // Reply with the Videos List
