@@ -41,13 +41,12 @@ class AuthCommand extends Command
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
         Log::debug($resultUpdate);
-        
 
-                $this->replyWithMessage(['text' =>$authLink]);
-                usleep(800000); //1.5 secs
-         
-            // Trigger another command dynamically from within this command
-            // $this->triggerCommand('subscribe');
-        }
+
+        $this->replyWithMessage(['text' => $authLink]);
+        usleep(800000); //1.5 secs
+
+        // Trigger another command dynamically from within this command
+        // $this->triggerCommand('subscribe');
     }
 }
