@@ -43,7 +43,7 @@ class LikedCommand extends Command
         $type = $resultUpdate->message->chat->type;
 
         if ($type === 'supergroup') {
-            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(50);
+            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(20);
 
             $no = 0;
             $videoList ="";
