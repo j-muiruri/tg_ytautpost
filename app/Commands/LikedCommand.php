@@ -35,7 +35,7 @@ class LikedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
-        sleep(1);
+        sleep(2);
 
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
