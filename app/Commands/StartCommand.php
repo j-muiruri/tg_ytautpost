@@ -40,7 +40,7 @@ class StartCommand extends Command
         // $this->triggerCommand('subscribe');
 
          // Get result from webhook update
-         $resultUpdate = $this->getUpdate();
+        //  $resultUpdate = $this->getUpdate();
         //  Log::debug($resultUpdate);
 
         // `replyWith<Message|Photo|Audio|Video|Voice|Document|Sticker|Location|ChatAction>()` all the available methods are dynamically
@@ -57,7 +57,7 @@ class StartCommand extends Command
         // They'll be in 'command-name' => 'Command Handler Class' format.
         $commands = $this->getTelegram()->getCommands();
 
-        Log::debug($commands);
+        // Log::debug($commands);
         // Build the list
         $response = '';
         foreach ($commands as $name => $command) {

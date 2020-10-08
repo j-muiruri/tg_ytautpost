@@ -35,7 +35,7 @@ class LikedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
-        sleep(2);
+        sleep(1);
 
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
@@ -43,7 +43,7 @@ class LikedCommand extends Command
         $type = $resultUpdate->message->chat->type;
 
         if ($type === 'supergroup') {
-            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(5);
+            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(50);
 
             $no = 0;
             $videoList ="";
@@ -64,7 +64,7 @@ class LikedCommand extends Command
             // // This will update the chat status to typing...
             // $this->replyWithChatAction(['action' => Actions::TYPING]);
             // sleep(1);
-            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(10);
+            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(20);
 
             // Reply with the Videos List
 
@@ -77,7 +77,7 @@ class LikedCommand extends Command
                 $no++;
 
                 $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
-                sleep(1.5); //1.5 secs
+                usleep(800000); //1.5 secs
             }
             // send next page link
 
