@@ -474,7 +474,7 @@ class GoogleApiClientController extends Controller
         //     // return   print($redirect_uri);
         // }
 
-        $redirect_uri = env('APP_URL').'/auth/';
+        $redirect_uri = env('APP_URL').'/auth';
         //set redirect URL
         // Route
         $client->setRedirectUri($redirect_uri);
