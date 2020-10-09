@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class GoogleApiClientController extends Controller
 {
@@ -502,6 +502,7 @@ class GoogleApiClientController extends Controller
             //Send Token to user 
             // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
             $data['code'] = $accessToken;
+            Log::debug($data['code']);
             return view('auth-success', $data);
             // return redirect('auth');
         } elseif ($fileExists != false) {
