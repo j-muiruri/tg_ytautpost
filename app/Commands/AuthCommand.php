@@ -44,9 +44,12 @@ class AuthCommand extends Command
 
 
         $this->replyWithMessage(['text' => $authLink]);
-        usleep(800000); //1.5 secs
+        sleep(2); //Wait 2 secs
 
         // Trigger another command dynamically from within this command
         // $this->triggerCommand('subscribe');
+
+        $this->replyWithMessage(['text' => 'After Authorization, Please paste the code recieved below:']);
     }
+    
 }

@@ -499,10 +499,10 @@ class GoogleApiClientController extends Controller
 
             $client->setAccessToken($accessToken);
 
-            //Save refresh Token to file
-            Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
-
-            return true;
+            //Send Token to user 
+            // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
+            $data['code'] = $accessToken;
+            return view('auth-success', $data);
             // return redirect('auth');
         } elseif ($fileExists != false) {
 
