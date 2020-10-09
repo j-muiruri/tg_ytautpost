@@ -8,6 +8,7 @@ use Facade\FlareClient\Http\Response;
 use Google_Client;
 use Google_Service_YouTube;
 use Illuminate\Http\Request;
+use Illuminate\Routing\RouteUri;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
@@ -45,7 +46,6 @@ class GoogleApiClientController extends Controller
         if (env('APP_ENV') === 'local') {
             $redirect_uri = URL::current();
         } else {
-
             $redirect_uri = env('APP_URL');
 
             // return   print($redirect_uri);
@@ -53,7 +53,7 @@ class GoogleApiClientController extends Controller
 
         $redirect_uri = URL::current();
         //set redirect URL
-        $client->setRedirectUri(env('APP_URL'));
+        $client->setRedirectUri($redirect_uri);
 
         return $client;
     }
@@ -72,7 +72,6 @@ class GoogleApiClientController extends Controller
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
         if (isset($code)) {
-
             $client->fetchAccessTokenWithAuthCode($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
@@ -95,7 +94,7 @@ class GoogleApiClientController extends Controller
             $response = response()->json($response);
 
             return $response;
-        } else if ($fileExists != false) {
+        } elseif ($fileExists != false) {
 
             //check if file exists on the disk
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
@@ -104,7 +103,6 @@ class GoogleApiClientController extends Controller
 
             /* Refresh token when expired */
             if ($client->isAccessTokenExpired()) {
-
                 $newAccessToken = $client->getAccessToken();
 
                 //append new refresh token to new accestoken
@@ -149,7 +147,6 @@ class GoogleApiClientController extends Controller
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
         if (isset($code)) {
-
             $client->fetchAccessTokenWithAuthCode($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
@@ -174,7 +171,7 @@ class GoogleApiClientController extends Controller
             echo $response;
             sleep(10);
             return redirect('my-rated');
-        } else if ($fileExists != false) {
+        } elseif ($fileExists != false) {
 
             //check if file xists on the disk
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
@@ -256,7 +253,6 @@ class GoogleApiClientController extends Controller
 
                     print_r(json_encode($results));
                 } else {
-
                     $results = $id . "  Exists!\n";
 
                     $exists++;
@@ -267,7 +263,6 @@ class GoogleApiClientController extends Controller
 
             //Check no of inserted entries, if less than 2, redirect automatically and fetch more videos
             if ($entries < 2) {
-
                 $Url = URL::current();
 
                 $tokenInput = $response->nextPageToken;
@@ -311,7 +306,6 @@ class GoogleApiClientController extends Controller
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
         if (isset($code)) {
-
             $client->authenticate($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
@@ -334,7 +328,7 @@ class GoogleApiClientController extends Controller
             $response = response()->json($request);
 
             return $response;
-        } else if ($fileExists != false) {
+        } elseif ($fileExists != false) {
 
             //check if file xists on the disk
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
@@ -415,7 +409,6 @@ class GoogleApiClientController extends Controller
 
                     print_r(json_encode($results));
                 } else {
-
                     $results = $id . "  Exists!";
 
                     $exists++;
@@ -425,7 +418,6 @@ class GoogleApiClientController extends Controller
             }
 
             if ($entries < 2) {
-
                 $Url = URL::current();
 
                 $tokenInput = $response->nextPageToken;
@@ -449,5 +441,90 @@ class GoogleApiClientController extends Controller
         return Redirect::intended($url);
 
         // return $client;
+    }
+
+    public function authGoogleApi()
+    {
+        $client = new Google_Client();
+
+        $client->setApplicationName('Autopost Telegram Bot');
+
+        $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly']);
+
+        //$client->setAuthConfig(env('CLIENT_SECRET'));
+
+        $client->setClientId(env('CLIENT_ID'));
+
+        $client->setClientSecret(env('CLIENT_SECRET_PASS'));
+
+        $client->setDeveloperKey(env('YOUTUBE_API_KEY', 'YOUR_API_KEY'));
+
+        $client->setAccessType('offline');
+
+        $client->setApprovalPrompt('force');
+
+        $client->setLoginHint(env('LOGIN_HINT'));
+
+        //Callback URL
+        // if (env('APP_ENV') === 'local') {
+        //     $redirect_uri = URL::current();
+        // } else {
+        //     $redirect_uri = env('APP_URL');
+
+        //     // return   print($redirect_uri);
+        // }
+
+        $redirect_uri = env('APP_URL').'auth';
+        //set redirect URL
+        // Route
+        $client->setRedirectUri($redirect_uri);
+
+        return $client;
+    }
+
+    public function authComplete($request)
+    {
+        $code = $request->input('code');
+
+        // $pageToken = $request->input('next');
+
+        $client = $this->getAuthGoogleApi();
+
+        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+
+        if (isset($code)) {
+            $client->fetchAccessTokenWithAuthCode($code);
+            // Google Client Object
+            $accessToken = $client->getAccessToken();
+
+            $client->setAccessToken($accessToken);
+
+            //Save refresh Token to file
+            Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
+
+            return true;
+            // return redirect('auth');
+        } elseif ($fileExists != false) {
+
+            //check if file exists on the disk
+            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+
+            $client->setAccessToken($file);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+
+                // the new access token comes with a refresh token as well
+                $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+
+                $newAccessToken = $client->getAccessToken();
+
+                //append new refresh token to new accestoken
+                $newAccessToken['refresh_token'] = $client->getRefreshToken();
+
+                Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
+            }
+            return true;
+        }
     }
 }

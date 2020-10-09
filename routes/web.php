@@ -37,13 +37,14 @@ Route::get('/rm-webhook', 'TelegramBotController@removeWebhook');
 Route::post(env('TELEGRAM_BOT_TOKEN') . '/webhook', 'TelegramBotController@tgWebhook');
 
 // Google API - Auth & Youtube - Channels, Playlist, Liked, Subcriptions
-Route::get('channel-details', 'YoutubeApiController@getChannelById');
-Route::get('channel-playlists', 'YoutubeApiController@getPlaylistByChannelId');
+// Route::get('channel-details', 'YoutubeApiController@getChannelById');
+// Route::get('channel-playlists', 'YoutubeApiController@getPlaylistByChannelId');
 
 Route::get('my-playlists', 'GoogleApiClientController@getPlaylists');
 Route::any('my-rated', 'GoogleApiClientController@getMyrated');
 Route::any('my-auth', 'GoogleApiClientController@getAuthGoogleApi');
 Route::any('my-subs', 'GoogleApiClientController@getMySubscriptions');
+Route::any('auth', 'GoogleApiClientController@authComplete');
 
 //My test
 Route::get('yt-liked', 'MyTests@index');
