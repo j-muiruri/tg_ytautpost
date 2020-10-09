@@ -482,7 +482,7 @@ class GoogleApiClientController extends Controller
         return $client;
     }
 
-    public function authComplete($request)
+    public function authComplete(Request $request)
     {
         $code = $request->input('code');
 
