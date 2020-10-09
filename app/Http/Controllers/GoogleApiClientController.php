@@ -488,7 +488,7 @@ class GoogleApiClientController extends Controller
 
         // $pageToken = $request->input('next');
 
-        $client = $this->getAuthGoogleApi();
+        $client = $this->authGoogleApi();
 
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
