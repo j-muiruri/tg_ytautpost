@@ -44,7 +44,7 @@ Route::get('my-playlists', 'GoogleApiClientController@getPlaylists');
 Route::any('my-rated', 'GoogleApiClientController@getMyrated');
 Route::any('my-auth', 'GoogleApiClientController@getAuthGoogleApi');
 Route::any('my-subs', 'GoogleApiClientController@getMySubscriptions');
-Route::any('auth', 'GoogleApiClientController@authComplete');
+Route::any('/auth', 'GoogleApiClientController@authComplete');
 
 //My test
 Route::get('yt-liked', 'MyTests@index');
