@@ -37,7 +37,7 @@ class AuthCommand extends Command
         sleep(2);
         $link = new GoogleApiClientController;
 
-        $authLink = $link->getAuthGoogleApi()->createAuthUrl();;
+        $authLink = $link->authGoogleApi()->createAuthUrl();;
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
         Log::debug($resultUpdate);
