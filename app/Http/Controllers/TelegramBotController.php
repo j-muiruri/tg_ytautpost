@@ -14,6 +14,7 @@ use App\TelegramBot;
  */
 class TelegramBotController extends Controller
 {
+    use Answerable;
     /**
      * Get Updates(Messages from users or input) via Long polling
      * Cant work if a webhook is already setup
@@ -41,10 +42,9 @@ class TelegramBotController extends Controller
         //$response = $update = Telegram::commandsHandler(true);
         Telegram::commandsHandler(true);
         Telegram::getWebhookUpdates();
-        $update = new Answerable;
 
         //Get Json Update
-        $result = $update->getUpdate();
+        $result = $this->getUpdate();
         $data = $result;
         $update_id = $data->update_id;
         $user_id = $data->message->from->id;

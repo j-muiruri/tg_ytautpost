@@ -5,9 +5,7 @@ namespace App\Commands;
 use App\Subscribers;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use Telegram\Bot\Actions;
-use Telegram\Bot\Objects\User;
 use Telegram\Bot\Commands\Command;
-use Telegram\Bot\Objects\TelegramObject;
 use Illuminate\Support\Facades\Log;
 
 /**
