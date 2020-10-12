@@ -465,7 +465,7 @@ class GoogleApiClientController extends Controller
 
         $client->setApprovalPrompt('force');
 
-        $client->setLoginHint(env('LOGIN_HINT'));
+        // $client->setLoginHint(env('LOGIN_HINT'));
 
         //Callback URL
         // if (env('APP_ENV') === 'local') {
