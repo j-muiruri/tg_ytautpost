@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-// use Telegram;
+use Telegram\Bot\Answers\Answerable;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
 
@@ -41,9 +41,10 @@ class TelegramBotController extends Controller
         //$response = $update = Telegram::commandsHandler(true);
         Telegram::commandsHandler(true);
         Telegram::getWebhookUpdates();
+        $update = new Answerable;
 
         //Get Json Update
-        $result = $this->getUpdate();
+        $result = $update->getUpdate();
         $data = $result;
         $update_id = $data->update_id;
         $user_id = $data->message->from->id;
@@ -52,10 +53,11 @@ class TelegramBotController extends Controller
         $chat_type = $data->message->chat->chat_type;
         $message_id = $data->message->message_id;
         $message = $data->message->text;
-        $message_type = $data->message->entities->type;
+        $entities = $data->message->entities;
+        $message_type = $entities['type'];
 
         // Store messages in db
-        
+
         TelegramBot::create(
             [
                 'update_id' => $update_id,
@@ -68,7 +70,7 @@ class TelegramBotController extends Controller
                 'message_type' => $message_type
             ]
         );
-        
+
         return response()->json(['status' => 'success']);
     }
 
