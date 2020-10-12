@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use Telegram\Bot\Answers\Answerable;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
-
+use Telegram\Bot\Objects\Update;
 /**
  * The Telegram Bot  Class
- *+
+ *
  * @author John Muiruri  <jontedev@gmail.com>
  *
  */
@@ -42,6 +42,7 @@ class TelegramBotController extends Controller
         //$response = $update = Telegram::commandsHandler(true);
         Telegram::commandsHandler(true);
         Telegram::getWebhookUpdates();
+        // $update = new  Update;
 
         //Get Json Update
         $result = $this->getUpdate();
