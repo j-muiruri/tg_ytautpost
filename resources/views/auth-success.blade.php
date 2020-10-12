@@ -63,9 +63,9 @@
   <main role="main" class="inner cover">
     <h1 class="cover-heading">Authorization was completed succesfully.</h1>
     <p class="lead">Copy and send the following code to us on Telegram </p>
-    <p class="code lead container-fluid">
+    <p class="lead container-fluid">
       <!-- <a href="#" class="btn btn-lg btn-secondary">Learn more</a> -->
-     Auth Code: <pre>{{ $code }}</pre>
+     Auth Code: <pre class="code" >{{ $code }}</pre>
      
     </p>
   </main>
