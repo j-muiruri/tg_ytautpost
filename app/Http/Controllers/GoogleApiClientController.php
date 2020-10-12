@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\MySubscriptions;
+use App\Subscribers;
 use App\YoutubeVideos;
 use Facade\FlareClient\Http\Response;
 use Google_Client;
@@ -497,15 +498,20 @@ class GoogleApiClientController extends Controller
     /**
      * Save User access tokens to db
      */
-    public function authSave(Request $request)
+    public function authSave($data, $userDetails)
     {
-        $code = $request->input('code');
+        // $code = $request->input('code');
+
+        $code = $data;
 
         // $pageToken = $request->input('next');
 
         $client = $this->authGoogleApi();
 
-        $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
+        $fileExists = Subscribers::where(['chat_id','=', $userDetails['chat_id'],
+        ['access_tokens', '!=' , 0],
+        ])
+        ->first();
 
         if (isset($code)) {
             $client->fetchAccessTokenWithAuthCode($code);
@@ -514,16 +520,19 @@ class GoogleApiClientController extends Controller
 
             $client->setAccessToken($accessToken);
 
-            //Send Token to user 
-            // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($accessToken), 'private');
+            //Save Token to DB
+            Subscribers::where('chat_id', $userDetails['chat_id'])
+                ->update(['access_tokens' =>$accessToken]);
+
+
             $data['code'] = $accessToken;
             Log::debug($data['code']);
-            return view('auth-success', $data);
+            return true;
             // return redirect('auth');
         } elseif ($fileExists != false) {
 
             //check if file exists on the disk
-            $file = Storage::disk('private')->get(env('TOKEN_FILE'));
+            $file = $fileExists;
 
             $client->setAccessToken($file);
 
@@ -538,7 +547,9 @@ class GoogleApiClientController extends Controller
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
 
-                Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
+                // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
+                Subscribers::where('chat_id', $userDetails['chat_id'])
+                ->update(['access_tokens.refresh_tokens' => $newAccessToken]);
             }
             return true;
         }

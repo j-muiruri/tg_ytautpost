@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
+use App\Http\Controllers\GoogleApiClientController as Google;
+use Illuminate\Http\Request;
 
 /**
  * The Telegram Bot  Class
@@ -81,7 +83,10 @@ class TelegramBotController extends Controller
      */
     public function processUpdates()
     {
-        $this->previousCommand();
+
+        // $userData = $this->previousCommand();
+
+        $this->saveTokens();
 
         sleep(1);
         $this->saveUpdates();
@@ -106,16 +111,15 @@ class TelegramBotController extends Controller
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
-        
+
         if ($entities != null) {
             $object  = $entities->toArray();
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
-        }
-        else {
+        } else {
             $message_type = "normal_text";
         }
-        // Log::debug($message_type);
+        Log::debug($message_type);
 
         // Store messages in db
 
@@ -145,12 +149,47 @@ class TelegramBotController extends Controller
         $chat_id = $data->message->chat->id;
 
         $command = TelegramBot::select('message')
-        ->where([
-            ['user_id', '=', $user_id],
-            ['chat_id', '=', $chat_id],
-            ['message_type', '=', 'bot_command'],
-        ])->first();
+            ->where([
+                ['user_id', '=', $user_id],
+                ['chat_id', '=', $chat_id],
+                ['message_type', '=', 'bot_command'],
+            ])->first();
         Log::debug($command);
+        $commandDetails = array();
+        $commandDetails["message"] = $command;
+        $commandDetails["chat_id"] = $chat_id;
+        $commandDetails["user_id"] = $user_id;
+        return $commandDetails;
     }
 
+    /**
+     * Generate Access Tokens
+     */
+    public function generateTokens(array $userDetails)
+    {
+        //Get the Code from db
+        $message = TelegramBot::select('message')
+            ->where([
+                ['user_id', '=', $userDetails["user_id"]],
+                ['chat_id', '=', $userDetails["chat_id"]],
+                ['message_type', '=', 'normal_text'],
+            ])->first();
+
+        $code = $message;
+        $client = new  Google;
+        $client->authSave($code, $userDetails);
+    }
+    /**
+     * Complete Auth to store Tokens
+     */
+    public function saveTokens()
+    {
+        $command =$this->previousCommand();
+
+        if ($command["message"] === "/auth") {
+            $this->generateTokens($command);
+        } else {
+            return true;
+        }
+    }
 }
