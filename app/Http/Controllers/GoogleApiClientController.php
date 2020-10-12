@@ -442,7 +442,9 @@ class GoogleApiClientController extends Controller
 
         // return $client;
     }
-
+    /**
+     * Prepare for Google Auth and generating Auth URL
+     */
     public function authGoogleApi()
     {
         $client = new Google_Client();
@@ -474,15 +476,28 @@ class GoogleApiClientController extends Controller
         //     // return   print($redirect_uri);
         // }
 
-        $redirect_uri = env('APP_URL').'/auth';
+        $redirect_uri = env('APP_URL') . '/auth';
         //set redirect URL
         // Route
         $client->setRedirectUri($redirect_uri);
 
         return $client;
     }
-
+    /**
+     * Complete auth, return code to User
+     */
     public function authComplete(Request $request)
+    {
+        $code = $request->input('code');
+
+            $data['code'] = $code;
+            Log::debug($data['code']);
+            return view('auth-success', $data);
+        }
+    /**
+     * Save User access tokens to db
+     */
+    public function authSave(Request $request)
     {
         $code = $request->input('code');
 
