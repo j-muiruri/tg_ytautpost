@@ -42,7 +42,7 @@
       }
     </style>
     <!-- Custom styles for this template -->
-    <link href="cover.css" rel="stylesheet">
+    <link href="https://getbootstrap.com/docs/4.5/examples/cover/cover.css" rel="stylesheet">
   </head>
   <body class="text-center">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
