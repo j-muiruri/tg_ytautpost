@@ -87,8 +87,8 @@ class TelegramBotController extends Controller
         $update_id = $data->update_id;
         $user_id = $data->message->from->id;
         $username = $data->message->from->username;
-        $chat_id = $data->message->chat->update_id;
-        $chat_type = $data->message->chat->chat_type;
+        $chat_id = $data->message->chat->id;
+        $chat_type = $data->message->chat->type;
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
