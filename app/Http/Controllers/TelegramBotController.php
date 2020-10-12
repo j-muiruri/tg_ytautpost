@@ -106,9 +106,15 @@ class TelegramBotController extends Controller
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
-        $object  = $entities->toArray();
-        $entityArray = $object['0'];
-        $message_type = $entityArray['type'];
+        
+        if ($entities != null) {
+            $object  = $entities->toArray();
+            $entityArray = $object['0'];
+            $message_type = $entityArray['type'];
+        }
+        else {
+            $message_type = "normal_text";
+        }
         // Log::debug($message_type);
 
         // Store messages in db
@@ -137,13 +143,6 @@ class TelegramBotController extends Controller
 
         $user_id = $data->message->from->id;
         $chat_id = $data->message->chat->id;
-        $message = $data->message->text;
-
-        $entities = $data->message->entities;
-        Log::debug($data->message);
-        $object  = $entities->toArray();
-        $entityArray = $object['0'];
-        $message_type = $entityArray['type'];
 
         $command = TelegramBot::select('message')
         ->where([
