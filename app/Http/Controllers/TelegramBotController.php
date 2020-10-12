@@ -145,11 +145,11 @@ class TelegramBotController extends Controller
         $message_type = $entityArray['type'];
 
         $command = TelegramBot::select('message')
-        ->where(
+        ->where([
             ['user_id', '=', $user_id],
             ['chat_id', '=', $chat_id],
-            ['message_type', '=', 'bot_command']
-        )->first();
+            ['message_type', '=', 'bot_command'],
+        ])->first();
         Log::debug($command);
     }
 
