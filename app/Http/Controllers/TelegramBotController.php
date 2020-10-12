@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Telegram\Bot\Api;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
 /**
@@ -92,7 +92,10 @@ class TelegramBotController extends Controller
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
-        $message_type = $entities['type'];
+        $message_type  = array_map(function($object){
+            return (array) $object;
+        }, $entities);
+        Log::debug($message_type);
 
         // Store messages in db
 
