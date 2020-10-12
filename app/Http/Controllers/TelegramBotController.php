@@ -92,9 +92,7 @@ class TelegramBotController extends Controller
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
-        $message_type  = array_map(function($object){
-            return (array) $object;
-        }, $entities);
+        $message_type  = $entities->toArray();
         Log::debug($message_type);
 
         // Store messages in db
