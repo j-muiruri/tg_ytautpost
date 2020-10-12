@@ -14,7 +14,7 @@ class AddTokensToTelegramSubscribersTable extends Migration
     public function up()
     {
         Schema::table('subscribers', function (Blueprint $table) {
-            $table->string('access_tokens');
+            $table->string('access_tokens')->default(0);
         });
     }
 
