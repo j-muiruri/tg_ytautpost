@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
+
 /**
  * The Telegram Bot  Class
  *
@@ -42,8 +43,8 @@ class TelegramBotController extends Controller
         // Telegram::getWebhookUpdates();
         // $update = new  Update;
 
-        $this->saveUpdates();
-        
+        $this->processUpdates();
+
         return response()->json(['status' => 'success']);
     }
 
@@ -76,8 +77,21 @@ class TelegramBotController extends Controller
     }
 
     /**
-    * Save Updates
-    */
+     * Process Updates
+     */
+    public function processUpdates()
+    {
+        $this->previousCommand();
+
+        sleep(1);
+        $this->saveUpdates();
+
+        return true;
+    }
+
+    /**
+     * Save Updates
+     */
     public function saveUpdates()
     {
         //Get Json Update
@@ -95,21 +109,48 @@ class TelegramBotController extends Controller
         $object  = $entities->toArray();
         $entityArray = $object['0'];
         $message_type = $entityArray['type'];
-        Log::debug($message_type);
+        // Log::debug($message_type);
 
         // Store messages in db
 
         TelegramBot::create(
             [
-             'update_id' => $update_id,
-             'user_id' => $user_id,
-             'username' => $username,
-             'chat_id' => $chat_id,
-             'chat_type' => $chat_type,
-             'message_id' => $message_id,
-             'message' => $message,
-             'message_type' => $message_type
-         ]
+                'update_id' => $update_id,
+                'user_id' => $user_id,
+                'username' => $username,
+                'chat_id' => $chat_id,
+                'chat_type' => $chat_type,
+                'message_id' => $message_id,
+                'message' => $message,
+                'message_type' => $message_type
+            ]
         );
+
+        return true;
     }
+    /**
+     * Gets Previous Command
+     */
+    public function previousCommand()
+    {
+        $data = Telegram::getWebhookUpdates();
+
+        $user_id = $data->message->from->id;
+        $chat_id = $data->message->chat->id;
+        $message = $data->message->text;
+
+        $entities = $data->message->entities;
+        $object  = $entities->toArray();
+        $entityArray = $object['0'];
+        $message_type = $entityArray['type'];
+
+        $command = TelegramBot::select('message')
+        ->where(
+            ['user_id', '=', $user_id],
+            ['chat_id', '=', $chat_id],
+            ['message_type', '=', 'bot_command']
+        )->first();
+        Log::debug($command);
+    }
+
 }
