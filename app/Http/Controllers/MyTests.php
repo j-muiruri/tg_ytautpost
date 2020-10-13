@@ -27,7 +27,7 @@ class MyTests extends Controller
     {
         $result = YoutubeVideos::select('link')
         ->orderBy('id', 'desc')
-        ->last();
+        ->first();
 
         // $link= $result['data'];
         // // $link =$link['data']; 
