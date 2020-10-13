@@ -153,7 +153,8 @@ class TelegramBotController extends Controller
                 ['user_id', '=', $user_id],
                 ['chat_id', '=', $chat_id],
                 ['message_type', '=', 'bot_command'],
-            ])->first();
+            ])->orderBy('id', 'desc')
+            ->limit(1);
         Log::debug($command);
         $commandDetails = array();
         $commandDetails["message"] = $command;
