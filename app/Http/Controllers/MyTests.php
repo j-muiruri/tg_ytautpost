@@ -25,7 +25,9 @@ class MyTests extends Controller
 
     public function index()
     {
-        $result = YoutubeVideos::last()->pluck('link');
+        $result = YoutubeVideos::select('link')
+        ->orderBy('id', 'desc')
+        ->last();
 
         // $link= $result['data'];
         // // $link =$link['data']; 
@@ -41,7 +43,7 @@ class MyTests extends Controller
         // }
 
         $jsonResult = json_encode($result, JSON_PRETTY_PRINT);
-        var_dump($result);
+        var_dump($jsonResult);
 
         // return $link;
         // print_r($arrResult);
