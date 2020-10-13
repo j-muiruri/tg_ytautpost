@@ -43,10 +43,10 @@ class MyTests extends Controller
         // }
 
         $jsonResult = json_encode($result);
-        $arrResult = $result->toArray();
-        // var_dump($arrResult['next_page_url']);
+        $arrResult = $jsonResult;
+        var_dump($arrResult);
 
         // return $link;
-        print_r($arrResult);
+        // print_r($arrResult);
     }
 }
