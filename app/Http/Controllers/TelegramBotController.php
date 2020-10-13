@@ -96,6 +96,7 @@ class TelegramBotController extends Controller
 
     /**
      * Save Updates
+     * @return true
      */
     public function saveUpdates()
     {
@@ -111,14 +112,7 @@ class TelegramBotController extends Controller
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
-
-        if ($entities != null) {
-            $object  = $entities->toArray();
-            $entityArray = $object['0'];
-            $message_type = $entityArray['type'];
-        } else {
-            $message_type = "normal_text";
-        }
+        $message_type= $this->checkMessageType();
         Log::debug($message_type);
 
         // Store messages in db
@@ -163,32 +157,57 @@ class TelegramBotController extends Controller
         $commandDetails["user_id"] = $user_id;
         return $commandDetails;
     }
+    /**
+     * Check Type of Message
+     * @return $message_type
+     */
+    public function checkMessageType()
+    {
 
+        $data = Telegram::getWebhookUpdates();
+
+        $entities = $data->message->entities;
+        if ($entities != null) {
+            $object  = $entities->toArray();
+            $entityArray = $object['0'];
+            $message_type = $entityArray['type'];
+            return $message_type;
+        } else {
+            $message_type = "normal_text";
+            return $message_type;
+        }
+    }
     /**
      * Generate Access Tokens
+     *  return true
      */
     public function generateTokens(array $userDetails)
     {
         //Get the Code from db
-        $message = TelegramBot::select('message')
+        $data = TelegramBot::select('message')
             ->where([
                 ['user_id', '=', $userDetails["user_id"]],
                 ['chat_id', '=', $userDetails["chat_id"]],
                 ['message_type', '=', 'normal_text'],
-            ])->first();
+            ])->orderBy('id', 'desc')
+            ->first();
 
-        $code = $message;
+        $code = $data->message;
+        Log::debug($code);
         $client = new  Google;
         $client->authSave($code, $userDetails);
     }
     /**
      * Complete Auth to store Tokens
+     * @ return true
      */
     public function saveTokens()
     {
+        $message_type = $this->checkMessageType();
+
         $command =$this->previousCommand();
 
-        if ($command["message"] === "/auth") {
+        if ($command["message"] === "/auth" && $message_type = "normal_text") {
             $this->generateTokens($command);
         } else {
             return true;
