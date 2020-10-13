@@ -42,9 +42,8 @@ class MyTests extends Controller
         //     // echo $t;
         // }
 
-        $jsonResult = json_encode($result);
-        $arrResult = $jsonResult;
-        var_dump($arrResult);
+        $jsonResult = json_encode($result, JSON_PRETTY_PRINT);
+        var_dump($jsonResult);
 
         // return $link;
         // print_r($arrResult);
