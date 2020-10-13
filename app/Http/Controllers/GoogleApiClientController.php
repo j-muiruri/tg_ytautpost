@@ -503,7 +503,7 @@ class GoogleApiClientController extends Controller
         // $code = $request->input('code');
 
         $code = $data;
-
+        Log::debug($data);
         // $pageToken = $request->input('next');
 
         $client = $this->authGoogleApi();
