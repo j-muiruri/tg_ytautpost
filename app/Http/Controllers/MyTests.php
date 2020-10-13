@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\YoutubeVideos;
+use App\TelegramBot;
 use Illuminate\Contracts\Support\Jsonable;
 
 /**
@@ -24,22 +25,24 @@ class MyTests extends Controller
 
     public function index()
     {
-        $result =  YoutubeVideos::simplePaginate(10);
+        $result = YoutubeVideos::select('link')
+        ->orderBy('id', 'desc')
+        ->limit(1);
 
-        $link= $result['data'];
-        // $link =$link['data']; 
+        // $link= $result['data'];
+        // // $link =$link['data']; 
 
-        // $link = $link->link;
-        foreach ($result as $video) {
+        // // $link = $link->link;
+        // foreach ($result as $video) {
 
-            $link = $video['link'];
-            // echo $link;
+        //     $link = $video['link'];
+        //     // echo $link;
 
-            $t = $video['title'];
-            // echo $t;
-        }
+        //     $t = $video['title'];
+        //     // echo $t;
+        // }
 
-        $jsonResult = json_encode($result['data']);
+        $jsonResult = json_encode($result);
         $arrResult = $result->toArray();
         // var_dump($arrResult['next_page_url']);
 
