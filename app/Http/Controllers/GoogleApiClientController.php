@@ -508,7 +508,7 @@ class GoogleApiClientController extends Controller
 
         $client = $this->authGoogleApi();
 
-        $fileExists = Subscribers::where(['chat_id','=', $userDetails['chat_id'],
+        $fileExists = Subscribers::where([['chat_id','=', $userDetails['chat_id']],
         ['access_tokens', '!=' , 0],
         ])
         ->first();
