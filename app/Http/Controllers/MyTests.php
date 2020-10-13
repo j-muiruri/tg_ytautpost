@@ -25,9 +25,7 @@ class MyTests extends Controller
 
     public function index()
     {
-        $result = YoutubeVideos::select('link')
-        ->orderBy('id', 'desc')
-        ->limit(1);
+        $result = YoutubeVideos::last()->pluck('link');
 
         // $link= $result['data'];
         // // $link =$link['data']; 
