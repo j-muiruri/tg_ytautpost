@@ -43,7 +43,7 @@ class MyTests extends Controller
         // }
 
         $jsonResult = json_encode($result, JSON_PRETTY_PRINT);
-        print_r($result);
+        var_dump($result);
 
         // return $link;
         // print_r($arrResult);
