@@ -549,9 +549,12 @@ class GoogleApiClientController extends Controller
 
                 // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
                 Subscribers::where('chat_id', $userDetails['chat_id'])
-                ->update(['access_tokens.refresh_tokens' => $newAccessToken]);
-            }
+                ->update(['access_tokens' => $newAccessToken]);
+
+                 $data['code'] = $newAccessToken;
+            Log::debug($data['code']);
             return true;
+            }
         }
     }
 }
