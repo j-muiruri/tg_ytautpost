@@ -491,10 +491,10 @@ class GoogleApiClientController extends Controller
     {
         $code = $request->input('code');
 
-            $data['code'] = $code;
-            Log::debug($data['code']);
-            return view('auth-success', $data);
-        }
+        $data['code'] = $code;
+        Log::debug($data['code']);
+        return view('auth-success', $data);
+    }
     /**
      * Save User access tokens to db
      */
@@ -503,31 +503,38 @@ class GoogleApiClientController extends Controller
         // $code = $request->input('code');
 
         $code = $data;
-        Log::debug($data);
+        Log::debug("Code submitted by CHAT_ID: " . $userDetails['chat_id'] . ", = " . $data);
         // $pageToken = $request->input('next');
 
         $client = $this->authGoogleApi();
 
-        $fileExists = Subscribers::where([['chat_id','=', $userDetails['chat_id']],
-        ['access_tokens', '!=' , 0],
+        $fileExists = Subscribers::where([
+            ['chat_id', '=', $userDetails['chat_id']],
+            ['access_tokens', '!=', 0],
         ])
-        ->first();
+            ->first();
 
         if (isset($code)) {
-            $client->fetchAccessTokenWithAuthCode($code);
-            // Google Client Object
-            $accessToken = $client->getAccessToken();
+            $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
 
-            $client->setAccessToken($accessToken);
+            if (isset($fetchToken['error'])) {
+                Log::debug("Error 400:". $fetchToken);
+                return false;
+            } else {
+                // Google Client Object
+                $accessToken = $client->getAccessToken();
 
-            //Save Token to DB
-            Subscribers::where('chat_id', $userDetails['chat_id'])
-                ->update(['access_tokens' =>$accessToken]);
+                $client->setAccessToken($accessToken);
+
+                //Save Token to DB
+                Subscribers::where('chat_id', $userDetails['chat_id'])
+                    ->update(['access_tokens' => $accessToken]);
 
 
-            $data['code'] = $accessToken;
-            Log::debug($data['code']);
-            return true;
+                $data['code'] = $accessToken;
+                Log::debug($data['code']);
+                return true;
+            }
             // return redirect('auth');
         } elseif ($fileExists != false) {
 
@@ -549,11 +556,11 @@ class GoogleApiClientController extends Controller
 
                 // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
                 Subscribers::where('chat_id', $userDetails['chat_id'])
-                ->update(['access_tokens' => $newAccessToken]);
+                    ->update(['access_tokens' => $newAccessToken]);
 
-                 $data['code'] = $newAccessToken;
-            Log::debug($data['code']);
-            return true;
+                $data['code'] = $newAccessToken;
+                Log::debug($data['code']);
+                return true;
             }
         }
     }

@@ -7,6 +7,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
 use App\Http\Controllers\GoogleApiClientController as Google;
 use Illuminate\Http\Request;
+use Telegram\Bot\Answers\Answerable;
 
 /**
  * The Telegram Bot  Class
@@ -80,13 +81,17 @@ class TelegramBotController extends Controller
 
     /**
      * Process Updates
+     * @return true/false
      */
     public function processUpdates()
     {
 
         // $userData = $this->previousCommand();
 
-        $this->saveTokens();
+        if($this->saveTokens() != true){
+            $msg = new Answerable;
+           $msg->replyWithMessage(['text, "Authentication Error, reply with /auth command']);
+        }
 
         sleep(1);
         $this->saveUpdates();
@@ -134,6 +139,7 @@ class TelegramBotController extends Controller
     }
     /**
      * Gets Previous Command
+     * @return array $commandDetails
      */
     public function previousCommand()
     {
@@ -179,7 +185,7 @@ class TelegramBotController extends Controller
     }
     /**
      * Generate Access Tokens
-     *  return true
+     *  @return true/false
      */
     public function generateTokens(array $userDetails)
     {
@@ -195,11 +201,18 @@ class TelegramBotController extends Controller
         $code = $data->message;
         Log::debug($code);
         $client = new  Google;
-        $client->authSave($code, $userDetails);
+        $saveTokens = $client->authSave($code, $userDetails);
+        if ($saveTokens) {
+
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     /**
      * Complete Auth to store Tokens
-     * @ return true
+     * @return true/false
      */
     public function saveTokens()
     {
