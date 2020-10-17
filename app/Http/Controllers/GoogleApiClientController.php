@@ -522,7 +522,7 @@ class GoogleApiClientController extends Controller
             try {
                 $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
             } catch (Exception $e) {
-                report($e);
+                // report($e);
         
                 return false;
             }

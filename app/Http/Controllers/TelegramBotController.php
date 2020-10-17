@@ -44,7 +44,6 @@ class TelegramBotController extends Controller
         //$response = $update = Telegram::commandsHandler(true);
         Telegram::commandsHandler(true);
         // Telegram::getWebhookUpdates();
-        // $update = new  Update;
 
         $this->processUpdates();
 
