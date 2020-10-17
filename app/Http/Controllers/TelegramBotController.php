@@ -159,7 +159,7 @@ class TelegramBotController extends Controller
             ])->orderBy('id', 'desc')
             ->first();
         $message = $command->message;
-        
+
         $commandDetails = array();
         $commandDetails["message"] = $message;
         $commandDetails["chat_id"] = $chat_id;
@@ -199,15 +199,17 @@ class TelegramBotController extends Controller
 
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
             if ($this->generateTokens($command) === true) {
+                $data = array();
                 $data['status'] = true;
                 $data['chat_id'] = $command["chat_id"];
-                Log::debug("Code saved and Tokens gen'd: \n".$data['chat_id']);
+                Log::debug("Code saved and Tokens gen'd: \n" . $data['chat_id']);
                 return $data;
             }
         } else {
+            $data = array();
             $data['chat_id'] = $command["chat_id"];
             $data['status'] = false;
-            Log::debug("Wrong Code or Expired: \n".$data['chat_id']);
+            Log::debug("Wrong Code or Expired: \n" . $data['chat_id']);
             return $data;
         }
     }
@@ -231,12 +233,8 @@ class TelegramBotController extends Controller
         $saveTokens = $client->authSave($code, $userDetails);
 
         if ($saveTokens === true) {
-
-            Log::debug("Trueee!! ");
             return true;
         } else {
-
-            Log::debug("Falseeeee!! ");
             return false;
         }
     }
