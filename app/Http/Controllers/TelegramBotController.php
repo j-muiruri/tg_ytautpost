@@ -84,18 +84,19 @@ class TelegramBotController extends Controller
      */
     public function processUpdates()
     {
-
-        // $userData = $this->previousCommand();
-
         // sleep(1);
         $this->saveUpdates();
 
         $saveTokens = $this->saveTokens();
 
         // Log::debug($saveTokens);
-        if ($saveTokens['status'] === false) {
+        if ($saveTokens === false) {
+
+            $data = Telegram::getWebhookUpdates();
+            $chat_id = $data->message->chat->id;
+
             Telegram::sendMessage([
-                'chat_id' => $saveTokens['chat_id'],
+                'chat_id' => $chat_id,
                 'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
             ]);
         }
@@ -189,7 +190,7 @@ class TelegramBotController extends Controller
 
     /**
      * Complete Auth to store Tokens
-     * @return array $data
+     * @return true/false
      */
     public function saveTokens()
     {
@@ -201,18 +202,12 @@ class TelegramBotController extends Controller
 
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
             if ($this->generateTokens($command) === true) {
-                $data = array();
-                $data['chat_id'] = $resultData->message->chat->id;
-                $data['status'] = true;
-                Log::debug("Code saved and Tokens gen'd for:".$data['status']. " -".$data['chat_id']);
-                return $data;
+               
+                return true;
             }
         } else {
-            $data = array();
-            $data['chat_id'] = $resultData->message->chat->id;
-            $data['status'] = false;
-            Log::debug("Wrong Code or Expired for:".$data['status']. " -".$data['chat_id']);
-            return $data;
+            
+            return false;
         }
     }
     /**
