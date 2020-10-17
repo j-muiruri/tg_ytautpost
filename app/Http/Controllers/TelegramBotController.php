@@ -194,7 +194,6 @@ class TelegramBotController extends Controller
      */
     public function saveTokens()
     {
-        $resultData = Telegram::getWebhookUpdates();
 
         $message_type = $this->checkMessageType();
 
@@ -205,10 +204,13 @@ class TelegramBotController extends Controller
                 Log::debug("Yeeeaa!!!!");
                 return true;
             }
-        } else {
+       else {
             Log::debug("Should be false");
             return false;
         }
+    } else {
+        return true;
+    }
     }
     /**
      * Generate Access Tokens
