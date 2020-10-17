@@ -193,6 +193,8 @@ class TelegramBotController extends Controller
      */
     public function saveTokens()
     {
+        $resultData = Telegram::getWebhookUpdates();
+
         $message_type = $this->checkMessageType();
 
         $command = $this->previousCommand();
@@ -200,16 +202,16 @@ class TelegramBotController extends Controller
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
             if ($this->generateTokens($command) === true) {
                 $data = array();
+                $data['chat_id'] = $resultData->message->chat->id;
                 $data['status'] = true;
-                $data['chat_id'] = $command["chat_id"];
-                Log::debug("Code saved and Tokens gen'd:");
+                Log::debug("Code saved and Tokens gen'd for:".$data['status']. " -".$data['chat_id']);
                 return $data;
             }
         } else {
             $data = array();
-            $data['chat_id'] = $command["chat_id"];
+            $data['chat_id'] = $resultData->message->chat->id;
             $data['status'] = false;
-            Log::debug("Wrong Code or Expired:" );
+            Log::debug("Wrong Code or Expired for:".$data['status']. " -".$data['chat_id']);
             return $data;
         }
     }
