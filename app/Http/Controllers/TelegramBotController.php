@@ -202,6 +202,7 @@ class TelegramBotController extends Controller
             if ($this->generateTokens($command) === true) {
                 $data['status'] = true;
                 $data['chat_id'] = $command["chat_id"];
+                Log::debug($data);
                 return $data;
             }
         } else {
