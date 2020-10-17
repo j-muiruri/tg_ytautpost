@@ -499,6 +499,7 @@ class GoogleApiClientController extends Controller
     }
     /**
      * Save User access tokens to db
+     * @return true/false
      */
     public function authSave($data, $userDetails)
     {
@@ -527,10 +528,7 @@ class GoogleApiClientController extends Controller
             }
             // $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
 
-            if (isset($fetchToken['error'])) {
-                Log::debug("Error 400:  ". $fetchToken);
-                return false;
-            } else {
+           
                 //Get Access Tokens from Google OAuth
                 $accessToken = $client->getAccessToken();
 
@@ -545,7 +543,6 @@ class GoogleApiClientController extends Controller
                 $data['code'] = $accessToken;
                 Log::debug($data['code']);
                 return true;
-            }
             // return redirect('auth');
         } elseif ($fileExists != false) {
 

@@ -228,9 +228,11 @@ class TelegramBotController extends Controller
             ->first();
 
         $code = $data->message;
-        Log::debug($code);
         $client = new  Google;
         $saveTokens = $client->authSave($code, $userDetails);
+
+        Log::debug("Result of authSave: ".$saveTokens);
+
         if ($saveTokens === true) {
 
             return true;
