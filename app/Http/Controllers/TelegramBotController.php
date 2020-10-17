@@ -188,7 +188,7 @@ class TelegramBotController extends Controller
 
     /**
      * Complete Auth to store Tokens
-     * @return $data
+     * @return array $data
      */
     public function saveTokens()
     {
