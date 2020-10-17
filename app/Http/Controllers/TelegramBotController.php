@@ -122,7 +122,7 @@ class TelegramBotController extends Controller
         $message = $data->message->text;
         $entities = $data->message->entities;
         $message_type = $this->checkMessageType();
-        Log::debug($message_type);
+        // Log::debug($message_type);
 
         // Store messages in db
 
@@ -202,11 +202,11 @@ class TelegramBotController extends Controller
 
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
             if ($this->generateTokens($command) === true) {
-               
+                Log::debug("Yeeeaa!!!!");
                 return true;
             }
         } else {
-            
+            Log::debug("Should be false");
             return false;
         }
     }
