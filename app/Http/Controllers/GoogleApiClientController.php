@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GoogleApiClientController extends Controller
 {
@@ -515,10 +516,18 @@ class GoogleApiClientController extends Controller
             ->first();
 
         if (isset($code)) {
-            $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
+            
+            try {
+                $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
+            } catch (Throwable $e) {
+                report($e);
+        
+                return false;
+            }
+            // $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
 
             if (isset($fetchToken['error'])) {
-                Log::debug("Error 400:". $fetchToken);
+                Log::debug("Error 400:  ". $fetchToken);
                 return false;
             } else {
                 // Google Client Object

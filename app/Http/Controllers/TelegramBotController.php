@@ -88,14 +88,13 @@ class TelegramBotController extends Controller
 
         // $userData = $this->previousCommand();
 
+        // sleep(1);
+        $this->saveUpdates();
+
         if($this->saveTokens() != true){
             $msg = new Answerable;
            $msg->replyWithMessage(['text, "Authentication Error, reply with /auth command']);
         }
-
-        sleep(1);
-        $this->saveUpdates();
-
         return true;
     }
 
@@ -183,6 +182,23 @@ class TelegramBotController extends Controller
             return $message_type;
         }
     }
+
+     /**
+     * Complete Auth to store Tokens
+     * @return true/false
+     */
+    public function saveTokens()
+    {
+        $message_type = $this->checkMessageType();
+
+        $command =$this->previousCommand();
+
+        if ($command["message"] === "/auth" && $message_type === "normal_text") {
+            $this->generateTokens($command);
+        } else {
+            return true;
+        }
+    }
     /**
      * Generate Access Tokens
      *  @return true/false
@@ -202,7 +218,7 @@ class TelegramBotController extends Controller
         Log::debug($code);
         $client = new  Google;
         $saveTokens = $client->authSave($code, $userDetails);
-        if ($saveTokens) {
+        if ($saveTokens === true) {
 
             return true;
         }
@@ -210,20 +226,5 @@ class TelegramBotController extends Controller
             return false;
         }
     }
-    /**
-     * Complete Auth to store Tokens
-     * @return true/false
-     */
-    public function saveTokens()
-    {
-        $message_type = $this->checkMessageType();
-
-        $command =$this->previousCommand();
-
-        if ($command["message"] === "/auth" && $message_type === "normal_text") {
-            $this->generateTokens($command);
-        } else {
-            return true;
-        }
-    }
+   
 }
