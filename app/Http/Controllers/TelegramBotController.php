@@ -93,8 +93,8 @@ class TelegramBotController extends Controller
 
         $saveTokens = $this->saveTokens();
 
-        Log::debug($saveTokens);
-        if ($saveTokens['status'] != true) {
+        // Log::debug($saveTokens);
+        if ($saveTokens['status'] === false) {
             Telegram::sendMessage([
                 'chat_id' => $saveTokens['chat_id'],
                 'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
@@ -198,17 +198,18 @@ class TelegramBotController extends Controller
 
         $command = $this->previousCommand();
 
+        Log::debug("Command Details: \n".$command);
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
             if ($this->generateTokens($command) === true) {
                 $data['status'] = true;
                 $data['chat_id'] = $command["chat_id"];
-                Log::debug($data);
+                Log::debug("Code saved and Tokens gen'd: \n".$data);
                 return $data;
             }
         } else {
             $data['chat_id'] = $command["chat_id"];
             $data['status'] = false;
-            Log::debug($data);
+            Log::debug("Wrong Code or Expired: \n".$data);
             return $data;
         }
     }
