@@ -202,14 +202,14 @@ class TelegramBotController extends Controller
                 $data = array();
                 $data['status'] = true;
                 $data['chat_id'] = $command["chat_id"];
-                Log::debug("Code saved and Tokens gen'd: \n" . $data['chat_id']);
+                Log::debug("Code saved and Tokens gen'd: \n");
                 return $data;
             }
         } else {
             $data = array();
             $data['chat_id'] = $command["chat_id"];
             $data['status'] = false;
-            Log::debug("Wrong Code or Expired: \n" . $data['chat_id']);
+            Log::debug("Wrong Code or Expired: \n" );
             return $data;
         }
     }
