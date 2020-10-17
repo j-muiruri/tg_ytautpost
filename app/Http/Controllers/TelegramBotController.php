@@ -7,7 +7,7 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
 use App\Http\Controllers\GoogleApiClientController as Google;
 use Illuminate\Http\Request;
-use Telegram\Bot\Answers\Answerable;
+use Telegram\Bot\Commands\Command;
 
 /**
  * The Telegram Bot  Class
@@ -92,7 +92,7 @@ class TelegramBotController extends Controller
         $this->saveUpdates();
 
         if($this->saveTokens() != true){
-            $msg = new Answerable;
+            $msg = new Command;
            $msg->replyWithMessage(['text, "Authentication Error, reply with /auth command']);
         }
         return true;
