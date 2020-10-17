@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
-use Throwable;
+use Exception;
 
 class GoogleApiClientController extends Controller
 {
@@ -178,6 +178,7 @@ class GoogleApiClientController extends Controller
             //check if file xists on the disk
             $file = Storage::disk('private')->get(env('TOKEN_FILE'));
 
+            //Get Our access token
             $client->setAccessToken($file);
 
             /* Refresh token when expired */
@@ -293,7 +294,7 @@ class GoogleApiClientController extends Controller
     }
 
     /**
-     * Get User Liked videos
+     * Get User Subscribed Channels
      */
     public function getMySubscriptions(Request $request)
     {
@@ -519,7 +520,7 @@ class GoogleApiClientController extends Controller
             
             try {
                 $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
-            } catch (Throwable $e) {
+            } catch (Exception $e) {
                 report($e);
         
                 return false;
@@ -530,9 +531,10 @@ class GoogleApiClientController extends Controller
                 Log::debug("Error 400:  ". $fetchToken);
                 return false;
             } else {
-                // Google Client Object
+                //Get Access Tokens from Google OAuth
                 $accessToken = $client->getAccessToken();
 
+                //Set Our access token when calling Google APIs
                 $client->setAccessToken($accessToken);
 
                 //Save Token to DB
