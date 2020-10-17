@@ -207,6 +207,7 @@ class TelegramBotController extends Controller
         } else {
             $data['chat_id'] = $command["chat_id"];
             $data['status'] = false;
+            Log::debug($data);
             return $data;
         }
     }
