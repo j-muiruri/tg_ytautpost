@@ -92,6 +92,8 @@ class TelegramBotController extends Controller
         $this->saveUpdates();
 
         $saveTokens = $this->saveTokens();
+
+        Log::debug($saveTokens);
         if ($saveTokens['status'] != true) {
             Telegram::sendMessage([
                 'chat_id' => $saveTokens['chat_id'],
@@ -158,7 +160,7 @@ class TelegramBotController extends Controller
             ])->orderBy('id', 'desc')
             ->first();
         $message = $command->message;
-        Log::debug($message);
+        
         $commandDetails = array();
         $commandDetails["message"] = $message;
         $commandDetails["chat_id"] = $chat_id;
