@@ -198,18 +198,17 @@ class TelegramBotController extends Controller
 
         $command = $this->previousCommand();
 
-        Log::debug("Command Details: \n".$command);
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
             if ($this->generateTokens($command) === true) {
                 $data['status'] = true;
                 $data['chat_id'] = $command["chat_id"];
-                Log::debug("Code saved and Tokens gen'd: \n".$data);
+                Log::debug("Code saved and Tokens gen'd: \n".$data['chat_id']);
                 return $data;
             }
         } else {
             $data['chat_id'] = $command["chat_id"];
             $data['status'] = false;
-            Log::debug("Wrong Code or Expired: \n".$data);
+            Log::debug("Wrong Code or Expired: \n".$data['chat_id']);
             return $data;
         }
     }
