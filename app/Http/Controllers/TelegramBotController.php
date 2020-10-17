@@ -91,9 +91,12 @@ class TelegramBotController extends Controller
         // sleep(1);
         $this->saveUpdates();
 
-        if($this->saveTokens() != true){
-            $msg = new Command;
-           $msg->replyWithMessage(['text, "Authentication Error, reply with /auth command']);
+        $saveTokens = $this->saveTokens();
+        if ($saveTokens['status'] != true) {
+            Telegram::sendMessage([
+                'chat_id' => $saveTokens['chat_id'],
+                'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
+            ]);
         }
         return true;
     }
@@ -116,7 +119,7 @@ class TelegramBotController extends Controller
         $message_id = $data->message->message_id;
         $message = $data->message->text;
         $entities = $data->message->entities;
-        $message_type= $this->checkMessageType();
+        $message_type = $this->checkMessageType();
         Log::debug($message_type);
 
         // Store messages in db
@@ -183,20 +186,26 @@ class TelegramBotController extends Controller
         }
     }
 
-     /**
+    /**
      * Complete Auth to store Tokens
-     * @return true/false
+     * @return $data
      */
     public function saveTokens()
     {
         $message_type = $this->checkMessageType();
 
-        $command =$this->previousCommand();
+        $command = $this->previousCommand();
 
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
-            $this->generateTokens($command);
+            if ($this->generateTokens($command) === true) {
+                $data['status'] = true;
+                $data['chat_id'] = $command["chat_id"];
+                return $data;
+            }
         } else {
-            return true;
+            $data['chat_id'] = $command["chat_id"];
+            $data['status'] = false;
+            return $data;
         }
     }
     /**
@@ -221,10 +230,8 @@ class TelegramBotController extends Controller
         if ($saveTokens === true) {
 
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
-   
 }
