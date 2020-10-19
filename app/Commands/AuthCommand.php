@@ -35,7 +35,11 @@ class AuthCommand extends Command
     {
 
         $link = new GoogleApiClientController;
+        // Get result from webhook update
         $resultUpdate = $this->getUpdate();
+
+        Log::debug($resultUpdate);
+        
         $chat_id = $resultUpdate->message->chat->id;
         $tokenExists = Subscribers::where(
             'chat_id',
@@ -66,13 +70,12 @@ class AuthCommand extends Command
 
 
             $authLink = $link->authGoogleApi()->createAuthUrl();
-            // Get result from webhook update
-            $resultUpdate = $this->getUpdate();
-            Log::debug($resultUpdate);
+            
+            
 
 
             $this->replyWithMessage(['text' => $authLink]);
-            sleep(1); //Wait 1 sec
+            sleep(2); //Wait 1 sec
 
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
