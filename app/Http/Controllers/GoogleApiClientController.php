@@ -585,8 +585,8 @@ class GoogleApiClientController extends Controller
 
             // log access tokens
             Log::debug($data);
-            
-            Subscribers::where('chat_id', $userDetails['chat_id'])
+
+            Subscribers::where('chat_id', $userDetails)
                 ->update(['access_tokens' => $newAccessToken]);
 
             
