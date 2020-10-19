@@ -200,17 +200,17 @@ class TelegramBotController extends Controller
         $command = $this->previousCommand();
 
         if ($command["message"] === "/auth" && $message_type === "normal_text") {
+
             if ($this->generateTokens($command) === true) {
                 Log::debug("Yeeeaa!!!!");
                 return true;
+            } else {
+                Log::debug("Should be false");
+                return false;
             }
-       else {
-            Log::debug("Should be false");
-            return false;
+        } else {
+            return true;
         }
-    } else {
-        return true;
-    }
     }
     /**
      * Generate Access Tokens

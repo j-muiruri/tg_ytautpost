@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Str;
 
 class GoogleApiClientController extends Controller
 {
@@ -511,10 +512,8 @@ class GoogleApiClientController extends Controller
 
         $client = $this->authGoogleApi();
 
-        $fileExists = Subscribers::where([
-            ['chat_id', '=', $userDetails['chat_id']],
-            ['access_tokens', '!=', 0],
-        ])
+        $fileExists = Subscribers::where('chat_id', '=', $userDetails['chat_id'])
+            ->whereNull('access_tokens')
             ->first();
 
         if (isset($code)) {
@@ -540,8 +539,8 @@ class GoogleApiClientController extends Controller
                     ->update(['access_tokens' => $accessToken]);
 
 
-                $data['code'] = $accessToken;
-                Log::debug($data['code']);
+                $data= json_encode($accessToken);
+                Log::debug($data);
                 return true;
             // return redirect('auth');
         } elseif ($fileExists != false) {
