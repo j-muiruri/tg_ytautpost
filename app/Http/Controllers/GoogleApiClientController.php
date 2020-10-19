@@ -562,7 +562,7 @@ class GoogleApiClientController extends Controller
                 ->where(
                     'chat_id',
                     '=',
-                    $userDetails["chat_id"]
+                    $userDetails
                 )
                 ->first();
 
