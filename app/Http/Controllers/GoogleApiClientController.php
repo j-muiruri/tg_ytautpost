@@ -581,13 +581,15 @@ class GoogleApiClientController extends Controller
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
             }
 
-            Subscribers::where('chat_id', $userDetails['chat_id'])
-                ->update(['access_tokens' => $newAccessToken]);
-
             $data = json_encode($newAccessToken);
 
             // log access tokens
             Log::debug($data);
+            
+            Subscribers::where('chat_id', $userDetails['chat_id'])
+                ->update(['access_tokens' => $newAccessToken]);
+
+            
             return true;
         } else {
             return false;
