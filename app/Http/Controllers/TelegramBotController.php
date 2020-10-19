@@ -89,15 +89,24 @@ class TelegramBotController extends Controller
 
         $saveTokens = $this->saveTokens();
 
-        // Log::debug($saveTokens);
+        $data = Telegram::getWebhookUpdates();
+
+        $chat_id = $data->message->chat->id;
+
+        // Check if tokens were generated
         if ($saveTokens === false) {
 
-            $data = Telegram::getWebhookUpdates();
-            $chat_id = $data->message->chat->id;
-
+            //Error
             Telegram::sendMessage([
                 'chat_id' => $chat_id,
                 'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
+            ]);
+        } else {
+
+            //Success
+            Telegram::sendMessage([
+                'chat_id' => $chat_id,
+                'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
             ]);
         }
         return true;

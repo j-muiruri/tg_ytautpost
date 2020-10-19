@@ -512,43 +512,61 @@ class GoogleApiClientController extends Controller
 
         $client = $this->authGoogleApi();
 
-        $fileExists = Subscribers::where('chat_id', '=', $userDetails['chat_id'])
-            ->whereNull('access_tokens')
+
+        //Use submitted code
+        try {
+            $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
+        } catch (Exception $e) {
+            // report($e);
+
+            return false;
+        }
+
+
+        //Get Access Tokens from Google OAuth
+        $accessToken = $client->getAccessToken();
+
+        //Set Our access token when calling Google APIs
+        $client->setAccessToken($accessToken);
+
+        //Save Token to DB
+        Subscribers::where('chat_id', $userDetails['chat_id'])
+            ->update(['access_tokens' => $accessToken]);
+
+        // log access tokens
+        $data = json_encode($accessToken);
+        Log::debug($data);
+        return true;
+    }
+    /**
+     * Refresh Tokens if access is already granted
+     * @return true/false
+     */
+    public function refreshTokens($userDetails)
+    {
+        $client = $this->authGoogleApi();
+
+        $tokenExists = Subscribers::where(
+            'chat_id',
+            '=',
+            $userDetails
+        )
+            ->whereNotNull('access_tokens')
             ->first();
 
-        if (isset($code)) {
-            
-            try {
-                $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
-            } catch (Exception $e) {
-                // report($e);
-        
-                return false;
-            }
-            // $fetchToken = $client->fetchAccessTokenWithAuthCode($code);
+        //check if tokens exxist in db
+        if ($tokenExists === true) {
 
-           
-                //Get Access Tokens from Google OAuth
-                $accessToken = $client->getAccessToken();
+            //get tokens from db
+            $tokens =  Subscribers::select('access_tokens')
+                ->where(
+                    'chat_id',
+                    '=',
+                    $userDetails["chat_id"]
+                )
+                ->first();
 
-                //Set Our access token when calling Google APIs
-                $client->setAccessToken($accessToken);
-
-                //Save Token to DB
-                Subscribers::where('chat_id', $userDetails['chat_id'])
-                    ->update(['access_tokens' => $accessToken]);
-
-
-                $data= json_encode($accessToken);
-                Log::debug($data);
-                return true;
-            // return redirect('auth');
-        } elseif ($fileExists != false) {
-
-            //check if file exists on the disk
-            $file = $fileExists;
-
-            $client->setAccessToken($file);
+            $client->setAccessToken($tokens);
 
             /* Refresh token when expired */
             if ($client->isAccessTokenExpired()) {
@@ -560,15 +578,18 @@ class GoogleApiClientController extends Controller
 
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
-
-                // Storage::disk('private')->put(env('TOKEN_FILE'), json_encode($newAccessToken), 'private');
-                Subscribers::where('chat_id', $userDetails['chat_id'])
-                    ->update(['access_tokens' => $newAccessToken]);
-
-                $data['code'] = $newAccessToken;
-                Log::debug($data['code']);
-                return true;
             }
+
+            Subscribers::where('chat_id', $userDetails['chat_id'])
+                ->update(['access_tokens' => $newAccessToken]);
+
+            $data = json_encode($newAccessToken);
+
+            // log access tokens
+            Log::debug($data);
+            return true;
+        } else {
+            return false;
         }
     }
 }
