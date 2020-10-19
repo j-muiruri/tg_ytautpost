@@ -101,7 +101,7 @@ class TelegramBotController extends Controller
                 'chat_id' => $chat_id,
                 'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
             ]);
-        } else {
+        } elseif($saveTokens['auth'] ===true) {
 
             //Success
             Telegram::sendMessage([
@@ -200,6 +200,7 @@ class TelegramBotController extends Controller
     /**
      * Complete Auth to store Tokens
      * @return true/false
+     * @return  array $data
      */
     public function saveTokens()
     {
@@ -212,7 +213,9 @@ class TelegramBotController extends Controller
 
             if ($this->generateTokens($command) === true) {
                 Log::debug("Yeeeaa!!!!");
-                return true;
+                $data['status'] = true;
+                $data['auth'] = true;
+                return $data;
             } else {
                 Log::debug("Should be false");
                 return false;

@@ -43,7 +43,7 @@ class AuthCommand extends Command
             $chat_id
         )
             ->whereNotNull('access_tokens')
-            ->first();
+            ->exists();
         if ($tokenExists === true) {
 
             //Send Message

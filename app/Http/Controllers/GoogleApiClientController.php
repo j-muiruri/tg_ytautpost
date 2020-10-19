@@ -552,7 +552,7 @@ class GoogleApiClientController extends Controller
             $userDetails
         )
             ->whereNotNull('access_tokens')
-            ->first();
+            ->exists();
 
         //check if tokens exxist in db
         if ($tokenExists === true) {
