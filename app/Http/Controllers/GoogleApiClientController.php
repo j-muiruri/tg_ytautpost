@@ -566,7 +566,8 @@ class GoogleApiClientController extends Controller
                 )
                 ->first();
 
-            $client->setAccessToken($tokens);
+                Log::debug($tokens);
+            $client->setAccessToken($tokens->access_tokens);
 
             /* Refresh token when expired */
             if ($client->isAccessTokenExpired()) {
