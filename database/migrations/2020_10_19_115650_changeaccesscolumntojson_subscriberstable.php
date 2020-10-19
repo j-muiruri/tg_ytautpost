@@ -14,7 +14,7 @@ class ChangeaccesscolumntojsonSubscriberstable extends Migration
     public function up()
     {
         Schema::table('subscribers', function (Blueprint $table) {
-            $table->json('access_tokens')->nullable();
+            $table->text('access_tokens')->nullable();
         });
     }
 
