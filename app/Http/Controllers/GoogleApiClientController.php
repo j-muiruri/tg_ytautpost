@@ -579,7 +579,7 @@ class GoogleApiClientController extends Controller
 
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
-            }
+            
 
             $data = json_encode($newAccessToken);
 
@@ -589,8 +589,9 @@ class GoogleApiClientController extends Controller
             Subscribers::where('chat_id', $userDetails)
                 ->update(['access_tokens' => $newAccessToken]);
 
-            
+            }
             return true;
+
         } else {
             return false;
         }
