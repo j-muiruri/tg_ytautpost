@@ -44,6 +44,8 @@ class AuthCommand extends Command
         )
             ->whereNotNull('access_tokens')
             ->exists();
+
+            //Check if user has already give us access to Yt acc
         if ($tokenExists === true) {
 
             //Send Message
@@ -56,8 +58,10 @@ class AuthCommand extends Command
             }
         } else {
 
+            //User has not given us access, generate url and wait for user to send us code
+
             //Send Message
-            $this->replyWithMessage(['text' => 'Please click on the link following link to allow Sign in to your Youtube account:']);
+            $this->replyWithMessage(['text' => 'Please click on the link following link to grant us access to your Youtube account:']);
             sleep(2);
 
 
@@ -68,7 +72,7 @@ class AuthCommand extends Command
 
 
             $this->replyWithMessage(['text' => $authLink]);
-            sleep(1); //Wait 2 secs
+            sleep(1); //Wait 1 sec
 
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');

@@ -92,6 +92,9 @@ class TelegramBotController extends Controller
         $data = Telegram::getWebhookUpdates();
 
         $chat_id = $data->message->chat->id;
+        $message_id = $data->message->message_id;
+        $chatDetails['chat_id'] = $chat_id;
+        $chatDetails['message_id'] = $message_id;
 
         // Check if tokens were generated
         if ($saveTokens === false) {
@@ -101,13 +104,19 @@ class TelegramBotController extends Controller
                 'chat_id' => $chat_id,
                 'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
             ]);
-        } elseif(isset($saveTokens['auth'])) {
+
+            $chatDetails['status'] = "failed";
+            $this->updateStatus($chatDetails);
+        } elseif (isset($saveTokens['auth'])) {
 
             //Success
             Telegram::sendMessage([
                 'chat_id' => $chat_id,
                 'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
             ]);
+
+            $chatDetails['status'] = "completed";
+            $this->updateStatus($chatDetails);
         }
         return true;
     }
@@ -248,5 +257,25 @@ class TelegramBotController extends Controller
         } else {
             return false;
         }
+    }
+
+    /**
+     * Update Message and mark as Completed, failed, processing etc 
+     *  @return true/false
+     */
+    public function updateStatus(array $userDetails)
+    {
+        try {
+            TelegramBot::where([
+                ['chat_id', $userDetails['chat_id']],
+                ['message_id', $userDetails['message_id']]
+            ])
+                ->update(['status' => $userDetails['status']]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        } 
+
+            return true;
     }
 }
