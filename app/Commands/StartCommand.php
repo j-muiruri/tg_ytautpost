@@ -40,11 +40,11 @@ class StartCommand extends Command
          // Get result from webhook update
          $resultUpdate = $this->getUpdate();
          
-        $chat_id = $resultUpdate->message->chat->id;
+        $userId = $resultUpdate->message->from->id;
 
         //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
         $telegrambot = new TelegramBotController;
-        $userExists = $telegrambot ->isSubscriber($chat_id);
+        $userExists = $telegrambot ->isSubscriber($userId);
         
         if ($userExists === false) {
         
