@@ -9,6 +9,7 @@ use App\Http\Controllers\GoogleApiClientController as Google;
 use App\Subscribers;
 use Illuminate\Http\Request;
 use Telegram\Bot\Commands\Command;
+use Illuminate\Support\Str;
 
 /**
  * The Telegram Bot  Class
@@ -225,7 +226,7 @@ class TelegramBotController extends Controller
 
         $command = $this->previousCommand();
 
-        if ($command["message"] === "/auth" && $message_type === "normal_text") {
+        if (Str::contains($command["message"], "/auth") && $message_type === "normal_text") {
 
             if ($this->generateTokens($command) === true) {
                 Log::debug("Yeeeaa!!!!");
