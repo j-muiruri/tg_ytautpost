@@ -176,7 +176,7 @@ class TelegramBotController extends Controller
         $chatId = $data->message->chat->id;
         
 
-        $command = TelegramBot::select('message, message_id')
+        $command = TelegramBot::select('message', 'message_id')
             ->where([
                 ['user_id', '=', $user_id],
                 ['chat_id', '=', $chatId],
