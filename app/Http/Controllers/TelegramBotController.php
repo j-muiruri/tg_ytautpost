@@ -100,6 +100,7 @@ class TelegramBotController extends Controller
         $chatId = $data->message->chat->id;
         $userId = $data->message->from->id;
         $message_id = $data->message->message_id;
+        $username = $data->message->from->username;
         $chatDetails['chat_id'] = $chatId;
         $chatDetails['user_id'] = $userId;
         $chatDetails['message_id'] = $message_id;
@@ -127,7 +128,13 @@ class TelegramBotController extends Controller
             $chatDetails['status'] = "completed";
             $this->updateStatus($chatDetails);
             $this->updateCommand($chatDetails);
+        } else {
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Hi '.$username.' !, Reply with /start to learn how to access your Youtube content and autopost or share'
+            ]);
         }
+
         return true;
     }
 
@@ -181,7 +188,7 @@ class TelegramBotController extends Controller
         $chatId = $data->message->chat->id;
         
 
-        $command = TelegramBot::select('message', 'message_id')
+        $command = TelegramBot::select('message', 'message_id', 'status')
             ->where([
                 ['user_id', '=', $user_id],
                 ['chat_id', '=', $chatId],
@@ -190,9 +197,11 @@ class TelegramBotController extends Controller
             ->first();
         $message = $command->message;
         $message_id = $command->message_id;
+        $status = $command->status;
         $commandDetails = array();
         $commandDetails["message"] = $message;
         $commandDetails["message_id"] = $message_id;
+        $commandDetails["status"] = $status;
         $commandDetails["chat_id"] = $chatId;
         $commandDetails["user_id"] = $user_id;
         return $commandDetails;
@@ -231,7 +240,7 @@ class TelegramBotController extends Controller
         $command = $this->previousCommand();
         $authCommand= Str::contains($command["message"], "/auth");
 
-        if ($authCommand === true && $message_type === "normal_text") {
+        if ($authCommand === true && $message_type === "normal_text" && $command['status'] != "completed") {
 
             if ($this->generateTokens($command) === true) {
                 Log::debug("Yeeeaa!!!!");
