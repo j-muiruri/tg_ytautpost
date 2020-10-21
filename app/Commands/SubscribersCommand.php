@@ -39,19 +39,23 @@ class SubscribersCommand extends Command
         $resultUpdate = $this->getUpdate();
 
         $data = $resultUpdate->message;
-        $chat_id = $data->chat->id;
+        $chatId = $data->chat->id;
+        $userId = $data->from->id;
         $username = $data->from->username;
         $firstname = $data->from->first_name;
         // Log::debug($data);
-        $newUser = Subscribers::where('chat_id', '=', $chat_id)->first();
 
-        if ($newUser === null) {
+        //Check if user is already subscribed
+        $userExists = Subscribers::where('user_id', '=', $userId)->exists();
+
+        if ($userExists === false) {
 
             //user doesnt exist so create
 
             Subscribers::create(
                 [
-                    'chat_id' => $chat_id,
+                    'user_id' => $userId,
+                    'chat_id' => $chatId,
                     'username' => $username,
                     'firstname' => $firstname
                 ]

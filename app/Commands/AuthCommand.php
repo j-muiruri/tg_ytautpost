@@ -40,11 +40,11 @@ class AuthCommand extends Command
 
         Log::debug($resultUpdate);
         
-        $chat_id = $resultUpdate->message->chat->id;
+        $userId = $resultUpdate->message->from->id;
         $tokenExists = Subscribers::where(
-            'chat_id',
+            'user_id',
             '=',
-            $chat_id
+            $userId
         )
             ->whereNotNull('access_tokens')
             ->exists();
@@ -56,7 +56,7 @@ class AuthCommand extends Command
             $this->replyWithMessage(['text' => 'You have already given me access  to your Youtube Account! Kindly wait as I check on the permissions']);
             sleep(2);
 
-            $tokensRefresh = $link->refreshTokens($chat_id);
+            $tokensRefresh = $link->refreshTokens($userId);
             if ($tokensRefresh === true) {
                 $this->replyWithMessage(['text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content']);
             }

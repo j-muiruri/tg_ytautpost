@@ -507,7 +507,7 @@ class GoogleApiClientController extends Controller
         // $code = $request->input('code');
 
         $code = $data;
-        Log::debug("Code submitted by CHAT_ID: " . $userDetails['chat_id'] . ", = " . $data);
+        Log::debug("Code submitted by USER_ID: " . $userDetails['user_id'] . ", = " . $data);
         // $pageToken = $request->input('next');
 
         $client = $this->authGoogleApi();
@@ -530,7 +530,7 @@ class GoogleApiClientController extends Controller
         $client->setAccessToken($accessToken);
 
         //Save Token to DB
-        Subscribers::where('chat_id', $userDetails['chat_id'])
+        Subscribers::where('user_id', $userDetails['user_id'])
             ->update(['access_tokens' => $accessToken]);
 
         // log access tokens
@@ -547,7 +547,7 @@ class GoogleApiClientController extends Controller
         $client = $this->authGoogleApi();
 
         $tokenExists = Subscribers::where(
-            'chat_id',
+            'user_id',
             '=',
             $userDetails
         )
@@ -560,7 +560,7 @@ class GoogleApiClientController extends Controller
             //get tokens from db
             $tokens =  Subscribers::select('access_tokens')
                 ->where(
-                    'chat_id',
+                    'user_id',
                     '=',
                     $userDetails
                 )
@@ -586,7 +586,7 @@ class GoogleApiClientController extends Controller
             // log access tokens
             Log::debug($data);
 
-            Subscribers::where('chat_id', $userDetails)
+            Subscribers::where('user_id', $userDetails)
                 ->update(['access_tokens' => $newAccessToken]);
 
             }
