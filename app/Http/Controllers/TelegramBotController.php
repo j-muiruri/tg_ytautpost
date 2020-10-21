@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
 use App\Http\Controllers\GoogleApiClientController as Google;
+use App\Subscribers;
 use Illuminate\Http\Request;
 use Telegram\Bot\Commands\Command;
 
@@ -285,7 +286,7 @@ class TelegramBotController extends Controller
     public function isSubscriber($user_id)
     {
 
-        $userExists = TelegramBot::where(
+        $userExists = Subscribers::where(
             'user_id',
             '=',
             $user_id

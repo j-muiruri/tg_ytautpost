@@ -51,14 +51,12 @@ class StartCommand extends Command
         $this->triggerCommand('subscribe');
 
          }
+
          sleep(2);
-         // Get result from webhook update
-        //  $resultUpdate = $this->getUpdate();
-        //  Log::debug($resultUpdate);
 
         // `replyWith<Message|Photo|Audio|Video|Voice|Document|Sticker|Location|ChatAction>()` all the available methods are dynamically
         // handled when you replace `send<Method>` with `replyWith` and use the same parameters - except chat_id does NOT need to be included in the array.
-        $this->replyWithMessage(['text' => 'Seleqta Autopost Bot available commands:']);
+        $this->replyWithMessage(['text' => 'Hello, Seleqta Youtube Autopost Bot contains the available commands:']);
 
         sleep(1);
         // This will update the chat status to typing...
