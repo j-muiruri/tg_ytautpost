@@ -285,17 +285,11 @@ class TelegramBotController extends Controller
     public function isSubscriber($user_id)
     {
 
-        try {
             $userExists = TelegramBot::where(
                 'user_id',
                 '=',
                 $user_id
             )->exists();
-        } catch (\Throwable $th) {
-            //throw $th;
-            return false;
-        }
-
         if ($userExists != false) {
             return true;
         } else {
