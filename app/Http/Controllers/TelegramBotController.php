@@ -86,15 +86,17 @@ class TelegramBotController extends Controller
      */
     public function processUpdates()
     {
-        // sleep(1);
-        $this->saveUpdates();
 
-        $saveTokens = $this->saveTokens();
-
+        //Get Telegram Updates
         $data = Telegram::getWebhookUpdates();
 
         Log::debug($data);
-        
+
+        $this->saveUpdates();
+
+        $saveTokens = $this->saveTokens();
+    
+
         $chatId = $data->message->chat->id;
         $userId = $data->message->from->id;
         $message_id = $data->message->message_id;
