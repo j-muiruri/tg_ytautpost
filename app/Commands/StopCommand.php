@@ -43,7 +43,7 @@ class StopCommand extends Command
         Subscribers::where('user_id', '=', $userId)->delete();
 
         //Send Message
-        $this->replyWithMessage(['text' => 'Ooops! You have stopped receiving updates from Seleqta Autopost, Goodbye!']);
+        $this->replyWithMessage(['text' => 'Ooops! You have stopped receiving updates from Seleqta Youtube Autopost, Goodbye!']);
 
 
         // Trigger another command dynamically from within this command

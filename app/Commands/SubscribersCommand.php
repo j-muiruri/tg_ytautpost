@@ -64,7 +64,7 @@ class SubscribersCommand extends Command
 
 
             //Send Message
-            $this->replyWithMessage(['text' => 'Hello!  Welcome ' . $firstname . ',  You have succesfully subscribed to Selecta Autopost!']);
+            $this->replyWithMessage(['text' => 'Hello!  Welcome ' . $firstname . ',  You have succesfully subscribed to Seleqta Youtube Autopost!']);
             // } else {
             //     exit;
             // }
@@ -72,7 +72,7 @@ class SubscribersCommand extends Command
             // $this->triggerCommand('subscribe');
         } else {
 
-            $this->replyWithMessage(['text' => 'Hello! ' . $firstname . ',  You have already subscribed to Selecta Autopost!']);
+            $this->replyWithMessage(['text' => 'Hello! ' . $firstname . ',  You have already subscribed to Seleqta Youtube Autopost!']);
         }
     }
 }

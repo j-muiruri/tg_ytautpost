@@ -92,9 +92,11 @@ class TelegramBotController extends Controller
 
         $data = Telegram::getWebhookUpdates();
 
-        $chat_id = $data->message->chat->id;
+        $chatId = $data->message->chat->id;
+        $userId = $data->message->from->id;
         $message_id = $data->message->message_id;
-        $chatDetails['chat_id'] = $chat_id;
+        $chatDetails['chat_id'] = $chatId;
+        $chatDetails['user_id'] = $userId;
         $chatDetails['message_id'] = $message_id;
 
         // Check if tokens were generated
@@ -102,22 +104,24 @@ class TelegramBotController extends Controller
 
             //Error
             Telegram::sendMessage([
-                'chat_id' => $chat_id,
+                'chat_id' => $chatId,
                 'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
             ]);
 
             $chatDetails['status'] = "failed";
             $this->updateStatus($chatDetails);
+            $this->updateCommand($chatDetails);
         } elseif (isset($saveTokens['auth'])) {
 
             //Success
             Telegram::sendMessage([
-                'chat_id' => $chat_id,
+                'chat_id' => $chatId,
                 'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
             ]);
 
             $chatDetails['status'] = "completed";
             $this->updateStatus($chatDetails);
+            $this->updateCommand($chatDetails);
         }
         return true;
     }
@@ -135,7 +139,7 @@ class TelegramBotController extends Controller
         $update_id = $data->update_id;
         $user_id = $data->message->from->id;
         $username = $data->message->from->username;
-        $chat_id = $data->message->chat->id;
+        $chatId = $data->message->chat->id;
         $chat_type = $data->message->chat->type;
         $message_id = $data->message->message_id;
         $message = $data->message->text;
@@ -150,7 +154,7 @@ class TelegramBotController extends Controller
                 'update_id' => $update_id,
                 'user_id' => $user_id,
                 'username' => $username,
-                'chat_id' => $chat_id,
+                'chat_id' => $chatId,
                 'chat_type' => $chat_type,
                 'message_id' => $message_id,
                 'message' => $message,
@@ -169,20 +173,22 @@ class TelegramBotController extends Controller
         $data = Telegram::getWebhookUpdates();
 
         $user_id = $data->message->from->id;
-        $chat_id = $data->message->chat->id;
+        $chatId = $data->message->chat->id;
+        
 
-        $command = TelegramBot::select('message')
+        $command = TelegramBot::select('message, message_id')
             ->where([
                 ['user_id', '=', $user_id],
-                ['chat_id', '=', $chat_id],
+                ['chat_id', '=', $chatId],
                 ['message_type', '=', 'bot_command'],
             ])->orderBy('id', 'desc')
             ->first();
         $message = $command->message;
-
+        $message_id = $command->message_id;
         $commandDetails = array();
         $commandDetails["message"] = $message;
-        $commandDetails["chat_id"] = $chat_id;
+        $commandDetails["message_id"] = $message_id;
+        $commandDetails["chat_id"] = $chatId;
         $commandDetails["user_id"] = $user_id;
         return $commandDetails;
     }
@@ -268,7 +274,8 @@ class TelegramBotController extends Controller
     {
         try {
             TelegramBot::where([
-                ['chat_id', $userDetails['chat_id']],
+                ['user_id', $userDetails['user_id']],
+                ['user_id', $userDetails['chat_id']],
                 ['message_id', $userDetails['message_id']]
             ])
                 ->update(['status' => $userDetails['status']]);
@@ -279,6 +286,29 @@ class TelegramBotController extends Controller
 
         return true;
     }
+
+    /**
+     * Update Command and mark as Completed, failed, processing etc 
+     *  @return true/false
+     */
+    public function updateCommand(array $userDetails)
+    {
+        $previousCommand = $this->previousCommand();
+        try {
+            TelegramBot::where([
+                ['user_id', $userDetails['user_id']],
+                ['user_id', $userDetails['chat_id']],
+                ['message_id', $previousCommand['message_id']]
+            ])
+                ->update(['status' => $userDetails['status']]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * Check if User is subcriber
      * @return true/false
