@@ -5,6 +5,7 @@ use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\TelegramBotController;
 
 /**
  * Class StartCommand.
@@ -36,9 +37,21 @@ class StartCommand extends Command
         // The method supports second parameter arguments which you can optionally pass, By default
         // it'll pass the same arguments that are received for this command originally.
 
-        //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription messgae
-        // $this->triggerCommand('subscribe');
+         // Get result from webhook update
+         $resultUpdate = $this->getUpdate();
+         
+        $chat_id = $resultUpdate->message->chat->id;
 
+        //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
+        $telegrambot = new TelegramBotController;
+        $userExists = $telegrambot ->isSubscriber($chat_id);
+        
+        if ($userExists === false) {
+        
+        $this->triggerCommand('subscribe');
+
+         }
+         sleep(2);
          // Get result from webhook update
         //  $resultUpdate = $this->getUpdate();
         //  Log::debug($resultUpdate);

@@ -274,8 +274,32 @@ class TelegramBotController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             return false;
-        } 
+        }
 
+        return true;
+    }
+    /**
+     * Check if User is subcriber
+     * @return true/false
+     */
+    public function isSubscriber($chat_id)
+    {
+
+        try {
+            $userExists = TelegramBot::where(
+                'chat_id',
+                '=',
+                $chat_id
+            )->exists();
+        } catch (\Throwable $th) {
+            //throw $th;
+            return false;
+        }
+
+        if ($userExists != false) {
             return true;
+        } else {
+            return false;
+        }
     }
 }

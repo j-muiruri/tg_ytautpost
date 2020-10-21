@@ -66,6 +66,9 @@ class SubscribersCommand extends Command
             // }
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
+        } else {
+
+            $this->replyWithMessage(['text' => 'Hello! ' . $firstname . ',  You have already subscribed to Selecta Autopost!']);
         }
     }
 }
