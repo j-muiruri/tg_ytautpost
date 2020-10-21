@@ -100,6 +100,7 @@ class TelegramBotController extends Controller
         $chatId = $data->message->chat->id;
         $userId = $data->message->from->id;
         $message_id = $data->message->message_id;
+        $message_type = $this->checkMessageType();
         $username = $data->message->from->username;
         $chatDetails['chat_id'] = $chatId;
         $chatDetails['user_id'] = $userId;
@@ -128,7 +129,9 @@ class TelegramBotController extends Controller
             $chatDetails['status'] = "completed";
             $this->updateStatus($chatDetails);
             $this->updateCommand($chatDetails);
-        } else {
+        } elseif($message_type != 'bot_command' ){
+
+            //Check if message is normal_text, replies with start command
             Telegram::sendMessage([
                 'chat_id' => $chatId,
                 'text' => 'Hi @'.$username.'!, Reply with /start to learn how to access your Youtube content and autopost or share'
