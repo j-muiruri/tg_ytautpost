@@ -131,7 +131,7 @@ class TelegramBotController extends Controller
         } else {
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Hi '.$username.' !, Reply with /start to learn how to access your Youtube content and autopost or share'
+                'text' => 'Hi @'.$username.'!, Reply with /start to learn how to access your Youtube content and autopost or share'
             ]);
         }
 
