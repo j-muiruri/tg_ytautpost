@@ -93,6 +93,8 @@ class TelegramBotController extends Controller
 
         $data = Telegram::getWebhookUpdates();
 
+        Log::debug($data);
+        
         $chatId = $data->message->chat->id;
         $userId = $data->message->from->id;
         $message_id = $data->message->message_id;
