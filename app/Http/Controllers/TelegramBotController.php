@@ -229,8 +229,9 @@ class TelegramBotController extends Controller
         $message_type = $this->checkMessageType();
 
         $command = $this->previousCommand();
+        $authCommand= Str::contains($command["message"], "/auth");
 
-        if (Str::contains($command["message"], "/auth") && $message_type === "normal_text") {
+        if ($authCommand === true && $message_type === "normal_text") {
 
             if ($this->generateTokens($command) === true) {
                 Log::debug("Yeeeaa!!!!");
