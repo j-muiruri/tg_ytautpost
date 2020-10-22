@@ -134,7 +134,7 @@ class TelegramBotController extends Controller
             //Check if message is normal_text, replies with start command
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Hi @'.$username.'!, Reply with /start to learn how to access your Youtube content and autopost or share'
+                'text' => 'Hey @'.$username.'!, Reply with /start to learn how to access your Youtube content and autopost or share'
             ]);
         }
 
@@ -231,7 +231,7 @@ class TelegramBotController extends Controller
     }
 
     /**
-     * Complete Auth to store Tokens
+     * Complete Authentication to store  User Tokens
      * @return true/false
      * @return  array $data
      */

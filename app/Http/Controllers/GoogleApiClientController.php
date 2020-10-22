@@ -16,8 +16,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Log;
 use Exception;
-use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 
+/**
+ * The Google API  Class
+ * @author John Muiruri  <jontedev@gmail.com>
+ *
+ */
 class GoogleApiClientController extends Controller
 {
     /**
@@ -534,8 +539,8 @@ class GoogleApiClientController extends Controller
             ->update(['access_tokens' => $accessToken]);
 
         // log access tokens
-        $data = json_encode($accessToken);
-        Log::debug($data);
+        $data = response()->json($accessToken);
+        logger($data);
         return true;
     }
     /**
@@ -566,7 +571,7 @@ class GoogleApiClientController extends Controller
                 )
                 ->first();
 
-                Log::debug($tokens);
+            logger($tokens);
             $client->setAccessToken($tokens->access_tokens);
 
             /* Refresh token when expired */
@@ -579,19 +584,17 @@ class GoogleApiClientController extends Controller
 
                 //append new refresh token to new accestoken
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
-            
 
-            $data = json_encode($newAccessToken);
 
-            // log access tokens
-            Log::debug($data);
+                $data =response()->json($newAccessToken);
 
-            Subscribers::where('user_id', $userDetails)
-                ->update(['access_tokens' => $newAccessToken]);
+                // log access tokens
+                Log::debug($data);
 
+                Subscribers::where('user_id', $userDetails)
+                    ->update(['access_tokens' => $newAccessToken]);
             }
             return true;
-
         } else {
             return false;
         }
