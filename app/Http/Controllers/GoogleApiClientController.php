@@ -502,7 +502,7 @@ class GoogleApiClientController extends Controller
         $code = $request->input('code');
 
         $data['code'] = $code;
-        Log::debug($data['code']);
+        logger($data['code']);
         return view('auth-success', $data);
     }
     /**
@@ -514,7 +514,7 @@ class GoogleApiClientController extends Controller
         // $code = $request->input('code');
 
         $code = $data;
-        Log::debug("Code submitted by USER_ID: " . $userDetails['user_id'] . ", = " . $data);
+        logger("Code submitted by USER_ID: " . $userDetails['user_id'] . ", = " . $data);
         // $pageToken = $request->input('next');
 
         $client = $this->authGoogleApi();
@@ -591,7 +591,7 @@ class GoogleApiClientController extends Controller
                 $data =response()->json($newAccessToken);
 
                 // log access tokens
-                Log::debug($data);
+                logger($data);
 
                 Subscribers::where('user_id', $userDetails)
                     ->update(['access_tokens' => $newAccessToken]);

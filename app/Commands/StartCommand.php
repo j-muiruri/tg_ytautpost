@@ -68,7 +68,7 @@ class StartCommand extends Command
         // They'll be in 'command-name' => 'Command Handler Class' format.
         $commands = $this->getTelegram()->getCommands();
 
-        // Log::debug($commands);
+        // logger($commands);
         // Build the list
         $response = '';
         foreach ($commands as $name => $command) {

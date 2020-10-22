@@ -37,8 +37,6 @@ class AuthCommand extends Command
         $link = new GoogleApiClientController;
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
-
-        Log::debug($resultUpdate);
         
         $userId = $resultUpdate->message->from->id;
         $tokenExists = Subscribers::where(

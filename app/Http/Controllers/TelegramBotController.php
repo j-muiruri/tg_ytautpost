@@ -90,7 +90,7 @@ class TelegramBotController extends Controller
         //Get Telegram Updates
         $data = Telegram::getWebhookUpdates();
 
-        Log::debug($data);
+        logger($data);
 
         $this->saveUpdates();
 
@@ -160,7 +160,7 @@ class TelegramBotController extends Controller
         $message = $data->message->text;
         $entities = $data->message->entities;
         $message_type = $this->checkMessageType();
-        // Log::debug($message_type);
+        // logger($message_type);
 
         // Store messages in db
 
@@ -246,12 +246,12 @@ class TelegramBotController extends Controller
         if ($authCommand === true && $message_type === "normal_text" && $command['status'] != "completed" && $command['status'] != "failed") {
 
             if ($this->generateTokens($command) === true) {
-                Log::debug("Yeeeaa!!!!");
+                logger("Yeeeaa!!!!");
                 $data['status'] = true;
                 $data['auth'] = true;
                 return $data;
             } else {
-                Log::debug("Should be false");
+                logger("Should be false");
                 return false;
             }
         } else {
