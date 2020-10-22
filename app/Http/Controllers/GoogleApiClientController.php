@@ -617,4 +617,125 @@ class GoogleApiClientController extends Controller
 
 
     }
+
+    /**
+     * Get User Liked videos
+     * @return array $data Return liked videos
+     */
+    public function getLikedVideos($userDetails)
+    {
+        // $callback = "";
+        //check if auth code returned
+        // $code = $request->input('code');
+
+        // $pageToken = $request->input('next');
+
+        $client = $this->authGoogleApi();
+
+        $userId =$userDetails['user_id'];
+
+        $tokenExists = Subscribers::where(
+            'user_id',
+            '=',
+            $userDetails
+        )
+            ->whereNotNull('access_tokens')
+            ->exists();
+        
+
+        if ($tokenExists != false) {
+
+            //check if file xists on the disk
+            $tokens =  Subscribers::select('access_tokens')
+            ->where(
+                'user_id',
+                '=',
+                $userId
+            )
+            ->first();
+
+            //Get Our access token
+            $client->setAccessToken($tokens);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+                $data['status'] = false;
+                return $data;
+            }
+
+
+            //Init Service
+            $service = new Google_Service_YouTube($client);
+
+            $queryParams = [
+                'myRating'   => 'like',
+                'maxResults' => 50,
+            ];
+
+            if (isset($pageToken)) {
+                //nextpagetoken set
+                $queryParams['pageToken'] = $pageToken;
+            }
+            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
+
+            
+            // access items array/key from Google object reponse
+            $items = $response->items;
+
+            
+
+            $entries = 0;
+            $exists  = 0;
+
+            foreach ($items as $t) {
+
+                // $idtemp = "Yotube video Link is: https://youtube.com/watch?v=" . $t['id'] . "   Video Title: " . $t['snippet']['title'] . $t['snippet']['description'];
+                // $results = print_r($idtemp);
+
+                $url = "https://youtube.com/watch?v=";
+
+                $link = $url . $t['id'];
+                $title =  $t['snippet']['title'];
+                $description = $t['snippet']['description'];
+
+
+                // // Check if the video link exists on the server
+                // $idExists = YoutubeVideos::where('link', '=', $id)->first();
+
+                $data = array();
+
+                $data['title'] = $title;
+                $data['description'] = $title;
+                $data['link'] = $title;
+                $data['status'] = true;
+
+                //Check no of inserted entries, if less than 2, redirect automatically and fetch more videos
+                if ($entries < 2) {
+                    $Url = URL::current();
+
+                    $tokenInput = $response->nextPageToken;
+
+                    echo "Records Inserted: " . $entries . "  Entries Skipped: " . $exists;
+
+                    echo "Redirect to Next Page in 5 seconds......... ";
+                    sleep(10);
+                    return Redirect::intended($Url . "?next=" . $tokenInput);
+                } else {
+                    // $mergeArray = echo $id ;
+                    // $response = $response->nextPageToken;
+                    // $response = response()->json($response);
+
+                    return var_dump("Records Inserted: " . $entries . "  Entries Skipped: " . $exists);
+
+                    // return $results;
+                }
+            }
+            // create auth url
+            $url = $client->createAuthUrl();
+
+            return Redirect::intended($url);
+
+            // return $client;
+        }
+    }
 }
