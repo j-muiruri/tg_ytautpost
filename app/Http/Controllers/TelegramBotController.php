@@ -143,7 +143,7 @@ class TelegramBotController extends Controller
 
     /**
      * Save Updates
-     * @return true
+     * @return true Returns true on saving
      */
     public function saveUpdates()
     {
@@ -181,7 +181,7 @@ class TelegramBotController extends Controller
     }
     /**
      * Gets Previous Command
-     * @return array $commandDetails
+     * @return array returns an array of the message details
      */
     public function previousCommand()
     {
@@ -211,7 +211,7 @@ class TelegramBotController extends Controller
     }
     /**
      * Check Type of Message
-     * @return $message_type
+     * @return $message_type Returns type of message, either a bot command or a normal message
      */
     public function checkMessageType()
     {
@@ -232,8 +232,8 @@ class TelegramBotController extends Controller
 
     /**
      * Complete Authentication to store  User Tokens
-     * @return true/false
-     * @return  array $data
+     * @return  array $data Returns data on saving the tokens with array of thre result status either true or false if unable to save, 
+     * @return true/false returns true only if no token was sent
      */
     public function saveTokens()
     {
@@ -260,7 +260,7 @@ class TelegramBotController extends Controller
     }
     /**
      * Generate Access Tokens
-     *  @return true/false
+     *  @return true/false Returns true if tokens are generated successfully, else false
      */
     public function generateTokens(array $userDetails)
     {
@@ -286,7 +286,7 @@ class TelegramBotController extends Controller
 
     /**
      * Update Message and mark as Completed, failed, processing etc 
-     *  @return true/false
+     *  @return true/false Return true after updating status, else false
      */
     public function updateStatus(array $userDetails)
     {
@@ -307,7 +307,7 @@ class TelegramBotController extends Controller
 
     /**
      * Update Command and mark as Completed, failed, processing etc 
-     *  @return true/false
+     *  @return true/false Return true after command status, else false
      */
     public function updateCommand(array $userDetails)
     {
@@ -329,7 +329,7 @@ class TelegramBotController extends Controller
 
     /**
      * Check if User is subcriber
-     * @return true/false
+     * @return true/false Return true if user is subscriber, and false if not
      */
     public function isSubscriber($user_id)
     {

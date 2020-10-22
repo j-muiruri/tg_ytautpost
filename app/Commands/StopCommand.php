@@ -7,6 +7,7 @@ use Telegram\Bot\Actions;
 use Telegram\Bot\Objects\User;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
+use App\Http\Controllers\GoogleApiClientController;
 
 /**
  * Class StopCommand.
@@ -24,7 +25,7 @@ class StopCommand extends Command
     /**
      * @var string Command Description
      */
-    protected $description = "Stop Notifications and Updates from Seleqta Autopost";
+    protected $description = "Stop Notifications and Updates from Seleqta Autopost, Revoke access to your Youtube videos";
 
     /**
      * @inheritdoc
@@ -38,12 +39,19 @@ class StopCommand extends Command
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
 
+        $client = new GoogleApiClientController;
         $data = $resultUpdate->message;
         $userId = $data->from->id;
-        Subscribers::where('user_id', '=', $userId)->delete();
+        $username = $data->from->username;
+        $client->revokeAccess($userId);
 
         //Send Message
-        $this->replyWithMessage(['text' => 'Ooops! You have stopped receiving updates from Seleqta Youtube Autopost, Goodbye!']);
+        $this->replyWithMessage([
+            'text' => 
+            'Ooops! You: \n 
+            1. have revoked my access to your Youtube videos \n
+            2. will stop receiving updates from Seleqta Youtube Autopost. \n
+            Goodbye @$username!']);
 
 
         // Trigger another command dynamically from within this command

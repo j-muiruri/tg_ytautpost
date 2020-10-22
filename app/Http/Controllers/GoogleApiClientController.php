@@ -452,7 +452,8 @@ class GoogleApiClientController extends Controller
         // return $client;
     }
     /**
-     * Prepare for Google Auth and generating Auth URL
+     * Prepare for Google Auth and generating Auth URL,
+     * Google Client
      */
     public function authGoogleApi()
     {
@@ -494,6 +495,7 @@ class GoogleApiClientController extends Controller
     }
     /**
      * Complete auth, return code to User
+     * 
      */
     public function authComplete(Request $request)
     {
@@ -598,5 +600,21 @@ class GoogleApiClientController extends Controller
         } else {
             return false;
         }
+    }
+
+     /**
+     * Revoke Access to Users, Youtube Account and delete access tokens
+     * @return true/false Returns true if the revocation was successful, otherwise false
+     */
+    public function revokeAccess($userId)
+    {
+
+        Subscribers::where('user_id', '=', $userId)->delete();
+
+        $client = $this->authGoogleApi();
+
+        return $client->revokeToken();
+
+
     }
 }
