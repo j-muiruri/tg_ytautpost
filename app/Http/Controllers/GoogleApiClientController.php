@@ -683,7 +683,7 @@ class GoogleApiClientController extends Controller
             foreach ($items as $t  => $v) {
 
                 $url = "https://youtube.com/watch?v=";
-                $data['videos'] = array(
+                $data['videos'][] = array(
                     'title' => $v['snippet']['title'],
                     'link' => $url . $v['id']
                 );
@@ -695,7 +695,7 @@ class GoogleApiClientController extends Controller
             }
 
             $data['status'] = true;
-            // logger($data);
+            logger($data);
             return $data;
         }
         else {
