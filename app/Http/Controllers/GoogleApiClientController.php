@@ -654,6 +654,8 @@ class GoogleApiClientController extends Controller
                     "status" => false,
                     "results" => array()
                 );
+
+                logger($data);
                 return $data;
             }
 
