@@ -691,11 +691,11 @@ class GoogleApiClientController extends Controller
 
 
                 $data['videos'] = $video;
-                logger($video);
+                // logger($video);
             }
 
             $data['status'] = true;
-            logger($data);
+            // logger($data);
             return $data;
         }
         else {
