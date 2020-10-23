@@ -83,7 +83,7 @@ class LikedCommand extends Command
                     // echo $link;
                     $no++;
 
-                    // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                    $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
                     usleep(800000); //0.8 secs
                 }
             } else {
