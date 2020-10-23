@@ -623,7 +623,7 @@ class GoogleApiClientController extends Controller
     {
         $userId = $userDetails['user_id'];
 
-        $pageToken = $$userDetails['next'];
+        $pageToken = $userDetails['next'];
 
         $client = $this->authGoogleApi();
 
