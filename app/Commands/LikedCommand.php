@@ -69,6 +69,7 @@ class LikedCommand extends Command
            
             $videos = $likedVideos;
 
+            logger($videos);
             if ($videos['status'] === true) {
 
             // Reply with the Videos List
@@ -87,12 +88,15 @@ class LikedCommand extends Command
             }
 
             }
+            else {
 
             // send next page link
 
-            // $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
+                $this->replyWithMessage(['text' =>'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+            }
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
         }
+
     }
 }
