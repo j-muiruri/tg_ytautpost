@@ -67,8 +67,8 @@ class LikedCommand extends Command
         } else {
 
             $videos = $likedVideos;
-
             logger($videos);
+            // logger($videos);
             if ($videos['status'] === true) {
 
                 // Reply with the Videos List
@@ -76,13 +76,13 @@ class LikedCommand extends Command
 
                 foreach ($videos as $video) {
 
-                    logger($video);
+                   
                     $link = $video['link'];
                     $title = $video['title'];
                     // echo $link;
                     $no++;
 
-                    $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                    // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
                     usleep(800000); //0.8 secs
                 }
             } else {
