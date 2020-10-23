@@ -66,7 +66,7 @@ class LikedCommand extends Command
             // Reply with the Videos List
         } else {
 
-            $videos = $likedVideos['videos'];
+            $videos = $likedVideos;
             logger($videos);
             // logger($videos);
             if ($likedVideos['status'] === true) {
@@ -74,6 +74,7 @@ class LikedCommand extends Command
                 // Reply with the Videos List
                 $no = 0;
 
+                $videos = $likedVideos['videos'];
                 foreach ($videos as $video) {
 
                    
