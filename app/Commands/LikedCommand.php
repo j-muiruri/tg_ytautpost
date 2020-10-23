@@ -42,7 +42,7 @@ class LikedCommand extends Command
         $resultUpdate = $this->getUpdate();
         $type = $resultUpdate->message->chat->type;
         $userDetails['user_id'] = $resultUpdate->message->from->id;
-        
+
         $googleClient = new GoogleApiClientController;
 
         $likedVideos =  $googleClient->getLikedVideos($userDetails);
@@ -51,52 +51,47 @@ class LikedCommand extends Command
             $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(20);
 
             $no = 0;
-            $videoList ="";
+            $videoList = "";
             foreach ($videos as $video) {
                 $link = $video['link'];
                 $title = $video['title'];
                 // echo $link;
                 $no++;
 
-               $videoList .= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
-               
+                $videoList .= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
             }
             // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
-            $this->replyWithMessage(['text' =>$videoList]);
-            sleep(3); 
+            $this->replyWithMessage(['text' => $videoList]);
+            sleep(3);
             // Reply with the Videos List
         } else {
-           
+
             $videos = $likedVideos;
 
             logger($videos);
             if ($videos['status'] === true) {
 
-            // Reply with the Videos List
-            $no = 0;
+                // Reply with the Videos List
+                $no = 0;
 
-            foreach ($videos as $video) {
+                foreach ($videos as $video) {
 
-                logger($video);
-                $link = $video['link'];
-                $title = $video['title'];
-                // echo $link;
-                $no++;
+                    logger($video);
+                    $link = $video['link'];
+                    $title = $video['title'];
+                    // echo $link;
+                    $no++;
 
-                $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
-                usleep(800000); //0.8 secs
-            }
+                    $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                    usleep(800000); //0.8 secs
+                }
+            } else {
 
-            }
-            else {
-
-            // send next page link
-
-                $this->replyWithMessage(['text' =>'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+                //user auth tokens has expired or user has not given app access
+                $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
             }
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
         }
-
     }
 }
