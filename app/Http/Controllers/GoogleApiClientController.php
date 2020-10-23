@@ -698,5 +698,15 @@ class GoogleApiClientController extends Controller
             logger($data);
             return $data;
         }
+        else {
+
+            $data = array(
+                "status" => false,
+                "results" => array()
+            );
+
+            logger("error, no tokens");
+            return $data;
+        }
     }
 }
