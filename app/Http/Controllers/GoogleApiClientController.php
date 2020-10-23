@@ -628,7 +628,7 @@ class GoogleApiClientController extends Controller
         $tokenExists = Subscribers::where(
             'user_id',
             '=',
-            $userDetails
+            $userId
         )
             ->whereNotNull('access_tokens')
             ->exists();
