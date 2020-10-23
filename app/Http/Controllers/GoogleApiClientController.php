@@ -623,8 +623,6 @@ class GoogleApiClientController extends Controller
     {
         $userId = $userDetails['user_id'];
 
-        $pageToken = $userDetails['next'];
-
         $client = $this->authGoogleApi();
 
         $tokenExists = Subscribers::where(
@@ -655,7 +653,7 @@ class GoogleApiClientController extends Controller
                 $data = array(
                     "status" => false,
                     "results" => array()
-                  );
+                );
                 return $data;
             }
 
@@ -668,9 +666,9 @@ class GoogleApiClientController extends Controller
                 'maxResults' => 10,
             ];
 
-            if (isset($pageToken)) {
+            if (isset($userDetails['next'])) {
                 //nextpagetoken set
-                $queryParams['pageToken'] = $pageToken;
+                $queryParams['pageToken'] =  $userDetails['next'];
             }
             $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
@@ -679,7 +677,7 @@ class GoogleApiClientController extends Controller
             $items = $response->items;
 
             $data = array();
-            
+
             foreach ($items as $t) {
 
                 $url = "https://youtube.com/watch?v=";
@@ -688,11 +686,10 @@ class GoogleApiClientController extends Controller
                 $video['title'] = $t['snippet']['title'];
                 $video['description'] = $t['snippet']['description'];
                 $video['link'] = $url . $t['id'];
-                
-               
+
+
                 $data['videos'] = $video;
                 logger($video);
-              
             }
 
             $data['status'] = true;
