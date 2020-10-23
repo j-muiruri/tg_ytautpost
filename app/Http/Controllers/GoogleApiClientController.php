@@ -655,7 +655,7 @@ class GoogleApiClientController extends Controller
                     "results" => array()
                 );
 
-                logger($data);
+                logger("error, requires auth");
                 return $data;
             }
 
