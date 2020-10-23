@@ -683,15 +683,17 @@ class GoogleApiClientController extends Controller
             foreach ($items as $t) {
 
                 $url = "https://youtube.com/watch?v=";
-                $video = array();
+                $data['videos'] = array(
+                    'title' => $t['snippet']['title'],
+                    'link' => $url . $t['id']
+                );
 
-                $video['title'] = $t['snippet']['title'];
-                // $video['description'] = $t['snippet']['description'];
-                $video['link'] = $url . $t['id'];
+                // $video['title'] = $t['snippet']['title'];
+                // // $video['description'] = $t['snippet']['description'];
+                // $video['link'] = $url . $t['id'];
                 // logger($video);
             }
-
-            $data['videos'] = $video;
+            
             $data['status'] = true;
             // logger($data);
             return $data;
