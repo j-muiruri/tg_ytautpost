@@ -86,6 +86,8 @@ class LikedCommand extends Command
                     $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
                     usleep(800000); //0.8 secs
                 }
+
+                $this->replyWithMessage(['text' => 'For More videos reply with: n\ /next command \n to go to the next page']);
             } else {
 
                 //user auth tokens has expired or user has not given app access
