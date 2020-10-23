@@ -686,11 +686,11 @@ class GoogleApiClientController extends Controller
                 $video = array();
 
                 $video['title'] = $t['snippet']['title'];
-                $video['description'] = $t['snippet']['description'];
+                // $video['description'] = $t['snippet']['description'];
                 $video['link'] = $url . $t['id'];
 
 
-                $data['videos'] = $video;
+                $data['videos'] = $video['title']['link'];
                 // logger($video);
             }
 
