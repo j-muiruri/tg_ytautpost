@@ -9,6 +9,7 @@ use App\YoutubeVideos;
 use App\TelegramBot;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\GoogleApiClientController;
 
 /**
  * Class LikedCommand.
@@ -34,13 +35,17 @@ class LikedCommand extends Command
     public function handle()
     {
         //Send Message
-        $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following videos:']);
+        $this->replyWithMessage(['text' => 'Great! Seleqta Autopost Youtube Bot has found the following Liked Videos from Youtube:']);
         sleep(2);
 
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
-        Log::debug($resultUpdate);
         $type = $resultUpdate->message->chat->type;
+        $userDetails['user_id'] = $resultUpdate->message->from->id;
+        
+        $googleClient = new GoogleApiClientController;
+
+        $likedVideos =  $googleClient->getLikedVideos($userDetails);
 
         if ($type === 'supergroup') {
             $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(20);
@@ -61,27 +66,30 @@ class LikedCommand extends Command
             sleep(3); 
             // Reply with the Videos List
         } else {
-            // // This will update the chat status to typing...
-            // $this->replyWithChatAction(['action' => Actions::TYPING]);
-            // sleep(1);
-            $videos = YoutubeVideos::orderBy('id', 'desc')->paginate(20);
+           
+            $videos = $likedVideos;
+
+            if ($videos['status'] === true) {
 
             // Reply with the Videos List
-
             $no = 0;
 
             foreach ($videos as $video) {
+
+                logger($video);
                 $link = $video['link'];
                 $title = $video['title'];
                 // echo $link;
                 $no++;
 
                 $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
-                usleep(800000); //1.5 secs
+                usleep(800000); //0.8 secs
             }
+
+            }
+
             // send next page link
 
-            $arrResult = $videos->toArray();
             // $this->replyWithMessage(['text' =>$arrResult['next_page_url']]);
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');

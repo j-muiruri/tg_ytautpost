@@ -315,7 +315,7 @@ class GoogleApiClientController extends Controller
         $fileExists = Storage::disk('private')->exists(env('TOKEN_FILE'));
 
         if (isset($code)) {
-            $client->authenticate($code);
+            $client->fetchAccessTokenWithAuthCode($code);
             // Google Client Object
             $accessToken = $client->getAccessToken();
 
@@ -495,7 +495,7 @@ class GoogleApiClientController extends Controller
     }
     /**
      * Complete auth, return code to User
-     * 
+     *
      */
     public function authComplete(Request $request)
     {
@@ -588,7 +588,7 @@ class GoogleApiClientController extends Controller
                 $newAccessToken['refresh_token'] = $client->getRefreshToken();
 
 
-                $data =response()->json($newAccessToken);
+                $data = response()->json($newAccessToken);
 
                 // log access tokens
                 logger($data);
@@ -602,37 +602,30 @@ class GoogleApiClientController extends Controller
         }
     }
 
-     /**
+    /**
      * Revoke Access to Users, Youtube Account and delete access tokens
      * @return true/false Returns true if the revocation was successful, otherwise false
      */
     public function revokeAccess($userId)
     {
-
         Subscribers::where('user_id', '=', $userId)->delete();
 
         $client = $this->authGoogleApi();
 
         return $client->revokeToken();
-
-
     }
 
     /**
      * Get User Liked videos
      * @return array $data Return liked videos
      */
-    public function getLikedVideos($userDetails)
+    public function getLikedVideos(array $userDetails)
     {
-        // $callback = "";
-        //check if auth code returned
-        // $code = $request->input('code');
+        $userId = $userDetails['user_id'];
 
-        // $pageToken = $request->input('next');
+        $pageToken = $$userDetails['next'];
 
         $client = $this->authGoogleApi();
-
-        $userId =$userDetails['user_id'];
 
         $tokenExists = Subscribers::where(
             'user_id',
@@ -641,25 +634,28 @@ class GoogleApiClientController extends Controller
         )
             ->whereNotNull('access_tokens')
             ->exists();
-        
+
 
         if ($tokenExists != false) {
 
             //check if file xists on the disk
             $tokens =  Subscribers::select('access_tokens')
-            ->where(
-                'user_id',
-                '=',
-                $userId
-            )
-            ->first();
+                ->where(
+                    'user_id',
+                    '=',
+                    $userId
+                )
+                ->first();
 
             //Get Our access token
             $client->setAccessToken($tokens);
 
             /* Refresh token when expired */
             if ($client->isAccessTokenExpired()) {
-                $data['status'] = false;
+                $data = array(
+                    "status" => false,
+                    "results" => array()
+                  );
                 return $data;
             }
 
@@ -669,7 +665,7 @@ class GoogleApiClientController extends Controller
 
             $queryParams = [
                 'myRating'   => 'like',
-                'maxResults' => 50,
+                'maxResults' => 10,
             ];
 
             if (isset($pageToken)) {
@@ -678,64 +674,30 @@ class GoogleApiClientController extends Controller
             }
             $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
-            
+
             // access items array/key from Google object reponse
             $items = $response->items;
 
+            $data = array();
             
-
-            $entries = 0;
-            $exists  = 0;
-
             foreach ($items as $t) {
 
-                // $idtemp = "Yotube video Link is: https://youtube.com/watch?v=" . $t['id'] . "   Video Title: " . $t['snippet']['title'] . $t['snippet']['description'];
-                // $results = print_r($idtemp);
-
                 $url = "https://youtube.com/watch?v=";
+                $video = array();
 
-                $link = $url . $t['id'];
-                $title =  $t['snippet']['title'];
-                $description = $t['snippet']['description'];
-
-
-                // // Check if the video link exists on the server
-                // $idExists = YoutubeVideos::where('link', '=', $id)->first();
-
-                $data = array();
-
-                $data['title'] = $title;
-                $data['description'] = $title;
-                $data['link'] = $title;
-                $data['status'] = true;
-
-                //Check no of inserted entries, if less than 2, redirect automatically and fetch more videos
-                if ($entries < 2) {
-                    $Url = URL::current();
-
-                    $tokenInput = $response->nextPageToken;
-
-                    echo "Records Inserted: " . $entries . "  Entries Skipped: " . $exists;
-
-                    echo "Redirect to Next Page in 5 seconds......... ";
-                    sleep(10);
-                    return Redirect::intended($Url . "?next=" . $tokenInput);
-                } else {
-                    // $mergeArray = echo $id ;
-                    // $response = $response->nextPageToken;
-                    // $response = response()->json($response);
-
-                    return var_dump("Records Inserted: " . $entries . "  Entries Skipped: " . $exists);
-
-                    // return $results;
-                }
+                $video['title'] = $t['snippet']['title'];
+                $video['description'] = $t['snippet']['description'];
+                $video['link'] = $url . $t['id'];
+                
+               
+                $data['videos'] = $video;
+                logger($video);
+              
             }
-            // create auth url
-            $url = $client->createAuthUrl();
 
-            return Redirect::intended($url);
-
-            // return $client;
+            $data['status'] = true;
+            logger($data);
+            return $data;
         }
     }
 }
