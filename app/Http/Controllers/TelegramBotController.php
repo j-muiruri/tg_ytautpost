@@ -94,7 +94,7 @@ class TelegramBotController extends Controller
         $this->saveUpdates();
 
         $saveTokens = $this->saveTokens();
-    
+
 
         $chatId = $data->message->chat->id;
         $userId = $data->message->from->id;
@@ -128,12 +128,12 @@ class TelegramBotController extends Controller
             $chatDetails['status'] = "completed";
             $this->updateStatus($chatDetails);
             $this->updateCommand($chatDetails);
-        } elseif($message_type != 'bot_command' ){
+        } elseif ($message_type != 'bot_command') {
 
             //Check if message is normal_text, replies with start command
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Hey @'.$username.'!, Reply with /start to learn how to access your Youtube content and autopost or share'
+                'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
             ]);
         }
 
@@ -149,34 +149,69 @@ class TelegramBotController extends Controller
         //Get Json Update
         $data = Telegram::getWebhookUpdates();
 
-        //Pluck Values
-        $update_id = $data->update_id;
-        $user_id = $data->message->from->id;
-        $username = $data->message->from->username;
-        $chatId = $data->message->chat->id;
-        $chat_type = $data->message->chat->type;
-        $message_id = $data->message->message_id;
-        $message = $data->message->text;
-        $entities = $data->message->entities;
-        $message_type = $this->checkMessageType();
-        // logger($message_type);
+        if (!isset($data->update_id->inline_query->id)) {
 
-        // Store messages in db
+            //Pluck Values
+            $update_id = $data->update_id;
+            $user_id = $data->message->from->id;
+            $username = $data->message->from->username;
+            $chatId = $data->message->chat->id;
+            $chat_type = $data->message->chat->type;
+            $message_id = $data->message->message_id;
+            $message = $data->message->text;
+            $entities = $data->message->entities;
+            $message_type = $this->checkMessageType();
+            // logger($message_type);
 
-        TelegramBot::create(
-            [
-                'update_id' => $update_id,
-                'user_id' => $user_id,
-                'username' => $username,
-                'chat_id' => $chatId,
-                'chat_type' => $chat_type,
-                'message_id' => $message_id,
-                'message' => $message,
-                'message_type' => $message_type
-            ]
-        );
+            // Store messages in db
 
-        return true;
+            TelegramBot::create(
+                [
+                    'update_id' => $update_id,
+                    'user_id' => $user_id,
+                    'username' => $username,
+                    'chat_id' => $chatId,
+                    'chat_type' => $chat_type,
+                    'message_id' => $message_id,
+                    'message' => $message,
+                    'message_type' => $message_type
+                ]
+            );
+
+
+            return true;
+        } else {
+
+            //Process Inline Query
+
+            //Pluck Values
+            $update_id = $data->update_id;
+            $user_id = $data->inline_query->from->id;
+            $username = $data->inline_query->from->username;
+            $chatId = '0';
+            $chat_type =  '0';
+            $message_id = $data->inline_query->id;
+            $message = $data->inline_query->query;
+            $message_type = 'inline_query';
+            // logger($message_type);
+
+            // Store messages in db
+
+            TelegramBot::create(
+                [
+                    'update_id' => $update_id,
+                    'user_id' => $user_id,
+                    'username' => $username,
+                    'chat_id' => $chatId,
+                    'chat_type' => $chat_type,
+                    'message_id' => $message_id,
+                    'message' => $message,
+                    'message_type' => $message_type
+                ]
+            );
+
+            return true;
+        }
     }
     /**
      * Gets Previous Command
@@ -188,7 +223,7 @@ class TelegramBotController extends Controller
 
         $user_id = $data->message->from->id;
         $chatId = $data->message->chat->id;
-        
+
 
         $command = TelegramBot::select('message', 'message_id', 'status')
             ->where([
@@ -240,7 +275,7 @@ class TelegramBotController extends Controller
         $message_type = $this->checkMessageType();
 
         $command = $this->previousCommand();
-        $authCommand= Str::contains($command["message"], "/auth");
+        $authCommand = Str::contains($command["message"], "/auth");
 
         if ($authCommand === true && $message_type === "normal_text" && $command['status'] != "completed" && $command['status'] != "failed") {
 
