@@ -94,53 +94,77 @@ class TelegramBotController extends Controller
 
         $this->saveUpdates();
 
-        $saveTokens = $this->saveTokens();
+        $isInlineQuery = $this->isInlineQuery();
+
+        // Check if Update is a message or inline query, process message
+        if ($isInlineQuery === false) {
 
 
-        $chatId = $data->message->chat->id;
-        $userId = $data->message->from->id;
-        $message_id = $data->message->message_id;
-        $message_type = $this->checkMessageType();
-        $username = $data->message->from->username;
-        $chatDetails['chat_id'] = $chatId;
-        $chatDetails['user_id'] = $userId;
-        $chatDetails['message_id'] = $message_id;
+            $saveTokens = $this->saveTokens();
 
-        // Check if tokens were generated
-        if ($saveTokens === false) {
 
-            //Error
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
-            ]);
+            $chatId = $data->message->chat->id;
+            $userId = $data->message->from->id;
+            $message_id = $data->message->message_id;
+            $message_type = $this->checkMessageType();
+            $username = $data->message->from->username;
+            $chatDetails['chat_id'] = $chatId;
+            $chatDetails['user_id'] = $userId;
+            $chatDetails['message_id'] = $message_id;
 
-            $chatDetails['status'] = "failed";
-            $this->updateStatus($chatDetails);
-            $this->updateCommand($chatDetails);
-        } elseif (isset($saveTokens['auth'])) {
+            // Check if tokens were generated
+            if ($saveTokens === false) {
 
-            //Success
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
-            ]);
+                //Error
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
+                ]);
 
-            $chatDetails['status'] = "completed";
-            $this->updateStatus($chatDetails);
-            $this->updateCommand($chatDetails);
-        } elseif ($message_type != 'bot_command') {
+                $chatDetails['status'] = "failed";
+                $this->updateStatus($chatDetails);
+                $this->updateCommand($chatDetails);
+            } elseif (isset($saveTokens['auth'])) {
 
-            //Check if message is normal_text, replies with start command
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
-            ]);
+                //Success
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
+                ]);
+
+                $chatDetails['status'] = "completed";
+                $this->updateStatus($chatDetails);
+                $this->updateCommand($chatDetails);
+            } elseif ($message_type != 'bot_command') {
+
+                //Check if message is normal_text, replies with start command
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
+                ]);
+            }
         }
 
         return true;
     }
 
+    /**
+     * Check If this is an Inline query 
+     * @return true/false Returns true if update is inline Query an d false if it is a message or bot_command
+     */
+    public function isInlineQuery()
+    {
+
+        $data = Telegram::getWebhookUpdates();
+
+        $array = (array) $data;
+        //Check if the key message exists in the array, if true, update is not an inline query, else it is an inline query
+        if (isset($array['message'])) {
+            return false;
+        } else {
+            return true;
+        }
+    }
     /**
      * Save Updates
      * @return true Returns true on saving
