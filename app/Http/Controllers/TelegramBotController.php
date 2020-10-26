@@ -10,6 +10,7 @@ use App\Subscribers;
 use Illuminate\Http\Request;
 use Telegram\Bot\Commands\Command;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 /**
  * The Telegram Bot  Class
@@ -149,7 +150,8 @@ class TelegramBotController extends Controller
         //Get Json Update
         $data = Telegram::getWebhookUpdates();
 
-        if (!isset($data->message->from->id)) {
+        $array = (array) $data;
+        if (isset($array['message'])) {
 
             logger("this is a message");
             //Pluck Values
