@@ -149,7 +149,7 @@ class TelegramBotController extends Controller
         //Get Json Update
         $data = Telegram::getWebhookUpdates();
 
-        if (!isset($data->update_id->inline_query->id)) {
+        if (empty($data->update_id->inline_query->id)) {
 
             //Pluck Values
             $update_id = $data->update_id;
