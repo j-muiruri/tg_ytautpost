@@ -151,6 +151,7 @@ class TelegramBotController extends Controller
 
         if (!isset($data->message->from->id)) {
 
+            logger("this is a message");
             //Pluck Values
             $update_id = $data->update_id;
             $user_id = $data->message->from->id;
