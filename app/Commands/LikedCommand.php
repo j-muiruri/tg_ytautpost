@@ -10,6 +10,7 @@ use App\TelegramBot;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\GoogleApiClientController;
+use Telegram\Bot\Keyboard\Keyboard;
 
 /**
  * Class LikedCommand.
@@ -91,7 +92,7 @@ class LikedCommand extends Command
                     ['Next Page :next_track:']
                 ];
                 
-                $reply_markup = $this->replyKeyboardMarkup([
+                $reply_markup = Keyboard::make([
                     'keyboard' => $keyboard, 
                     'resize_keyboard' => true, 
                     'one_time_keyboard' => true
