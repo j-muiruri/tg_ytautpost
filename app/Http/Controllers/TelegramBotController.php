@@ -176,8 +176,9 @@ class TelegramBotController extends Controller
 
         $array = (array) $data;
         
+        $updateIsMessage = !empty($data->message->message_id);
         // logger($messageId);
-        if (!empty($data->message->message_id)) {
+        if ($updateIsMessage === true) {
 
             logger("this is a message");
             //Pluck Values
