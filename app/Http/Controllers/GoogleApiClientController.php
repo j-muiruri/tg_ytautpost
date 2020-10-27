@@ -613,7 +613,13 @@ class GoogleApiClientController extends Controller
 
         $client = $this->authGoogleApi();
 
-        return $client->revokeToken();
+        try {
+            $client->revokeToken();
+        } catch (Exception $e) {
+            // report($e);
+
+            return false;
+        }
     }
 
     /**
