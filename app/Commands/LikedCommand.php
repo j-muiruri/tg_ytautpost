@@ -98,8 +98,7 @@ class LikedCommand extends Command
                     'one_time_keyboard' => true
                 ]);
 
-                $this->replyWithMessage(['text' => 'For More videos: \n
-                tap below to go to the next or previous pages',
+                $this->replyWithMessage(['text' => 'For More videos: \n tap below to go to the next or previous pages',
                 'reply_markup' => $reply_markup]);
                  
             } else {

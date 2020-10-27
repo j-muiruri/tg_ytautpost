@@ -43,15 +43,14 @@ class StopCommand extends Command
         $data = $resultUpdate->message;
         $userDetails['user_id'] = $data->from->id;
         $userDetails['chat_id'] = $data->chat->id;
+        $username = $data->from->username;
         $client->revokeAccess($userDetails);
 
         //Send Message
         $this->replyWithMessage([
             'text' =>
-            'Ooops! You: \n 
-            1. have revoked my access to your Youtube videos \n
-            2. will stop receiving updates from Seleqta Youtube Autopost. \n
-            Goodbye @$username!'
+            "Ooops! You: \n 1. have revoked my access to your Youtube videos \n 2. will stop receiving updates from Seleqta Youtube Autopost. \n
+            Goodbye @$username!"
         ]);
 
 
