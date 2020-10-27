@@ -78,7 +78,7 @@ class LikedCommand extends Command
                 $videos = $likedVideos['videos'];
                 foreach ($videos as $video) {
 
-                   
+
                     $link = $video['link'];
                     $title = $video['title'];
                     // echo $link;
@@ -91,16 +91,17 @@ class LikedCommand extends Command
                 $keyboard = [
                     ['Next Page']
                 ];
-                
+
                 $reply_markup = Keyboard::make([
-                    'keyboard' => $keyboard, 
-                    'resize_keyboard' => true, 
+                    'keyboard' => $keyboard,
+                    'resize_keyboard' => true,
                     'one_time_keyboard' => true
                 ]);
 
-                $this->replyWithMessage(['text' => 'For More videos: \n tap below to go to the next or previous pages',
-                'reply_markup' => $reply_markup]);
-                 
+                $this->replyWithMessage([
+                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                    'reply_markup' => $reply_markup
+                ]);
             } else {
 
                 //user auth tokens has expired or user has not given app access
