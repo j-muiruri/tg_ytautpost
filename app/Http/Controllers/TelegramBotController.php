@@ -176,7 +176,7 @@ class TelegramBotController extends Controller
 
         $array = (array) $data;
 
-        $messageId = $data->message->messageId;
+        $messageId = $data->message->message_id;
         
         logger($messageId);
         if (!empty($messageId)) {
