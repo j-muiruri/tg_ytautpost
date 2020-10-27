@@ -154,15 +154,15 @@ class TelegramBotController extends Controller
      */
     public function isInlineQuery()
     {
-
         $data = Telegram::getWebhookUpdates();
 
-        $array = (array) $data;
+        $array = $data->message;
+
         //Check if the key message exists in the array, if true, update is not an inline query, else it is an inline query
-        if (isset($array['message'])) {
-            return false;
-        } else {
+        if ($array === null) {
             return true;
+        } else {
+            return false;
         }
     }
     /**
@@ -175,11 +175,11 @@ class TelegramBotController extends Controller
         $data = Telegram::getWebhookUpdates();
 
         $array = (array) $data;
-        
-        $updateIsMessage = isset($data->message->message_id);
 
-        logger($array[0]);
-        if ($updateIsMessage === true) {
+        // $updateIsMessage = isset($data->message->message_id);
+
+        logger($data->message);
+        if ($data->message != null) {
 
             logger("this is a message");
             //Pluck Values
