@@ -89,7 +89,7 @@ class LikedCommand extends Command
                 }
 
                 $keyboard = [
-                    ['Next Page :next_track:']
+                    ['Next Page']
                 ];
                 
                 $reply_markup = Keyboard::make([
@@ -99,8 +99,8 @@ class LikedCommand extends Command
                 ]);
 
                 $this->replyWithMessage(['text' => 'For More videos: \n
-                 tap below to go to the next page or next pages',
-                 'reply_markup' => $reply_markup]);
+                tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup]);
                  
             } else {
 
