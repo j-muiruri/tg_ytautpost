@@ -47,11 +47,12 @@ class StopCommand extends Command
 
         //Send Message
         $this->replyWithMessage([
-            'text' => 
+            'text' =>
             'Ooops! You: \n 
             1. have revoked my access to your Youtube videos \n
             2. will stop receiving updates from Seleqta Youtube Autopost. \n
-            Goodbye @$username!']);
+            Goodbye @$username!'
+        ]);
 
 
         // Trigger another command dynamically from within this command
