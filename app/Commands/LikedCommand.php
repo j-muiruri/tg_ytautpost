@@ -2,7 +2,7 @@
 
 namespace App\Commands;
 
-use Telegram\Bot\Actions;
+use Telegram;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
 use App\YoutubeVideos;
@@ -87,8 +87,20 @@ class LikedCommand extends Command
                     usleep(800000); //0.8 secs
                 }
 
-                $this->replyWithMessage(['text' => 'For More videos reply with: \n
-                 /next command  to go to the next page']);
+                $keyboard = [
+                    ['Next Page :next_track:']
+                ];
+                
+                $reply_markup = $this->replyKeyboardMarkup([
+                    'keyboard' => $keyboard, 
+                    'resize_keyboard' => true, 
+                    'one_time_keyboard' => true
+                ]);
+
+                $this->replyWithMessage(['text' => 'For More videos: \n
+                 tap below to go to the next page or next pages',
+                 'reply_markup' => $reply_markup]);
+                 
             } else {
 
                 //user auth tokens has expired or user has not given app access
