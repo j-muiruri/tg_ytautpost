@@ -41,9 +41,9 @@ class StopCommand extends Command
 
         $client = new GoogleApiClientController;
         $data = $resultUpdate->message;
-        $userId = $data->from->id;
-        $username = $data->from->username;
-        $client->revokeAccess($userId);
+        $userDetails['user_id'] = $data->from->id;
+        $userDetails['chat_id'] = $data->chat->id;
+        $client->revokeAccess($userDetails);
 
         //Send Message
         $this->replyWithMessage([

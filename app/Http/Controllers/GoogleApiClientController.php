@@ -606,9 +606,10 @@ class GoogleApiClientController extends Controller
      * Revoke Access to Users, Youtube Account and delete access tokens
      * @return true/false Returns true if the revocation was successful, otherwise false
      */
-    public function revokeAccess($userId)
+    public function revokeAccess(array $userId)
     {
-        Subscribers::where('user_id', '=', $userId)->delete();
+        Subscribers::where('user_id', '=', $userId['user_id'])
+            ->orWhere('chat_id', '=', $userId['chat_id'])->delete();
 
         $client = $this->authGoogleApi();
 
@@ -697,8 +698,7 @@ class GoogleApiClientController extends Controller
             $data['status'] = true;
             logger($data);
             return $data;
-        }
-        else {
+        } else {
 
             $data = array(
                 "status" => false,
