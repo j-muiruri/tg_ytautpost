@@ -175,11 +175,9 @@ class TelegramBotController extends Controller
         $data = Telegram::getWebhookUpdates();
 
         $array = (array) $data;
-
-        $messageId = $data->message->message_id;
         
-        logger($messageId);
-        if (!empty($messageId)) {
+        // logger($messageId);
+        if (!empty($data->message->message_id)) {
 
             logger("this is a message");
             //Pluck Values
