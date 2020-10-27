@@ -41,7 +41,7 @@ class LikedCommand extends Command
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
         $type = $resultUpdate->message->chat->type;
-        $userDetails['user_id'] = $resultUpdate->message->messageId;
+        $userDetails['user_id'] = $resultUpdate->message->from->id;
 
         $googleClient = new GoogleApiClientController;
 
