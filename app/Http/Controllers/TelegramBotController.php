@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Telegram\Bot\Commands\Command;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Telegram\Bot\Keyboard\Keyboard;
 
 /**
  * The Telegram Bot  Class
@@ -104,11 +106,11 @@ class TelegramBotController extends Controller
 
             switch ($message_type) {
 
-                //Process normal message
+                    //Process normal message
                 case 'normal_text':
                     $this->processNormalMessage();
                     break;
-                
+
                 default:
                     return true;
                     break;
@@ -221,42 +223,49 @@ class TelegramBotController extends Controller
      */
     public function processNormalMessage()
     {
-
         //Get Telegram Updates
         $data = Telegram::getWebhookUpdates();
+        $chatId = $data->message->chat->id;
+        $username = $data->message->from->username;
+        $message = $data->message->text;
 
         $previousCommand = $this->previousCommand();
 
         $command = $previousCommand['message'];
 
+        logger($command);
         //Get previous command to process this message
         switch ($command) {
             case '/auth':
-                $status = $this->saveTokens();
+                //Process auth token
+                return $this->saveTokens();
                 break;
 
             case '/myliked':
-                //    $this->saveTokens();
+                //Process next or previous results
+                $userDetails['user_id'] = $command["user_id"];
+                $userDetails['chat_id'] = $command["user_id"];
+                $userDetails['action'] = $command['myliked'];
+
+                if ($message === "Next Page") {
+                    return $this->nextResult($userDetails);
+                } elseif ($message === "Prev Page") {
+                    return $this->previousResult($userDetails);
+                } else {
+                    //new user message or next not from custom keyboard, reply with default msg
+                    Telegram::sendMessage([
+                        'chat_id' => $chatId,
+                        'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
+                    ]);
+                }
                 break;
             default:
-                # code...
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
+                ]);
+                return true;
                 break;
-        }
-
-        $chatId = $data->message->chat->id;
-        $username = $data->message->from->username;
-
-        if (isset($status['action'])) {
-
-            return true;
-
-        } else {
-
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
-            ]);
-            return true;
         }
     }
     /**
@@ -312,7 +321,7 @@ class TelegramBotController extends Controller
 
     /**
      * Complete Authentication to store  User Tokens
-     * @return  array $data Returns data on saving the tokens with array of thre result status either true or false if unable to save, 
+     * @return  array $data Returns data on saving the tokens with array of the result status either true or false if unable to save, 
      * @return true/false returns true only if no token was sent
      */
     public function saveTokens()
@@ -323,8 +332,8 @@ class TelegramBotController extends Controller
         $command = $this->previousCommand();
         $authCommand = Str::contains($command["message"], "/auth");
 
-        //check if previous command was auth and not marked as completed or failed and if message sent is normal text
-        if ($authCommand === true && $message_type === "normal_text" && $command['status'] != "completed" && $command['status'] != "failed") {
+        //check if previous command was  not marked as completed or failed
+        if ($command['status'] != "completed" && $command['status'] != "failed") {
 
             if ($this->generateTokens($command) === true) {
                 logger("Yeeeaa!!!!");
@@ -342,7 +351,7 @@ class TelegramBotController extends Controller
                 $this->updateStatus($chatDetails);
                 $this->updateCommand($chatDetails);
 
-                return $data;
+                return true;
             } else {
                 logger("Should be false");
 
@@ -444,5 +453,182 @@ class TelegramBotController extends Controller
         )->exists();
 
         return $userExists;
+    }
+    /**
+     * Return next page of result to liked videos, channels, subscriptions etc
+     */
+    public function nextResult(array $userDetails)
+    {
+        $action = $userDetails['action'];
+        $userId = $userDetails['user_id'];
+        $chatId = $userDetails['chat_id'];
+        $nextTokenKey = $userId . $action . 'next';
+        $prevTokenKey = $userId . $action . 'prev';
+
+        $tokenExists = Cache::has($nextTokenKey);
+
+        if ($tokenExists === true) {
+            $token = Cache::get($nextTokenKey);
+
+            $userInfo = array(
+                'user_id' => $userId,
+                'next' => $token
+            );
+
+            $googleClient = new GoogleApiClientController;
+
+            $likedVideos =  $googleClient->getLikedVideos($userInfo);
+
+            if ($likedVideos['status'] === true) {
+
+                // Reply with the Videos List
+                $no = 0;
+
+                $videos = $likedVideos['videos'];
+                foreach ($videos as $video) {
+
+
+                    $link = $video['link'];
+                    $title = $video['title'];
+                    // echo $link;
+                    $no++;
+
+                    Telegram::sendMessage([
+                        'chat_id' => $chatId,
+                        'text' => $no . '. ' . $title . ' - ' . $link
+                    ]);
+                    usleep(800000); //0.8 secs
+                }
+
+                // $nextToken = $likedVideos['next'];
+                $nextToken = "NEXTPG";
+                $prevToken = "PREVPG";
+
+                $cachePrevKeyExists = Cache::has($prevTokenKey);
+
+                // check if previous key exists
+                if ($cachePrevKeyExists != true) {
+
+                    Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10)); //10 minus = 600 secs
+                } else {
+                    // update previous pg tokens in cache
+                    Cache::increment($prevTokenKey, $prevToken);
+                }
+
+                //update next page tokens
+                Cache::increment($nextTokenKey, $nextToken);
+                
+
+                $keyboard = [
+                    ['Next Page', 'Prev Page'],
+                ];
+
+                $reply_markup = Keyboard::make([
+                    'keyboard' => $keyboard,
+                    'resize_keyboard' => true,
+                    'one_time_keyboard' => true
+                ]);
+
+                Telegram::sendMessage([
+                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                    'reply_markup' => $reply_markup
+                ]);
+            } else {
+
+                //user auth tokens has expired or user has not given app access
+                Telegram::sendMessage(['text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+            }
+        } else {
+            //Next Page token or Previous page token not found in cache
+            Telegram::sendMessage(['text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos']);
+        }
+    }
+    /**
+     * Return previous page of result to liked videos, channels, subscriptions etc
+     */
+    public function previousResult(array $userDetails)
+    {
+        $action = $userDetails['action'];
+        $userId = $userDetails['user_id'];
+        $chatId = $userDetails['chat_id'];
+        $prevTokenKey = $userId . $action . 'prev';
+        $nextTokenKey = $userId . $action . 'next';
+
+        $tokenExists = Cache::has($prevTokenKey);
+
+        if ($tokenExists == true) {
+            $token = Cache::get($prevTokenKey);
+
+            $userInfo = array(
+                'user_id' => $userId,
+                'prev' => $token
+            );
+
+            $googleClient = new GoogleApiClientController;
+
+            $likedVideos =  $googleClient->getLikedVideos($userInfo);
+
+            if ($likedVideos['status'] === true) {
+
+                // Reply with the Videos List
+                $no = 0;
+
+                $videos = $likedVideos['videos'];
+                foreach ($videos as $video) {
+
+
+                    $link = $video['link'];
+                    $title = $video['title'];
+                    // echo $link;
+                    $no++;
+
+                    Telegram::sendMessage([
+                        'chat_id' => $chatId,
+                        'text' => $no . '. ' . $title . ' - ' . $link
+                    ]);
+                    usleep(800000); //0.8 secs
+                }
+
+                $nextToken = "NEXTPG";
+                $prevToken = "PREVPG";
+
+                $cacheNextKeyExists = Cache::has($prevTokenKey);
+
+                // check if next token key exists
+                if ($cacheNextKeyExists != true) {
+
+                    Cache::put($nextTokenKey, $prevToken, now()->addMinutes(10)); //10 minus = 600 secs
+                } else {
+                    // update next pg tokens in cache
+                    Cache::increment($nextTokenKey, $prevToken);
+                }
+
+                //update prev page tokens
+                Cache::increment($prevTokenKey, $nextToken);
+                
+
+                $keyboard = [
+                    ['Next Page', 'Prev Page'],
+                ];
+
+                $reply_markup = Keyboard::make([
+                    'keyboard' => $keyboard,
+                    'resize_keyboard' => true,
+                    'one_time_keyboard' => true
+                ]);
+
+                Telegram::sendMessage([
+                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                    'reply_markup' => $reply_markup
+                ]);
+            } else {
+
+                //user auth tokens has expired or user has not given app access
+                Telegram::sendMessage(['text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+            }
+        } else {
+            //Next Page token or Previous page token not found in cache
+            Telegram::sendMessage(['text' => 'Ooops, Unable to access previous page, reply with /myliked to view your LikedYoutube Videos']);
+        }
     }
 }

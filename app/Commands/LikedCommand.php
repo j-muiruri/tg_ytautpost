@@ -10,6 +10,7 @@ use App\TelegramBot;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\GoogleApiClientController;
+use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 
 /**
@@ -86,6 +87,22 @@ class LikedCommand extends Command
 
                     $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
                     usleep(800000); //0.8 secs
+                }
+
+                // $nextToken = $videos['next'];
+                $nextToken = "NEXTPG";
+
+                //store next token to cache
+                $nextTokenKey = $userDetails['user_id'] . $this->name.'next';
+                $cacheKeyExists = Cache::has($nextTokenKey);
+
+                //check if it nextexists
+                if ($cacheKeyExists != true) {
+
+                    Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
+                } else {
+                    // update tokens in cache
+                    Cache::increment($nextTokenKey, $nextToken);
                 }
 
                 $keyboard = [

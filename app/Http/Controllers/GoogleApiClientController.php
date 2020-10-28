@@ -685,6 +685,7 @@ class GoogleApiClientController extends Controller
             // access items array/key from Google object reponse
             $items = $response->items;
 
+            logger("Google Object Result: \n".$items);
             $data = array();
 
             foreach ($items as $t  => $v) {
