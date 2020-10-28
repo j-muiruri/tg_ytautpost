@@ -501,8 +501,8 @@ class TelegramBotController extends Controller
                 }
 
                 // $nextToken = $likedVideos['next'];
-                $nextToken = "NEXTPG";
-                $prevToken = "PREVPG";
+                $nextToken = $likedVideos['next'];
+                $prevToken = $likedVideos['prev'];
 
                 $cachePrevKeyExists = Cache::has($prevTokenKey);
 
@@ -589,8 +589,8 @@ class TelegramBotController extends Controller
                     usleep(800000); //0.8 secs
                 }
 
-                $nextToken = "NEXTPG";
-                $prevToken = "PREVPG";
+                $nextToken = $likedVideos['next'];
+                $prevToken = $likedVideos['prev'];
 
                 $cacheNextKeyExists = Cache::has($prevTokenKey);
 

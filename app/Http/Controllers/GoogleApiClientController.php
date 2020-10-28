@@ -676,7 +676,10 @@ class GoogleApiClientController extends Controller
             ];
 
             if (isset($userDetails['next'])) {
-                //nextpagetoken set
+                //next page token set
+                $queryParams['pageToken'] =  $userDetails['next'];
+            } else if (isset($userDetails['prev'])){
+                //prevpage token set
                 $queryParams['pageToken'] =  $userDetails['next'];
             }
             $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
@@ -684,9 +687,9 @@ class GoogleApiClientController extends Controller
 
             // access items array/key from Google object reponse
             $items = $response->items;
-            $dataJson = response()->json($items);
+            // $dataJson = response()->json($items);
 
-            logger($dataJson);
+            // logger($dataJson);
             $data = array();
 
             foreach ($items as $t  => $v) {
@@ -704,6 +707,8 @@ class GoogleApiClientController extends Controller
             }
 
             $data['status'] = true;
+            $data['next']  = $response->nextPageToken;
+            $data['prev'] = $response->prevPageToken;
             logger($data);
             return $data;
         } else {
