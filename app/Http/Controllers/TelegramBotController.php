@@ -92,6 +92,7 @@ class TelegramBotController extends Controller
 
         logger($data);
 
+        //Save Updates to db
         $this->saveUpdates();
 
         $isInlineQuery = $this->isInlineQuery();
@@ -99,49 +100,18 @@ class TelegramBotController extends Controller
         // Check if Update is a message or inline query, process message
         if ($isInlineQuery === false) {
 
-
-            $saveTokens = $this->saveTokens();
-
-
-            $chatId = $data->message->chat->id;
-            $userId = $data->message->from->id;
-            $message_id = $data->message->message_id;
             $message_type = $this->checkMessageType();
-            $username = $data->message->from->username;
-            $chatDetails['chat_id'] = $chatId;
-            $chatDetails['user_id'] = $userId;
-            $chatDetails['message_id'] = $message_id;
 
-            // Check if tokens were generated
-            if ($saveTokens === false) {
+            switch ($message_type) {
 
-                //Error
-                Telegram::sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
-                ]);
-
-                $chatDetails['status'] = "failed";
-                $this->updateStatus($chatDetails);
-                $this->updateCommand($chatDetails);
-            } elseif (isset($saveTokens['auth'])) {
-
-                //Success
-                Telegram::sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
-                ]);
-
-                $chatDetails['status'] = "completed";
-                $this->updateStatus($chatDetails);
-                $this->updateCommand($chatDetails);
-            } elseif ($message_type != 'bot_command') {
-
-                //Check if message is normal_text, replies with start command
-                Telegram::sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
-                ]);
+                //Process normal message
+                case 'normal_message':
+                    $this->processNormalMessage();
+                    break;
+                
+                default:
+                    return true;
+                    break;
             }
         }
 
@@ -244,6 +214,50 @@ class TelegramBotController extends Controller
             return true;
         }
     }
+
+    /**
+     * Process anormal text, check if theres a previous command, else send help message
+     * @return true Returns true on saving
+     */
+    public function processNormalMessage()
+    {
+
+        //Get Telegram Updates
+        $data = Telegram::getWebhookUpdates();
+
+        $previousCommand = $this->previousCommand();
+
+        //Get previous command to process this message
+        switch ($previousCommand) {
+            case '/auth':
+                $status = $this->saveTokens();
+                break;
+
+            case '/myliked':
+                //    $this->saveTokens();
+                break;
+            default:
+                # code...
+                break;
+        }
+
+        $chatId = $data->message->chat->id;
+        $message_type = $this->checkMessageType();
+        $username = $data->message->from->username;
+
+        if (isset($status['action'])) {
+
+            return true;
+
+        } else {
+
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
+            ]);
+            return true;
+        }
+    }
     /**
      * Gets Previous Command
      * @return array returns an array of the message details
@@ -308,15 +322,38 @@ class TelegramBotController extends Controller
         $command = $this->previousCommand();
         $authCommand = Str::contains($command["message"], "/auth");
 
+        //check if previous command was auth and not marked as completed or failed and if message sent is normal text
         if ($authCommand === true && $message_type === "normal_text" && $command['status'] != "completed" && $command['status'] != "failed") {
 
             if ($this->generateTokens($command) === true) {
                 logger("Yeeeaa!!!!");
                 $data['status'] = true;
-                $data['auth'] = true;
+                $data['action'] = true;
+
+
+                //Success
+                Telegram::sendMessage([
+                    'chat_id' => $command["chat_id"],
+                    'text' => 'Authentication Successful!, Reply with /help for more commands to access your youtube content'
+                ]);
+
+                $chatDetails['status'] = "completed";
+                $this->updateStatus($chatDetails);
+                $this->updateCommand($chatDetails);
+
                 return $data;
             } else {
                 logger("Should be false");
+
+                //Error
+                Telegram::sendMessage([
+                    'chat_id' => $command["chat_id"],
+                    'text' => 'Authentication Error, Reply with /auth to grant Telegram Youtube Autopost Bot access'
+                ]);
+
+                $chatDetails['status'] = "failed";
+                $this->updateStatus($chatDetails);
+                $this->updateCommand($chatDetails);
                 return false;
             }
         } else {
