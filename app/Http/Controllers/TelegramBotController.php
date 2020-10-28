@@ -245,7 +245,7 @@ class TelegramBotController extends Controller
                 //Process next or previous results
                 $userDetails['user_id'] = $previousCommand ["user_id"];
                 $userDetails['chat_id'] = $previousCommand ["user_id"];
-                $userDetails['action'] = $previousCommand ['myliked'];
+                $userDetails['action'] = 'myliked';
 
                 if ($message === "Next Page") {
                     return $this->nextResult($userDetails);
