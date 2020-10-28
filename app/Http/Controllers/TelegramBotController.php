@@ -530,17 +530,23 @@ class TelegramBotController extends Controller
                 ]);
 
                 Telegram::sendMessage([
+                    'chat_id' => $chatId,
                     'text' => 'For More videos: \n tap below to go to the next or previous pages',
                     'reply_markup' => $reply_markup
                 ]);
             } else {
 
                 //user auth tokens has expired or user has not given app access
-                Telegram::sendMessage(['text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+                Telegram::sendMessage([
+                    
+                    'chat_id' => $chatId,
+                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
             }
         } else {
             //Next Page token or Previous page token not found in cache
-            Telegram::sendMessage(['text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos']);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos']);
         }
     }
     /**
@@ -618,17 +624,22 @@ class TelegramBotController extends Controller
                 ]);
 
                 Telegram::sendMessage([
+                    'chat_id' => $chatId,
                     'text' => 'For More videos: \n tap below to go to the next or previous pages',
                     'reply_markup' => $reply_markup
                 ]);
             } else {
 
                 //user auth tokens has expired or user has not given app access
-                Telegram::sendMessage(['text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
             }
         } else {
             //Next Page token or Previous page token not found in cache
-            Telegram::sendMessage(['text' => 'Ooops, Unable to access previous page, reply with /myliked to view your LikedYoutube Videos']);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Ooops, Unable to access previous page, reply with /myliked to view your LikedYoutube Videos']);
         }
     }
 }
