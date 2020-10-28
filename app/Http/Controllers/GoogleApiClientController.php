@@ -680,7 +680,7 @@ class GoogleApiClientController extends Controller
                 $queryParams['pageToken'] =  $userDetails['next'];
             } else if (isset($userDetails['prev'])){
                 //prevpage token set
-                $queryParams['pageToken'] =  $userDetails['next'];
+                $queryParams['pageToken'] =  $userDetails['prev'];
             }
             $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
