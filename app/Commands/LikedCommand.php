@@ -90,7 +90,7 @@ class LikedCommand extends Command
                 }
 
                 // $nextToken = $videos['next'];
-                $nextToken = "NEXTPG";
+                $nextToken = $likedVideos['next'];
 
                 //store next token to cache
                 $nextTokenKey = $userDetails['user_id'] . $this->name.'next';
