@@ -243,9 +243,9 @@ class TelegramBotController extends Controller
 
             case '/myliked':
                 //Process next or previous results
-                $userDetails['user_id'] = $command["user_id"];
-                $userDetails['chat_id'] = $command["user_id"];
-                $userDetails['action'] = $command['myliked'];
+                $userDetails['user_id'] = $previousCommand ["user_id"];
+                $userDetails['chat_id'] = $previousCommand ["user_id"];
+                $userDetails['action'] = $previousCommand ['myliked'];
 
                 if ($message === "Next Page") {
                     return $this->nextResult($userDetails);
