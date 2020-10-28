@@ -97,12 +97,14 @@ class LikedCommand extends Command
                 $cacheKeyExists = Cache::has($nextTokenKey);
 
                 //check if it nextexists
-                if ($cacheKeyExists != true) {
+                if ($cacheKeyExists != false) {
 
+                    //update next pg token
+                    Cache::forget($nextTokenKey);
                     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
                 } else {
-                    // update tokens in cache
-                    Cache::increment($nextTokenKey, $nextToken);
+                    //store new next pg token
+                    Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
                 }
 
                 $keyboard = [

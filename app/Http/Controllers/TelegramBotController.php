@@ -508,17 +508,17 @@ class TelegramBotController extends Controller
 
                 // check if previous key exists
                 if ($cachePrevKeyExists != true) {
-
-                    Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10)); //10 minus = 600 secs
+                    Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10)); //10 mins = 600 secs
                 } else {
                     // update previous pg tokens in cache
-                    Cache::increment($prevTokenKey, $prevToken);
+                    Cache::forget($prevTokenKey);
+                    Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10));
                 }
 
-                //update next page tokens
-                Cache::increment($nextTokenKey, $nextToken);
+                // update next pg tokens in cache
+                Cache::forget($nextTokenKey);
+                Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
                 
-
                 $keyboard = [
                     ['Next Page', 'Prev Page'],
                 ];
@@ -598,19 +598,21 @@ class TelegramBotController extends Controller
                 $nextToken = $likedVideos['next'];
                 $prevToken = $likedVideos['prev'];
 
-                $cacheNextKeyExists = Cache::has($prevTokenKey);
+                $cacheNextKeyExists = Cache::has($nextTokenKey);
 
                 // check if next token key exists
                 if ($cacheNextKeyExists != true) {
 
-                    Cache::put($nextTokenKey, $prevToken, now()->addMinutes(10)); //10 minus = 600 secs
+                    Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 mins = 600 secs
                 } else {
                     // update next pg tokens in cache
-                    Cache::increment($nextTokenKey, $prevToken);
+                    Cache::forget($nextTokenKey);
+                    Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
                 }
 
                 //update prev page tokens
-                Cache::increment($prevTokenKey, $nextToken);
+                Cache::forget($prevTokenKey);
+                Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10));
                 
 
                 $keyboard = [
