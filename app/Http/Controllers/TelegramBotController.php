@@ -227,8 +227,10 @@ class TelegramBotController extends Controller
 
         $previousCommand = $this->previousCommand();
 
+        $command = $previousCommand['message'];
+
         //Get previous command to process this message
-        switch ($previousCommand) {
+        switch ($command) {
             case '/auth':
                 $status = $this->saveTokens();
                 break;
@@ -242,7 +244,6 @@ class TelegramBotController extends Controller
         }
 
         $chatId = $data->message->chat->id;
-        $message_type = $this->checkMessageType();
         $username = $data->message->from->username;
 
         if (isset($status['action'])) {
