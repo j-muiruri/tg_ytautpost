@@ -105,7 +105,7 @@ class TelegramBotController extends Controller
             switch ($message_type) {
 
                 //Process normal message
-                case 'normal_message':
+                case 'normal_text':
                     $this->processNormalMessage();
                     break;
                 
@@ -290,7 +290,7 @@ class TelegramBotController extends Controller
     }
     /**
      * Check Type of Message
-     * @return $message_type Returns type of message, either a bot command or a normal message
+     * @return $message_type Returns type of message, either a bot command or a normal text
      */
     public function checkMessageType()
     {
