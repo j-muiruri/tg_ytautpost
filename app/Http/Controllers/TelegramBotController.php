@@ -406,6 +406,7 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
+            
         } elseif ($messageArray['callback_query'] != null) {
 
             logger('reply_markup');
