@@ -258,7 +258,7 @@ class TelegramBotController extends Controller
         $chatId = $data->channel_post->chat->id;
         $chat_type = $data->channel_post->chat->type;
         $message_id = $data->channel_post->message_id;
-        if($data->channel_post->text === null){
+        if ($data->channel_post->text === null) {
 
             $message = 'media_file';
         } else {
@@ -296,7 +296,7 @@ class TelegramBotController extends Controller
         $data = Telegram::getWebhookUpdates();
         $chatId = $data->message->chat->id;
         $username = $data->message->from->username;
-        $message = $data->message->text;
+
 
         $previousCommand = $this->previousCommand();
 
@@ -315,7 +315,9 @@ class TelegramBotController extends Controller
                 $userDetails['user_id'] = $previousCommand["user_id"];
                 $userDetails['chat_id'] = $previousCommand["user_id"];
                 $userDetails['action'] = 'myliked';
+                $userDetails['token'] = $data->message->reply_markup->inline_keyboard->callback_data;
 
+                $message = $data->message->reply_markup->inline_keyboard->text;
                 if ($message === "Next Page") {
                     return $this->nextResult($userDetails);
                 } elseif ($message === "Prev Page") {
@@ -382,12 +384,17 @@ class TelegramBotController extends Controller
         } else if ($data->channel_post != null) {
 
             $entities = $data->channel_post->entities;
-        } 
-        
+        }
+
         if ($entities != null) {
             $object  = $entities->toArray();
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
+            return $message_type;
+        } elseif ($entities === null && $data->message->reply_markup != null) {
+
+            $message_type = 'reply_markup';
+
             return $message_type;
         } else {
             $message_type = "normal_text";
@@ -535,99 +542,100 @@ class TelegramBotController extends Controller
      */
     public function nextResult(array $userDetails)
     {
-        $action = $userDetails['action'];
+        // $action = $userDetails['action'];
         $userId = $userDetails['user_id'];
         $chatId = $userDetails['chat_id'];
-        $nextTokenKey = $userId . $action . 'next';
-        $prevTokenKey = $userId . $action . 'prev';
+        $token = $userDetails['token'];
+        // $nextTokenKey = $userId . $action . 'next';
+        // $prevTokenKey = $userId . $action . 'prev';
 
-        $tokenExists = Cache::has($nextTokenKey);
+        // $tokenExists = Cache::has($nextTokenKey);
 
-        if ($tokenExists === true) {
-            $token = Cache::get($nextTokenKey);
+        // if ($tokenExists === true) {
+        // $token = Cache::get($nextTokenKey);
 
-            $userInfo = array(
-                'user_id' => $userId,
-                'next' => $token
-            );
+        $userInfo = array(
+            'user_id' => $userId,
+            'next' => $token
+        );
 
-            $googleClient = new GoogleApiClientController;
+        $googleClient = new GoogleApiClientController;
 
-            $likedVideos =  $googleClient->getLikedVideos($userInfo);
+        $likedVideos =  $googleClient->getLikedVideos($userInfo);
 
-            if ($likedVideos['status'] === true) {
+        if ($likedVideos['status'] === true) {
 
-                // Reply with the Videos List
-                $no = 0;
+            // Reply with the Videos List
+            $no = 0;
 
-                $videos = $likedVideos['videos'];
-                foreach ($videos as $video) {
+            $videos = $likedVideos['videos'];
+            foreach ($videos as $video) {
 
 
-                    $link = $video['link'];
-                    $title = $video['title'];
-                    // echo $link;
-                    $no++;
+                $link = $video['link'];
+                $title = $video['title'];
+                // echo $link;
+                $no++;
 
-                    Telegram::sendMessage([
-                        'chat_id' => $chatId,
-                        'text' => $no . '. ' . $title . ' - ' . $link
-                    ]);
-                    usleep(800000); //0.8 secs
-                }
-
-                // $nextToken = $likedVideos['next'];
-                $nextToken = $likedVideos['next'];
-                $prevToken = $likedVideos['prev'];
-
-                $cachePrevKeyExists = Cache::has($prevTokenKey);
-
-                // check if previous key exists
-                if ($cachePrevKeyExists != true) {
-                    Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10)); //10 mins = 600 secs
-                } else {
-                    // update previous pg tokens in cache
-                    Cache::forget($prevTokenKey);
-                    Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10));
-                }
-
-                // update next pg tokens in cache
-                Cache::forget($nextTokenKey);
-                Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
-
-                $inlineKeyboard = [
-                    [
-                        [
-                            'text' => 'Next Page',
-                            'callback_data' => $nextToken
-                        ]
-                    ]
-                ];
-
-                $reply_markup = Keyboard::make([
-                    'inline_keyboard' => $inlineKeyboard
-                ]);
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
-                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
-                    'reply_markup' => $reply_markup
+                    'text' => $no . '. ' . $title . ' - ' . $link
                 ]);
-            } else {
-
-                //user auth tokens has expired or user has not given app access
-                Telegram::sendMessage([
-
-                    'chat_id' => $chatId,
-                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
-                ]);
+                usleep(800000); //0.8 secs
             }
-        } else {
-            //Next Page token or Previous page token not found in cache
+
+            // $nextToken = $likedVideos['next'];
+            $nextToken = $likedVideos['next'];
+            // $prevToken = $likedVideos['prev'];
+
+            // $cachePrevKeyExists = Cache::has($prevTokenKey);
+
+            // // check if previous key exists
+            // if ($cachePrevKeyExists != true) {
+            //     Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10)); //10 mins = 600 secs
+            // } else {
+            //     // update previous pg tokens in cache
+            //     Cache::forget($prevTokenKey);
+            //     Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10));
+            // }
+
+            // // update next pg tokens in cache
+            // Cache::forget($nextTokenKey);
+            // Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
+
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => $nextToken
+                    ]
+                ]
+            ];
+
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos'
+                'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup
+            ]);
+        } else {
+
+            //user auth tokens has expired or user has not given app access
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
             ]);
         }
+        // } else {
+        //     //Next Page token or Previous page token not found in cache
+        //     Telegram::sendMessage([
+        //         'chat_id' => $chatId,
+        //         'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos'
+        //     ]);
+        // }
     }
     /**
      * Return previous page of result to liked videos, channels, subscriptions etc
