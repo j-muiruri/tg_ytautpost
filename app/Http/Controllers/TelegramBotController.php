@@ -127,16 +127,14 @@ class TelegramBotController extends Controller
 
     /**
      * Check If this is an Inline query 
-     * @return true/false Returns true if update is inline Query an d false if it is a message or bot_command
+     * @return true/false Returns true if update is inline Query and false if it is a message, callback_query or bot_command
      */
     public function isInlineQuery()
     {
         $data = Telegram::getWebhookUpdates();
 
-        $array = $data->message;
-
-        //Check if the key message exists in the array, if true, update is not an inline query, else it is an inline query
-        if ($array === null) {
+        //Check if the key inline_query exists in the array, if true, update is inline_query
+        if ($data->inline_query != null) {
             return true;
         } else {
             return false;
