@@ -519,16 +519,15 @@ class TelegramBotController extends Controller
                 Cache::forget($nextTokenKey);
                 Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
                 
-                $keyboard = [
+                $inlineKeyboard = [
                     ['Next Page', 'Prev Page'],
                 ];
 
                 $reply_markup = Keyboard::make([
-                    'keyboard' => $keyboard,
-                    'resize_keyboard' => true,
-                    'one_time_keyboard' => true
+                    'inline_keyboard' => $inlineKeyboard,
+                    // 'resize_keyboard' => true,
+                    // 'one_time_keyboard' => true
                 ]);
-
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'For More videos: \n tap below to go to the next or previous pages',
