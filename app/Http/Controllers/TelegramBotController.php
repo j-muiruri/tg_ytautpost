@@ -113,7 +113,7 @@ class TelegramBotController extends Controller
                     break;
 
                 case 'reply_markup':
-                    $this->processNormalMessage();
+                    $this->processCallbackQuery();
                     break;
 
                 default:
@@ -299,9 +299,12 @@ class TelegramBotController extends Controller
         $data = Telegram::getWebhookUpdates();
         $chatId = $data->message->chat->id;
         $username = $data->message->from->username;
+        $userId = $data->message->from->id;
 
+        $userDetails['chat_id'] = $chatId;
+        $userDetails['user_id'] = $userId;
 
-        $previousCommand = $this->previousCommand();
+        $previousCommand = $this->previousCommand($userDetails);
 
         $command = $previousCommand['message'];
 
@@ -310,7 +313,7 @@ class TelegramBotController extends Controller
         switch ($command) {
             case '/auth':
                 //Process auth token
-                return $this->saveTokens();
+                return $this->saveTokens($userDetails);
                 break;
 
             case '/myliked':
@@ -344,21 +347,62 @@ class TelegramBotController extends Controller
                 break;
         }
     }
+
+    /**
+     * Process a callback query
+     * @return true Returns true on saving
+     */
+    public function processCallbackQuery()
+    {
+        //Get Telegram Updates
+        $data = Telegram::getWebhookUpdates();
+        $chatId = $data->callback_query->message->chat->id;
+        $userId = $data->callback_query->message->from->id;
+        $userId = $data->callback_query->message->from->id;
+
+        $userDetails['chat_id'] = $chatId;
+        $userDetails['user_id'] = $userId;
+
+        $previousCommand = $this->previousCommand($userDetails);
+
+        $command = $previousCommand['message'];
+
+        logger($command);
+        //Get previous command to process this message
+        switch ($command) {
+            case '/myliked':
+                //Process next or previous results
+                $userDetails['user_id'] = $previousCommand["user_id"];
+                $userDetails['chat_id'] = $previousCommand["user_id"];
+                $userDetails['action'] = 'myliked';
+                $userDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
+                $userDetails['callback_query_id'] = $data->callback_query->id;
+
+                $message = $data->callback_query->message->reply_markup->inline_keyboard->text;
+                return $this->nextResult($userDetails);
+                break;
+            default:
+                // Telegram::sendMessage([
+                //     'chat_id' => $chatId,
+                //     'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
+                // ]);
+                return true;
+                break;
+        }
+    }
     /**
      * Gets Previous Command
      * @return array returns an array of the message details
      */
-    public function previousCommand()
+    public function previousCommand(array $userDetails)
     {
-        $data = Telegram::getWebhookUpdates();
-
-        $user_id = $data->message->from->id;
-        $chatId = $data->message->chat->id;
+        $userId = $userDetails['user_id'];
+        $chatId = $userDetails['chat_id'];
 
 
         $command = TelegramBot::select('message', 'message_id', 'status')
             ->where([
-                ['user_id', '=', $user_id],
+                ['user_id', '=', $userId],
                 ['chat_id', '=', $chatId],
                 ['message_type', '=', 'bot_command'],
             ])->orderBy('id', 'desc')
@@ -371,7 +415,7 @@ class TelegramBotController extends Controller
         $commandDetails["message_id"] = $message_id;
         $commandDetails["status"] = $status;
         $commandDetails["chat_id"] = $chatId;
-        $commandDetails["user_id"] = $user_id;
+        $commandDetails["user_id"] = $userId;
         return $commandDetails;
     }
     /**
@@ -383,8 +427,8 @@ class TelegramBotController extends Controller
 
         $data = Telegram::getWebhookUpdates();
 
-        $messageArray =$data->toArray();
-        
+        $messageArray = $data->toArray();
+
         if (isset($messageArray['message']) && $data->callback_query === null) {
 
             //Normal Message
@@ -406,7 +450,6 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
-
         } elseif (isset($messageArray['callback_query'])) {
 
             logger('reply_markup');
@@ -424,13 +467,13 @@ class TelegramBotController extends Controller
      * @return  array $data Returns data on saving the tokens with array of the result status either true or false if unable to save, 
      * @return true/false returns true only if no token was sent
      */
-    public function saveTokens()
+    public function saveTokens(array $userDetails)
     {
 
-        $message_type = $this->checkMessageType();
+        // $message_type = $this->checkMessageType();
 
-        $command = $this->previousCommand();
-        $authCommand = Str::contains($command["message"], "/auth");
+        $command = $this->previousCommand($userDetails);
+        // $authCommand = Str::contains($command["message"], "/auth");
 
         //check if previous command was  not marked as completed or failed
         if ($command['status'] != "completed" && $command['status'] != "failed") {
@@ -448,6 +491,8 @@ class TelegramBotController extends Controller
                 ]);
 
                 $chatDetails['status'] = "completed";
+                $chatDetails['user_id'] = $userDetails['user_id'];
+                $chatDetails['chat_id'] = $userDetails['chat_id'];
                 $this->updateStatus($chatDetails);
                 $this->updateCommand($chatDetails);
 
@@ -462,6 +507,8 @@ class TelegramBotController extends Controller
                 ]);
 
                 $chatDetails['status'] = "failed";
+                $chatDetails['user_id'] = $userDetails['user_id'];
+                $chatDetails['chat_id'] = $userDetails['chat_id'];
                 $this->updateStatus($chatDetails);
                 $this->updateCommand($chatDetails);
                 return false;
@@ -523,7 +570,7 @@ class TelegramBotController extends Controller
      */
     public function updateCommand(array $userDetails)
     {
-        $previousCommand = $this->previousCommand();
+        $previousCommand = $this->previousCommand($userDetails);
         try {
             TelegramBot::where([
                 ['user_id', $userDetails['user_id']],
