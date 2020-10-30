@@ -385,7 +385,7 @@ class TelegramBotController extends Controller
 
         $messageArray =$data->toArray();
         
-        if ($messageArray['message']!= null && $data->callback_query === null) {
+        if (isset($messageArray['message']) && $data->callback_query === null) {
 
             //Normal Message
             $entities = $data->message->entities;
@@ -397,7 +397,7 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
-        } else if ($messageArray['channel_post'] != null) {
+        } else if (isset($messageArray['channel_post'])) {
 
             //Channel Post
             $entities = $data->channel_post->entities;
@@ -406,8 +406,8 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
-            
-        } elseif ($messageArray['callback_query'] != null) {
+
+        } elseif (isset($messageArray['callback_query'])) {
 
             logger('reply_markup');
             $message_type = 'reply_markup';
