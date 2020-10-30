@@ -593,15 +593,15 @@ class TelegramBotController extends Controller
                 ];
 
                 $reply_markup = Keyboard::make([
-                    'inline_keyboard' => $inlineKeyboard,
-                    // 'resize_keyboard' => true,
-                    // 'one_time_keyboard' => true
+                    'inline_keyboard' => $inlineKeyboard
                 ]);
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'For More videos: \n tap below to go to the next or previous pages',
                     'reply_markup' => $reply_markup
                 ]);
+                sleep(3);
+                Keyboard::remove();
             } else {
 
                 //user auth tokens has expired or user has not given app access

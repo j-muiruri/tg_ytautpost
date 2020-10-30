@@ -96,7 +96,7 @@ class LikedCommand extends Command
                 $nextTokenKey = $userDetails['user_id'] . $this->name.'next';
                 $cacheKeyExists = Cache::has($nextTokenKey);
 
-                //check if it nextexists
+                //check if it next exists
                 if ($cacheKeyExists != false) {
 
                     //update next pg token
@@ -107,14 +107,17 @@ class LikedCommand extends Command
                     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
                 }
 
-                $keyboard = [
-                    ['Next Page']
+                $inlineKeyboard = [
+                    [
+                        [
+                            'text' => 'Next Page',
+                            'callback_data' => $nextToken
+                        ]
+                    ]
                 ];
 
                 $reply_markup = Keyboard::make([
-                    'keyboard' => $keyboard,
-                    'resize_keyboard' => true,
-                    'one_time_keyboard' => true
+                    'inline_keyboard' => $inlineKeyboard
                 ]);
 
                 $this->replyWithMessage([
