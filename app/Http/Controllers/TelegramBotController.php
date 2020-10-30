@@ -388,6 +388,9 @@ class TelegramBotController extends Controller
         if ($data->message != null) {
 
             $entities = $data->message->entities;
+
+            $entityJson = response()->json($entities);
+            logger($entityJson);
         } else if ($data->channel_post != null) {
 
             $entities = $data->channel_post->entities;
@@ -400,6 +403,7 @@ class TelegramBotController extends Controller
             return $message_type;
         } elseif ($entities === null && $data->callback_query->message->reply_markup != null) {
 
+            logger('reply_markup');
             $message_type = 'reply_markup';
 
             return $message_type;
