@@ -258,10 +258,15 @@ class TelegramBotController extends Controller
         $chatId = $data->channel_post->chat->id;
         $chat_type = $data->channel_post->chat->type;
         $message_id = $data->channel_post->message_id;
-        $message = $data->channel_post->text;
+        if($data->channel->post->text === null){
+
+            $message = 'media_file';
+        } else {
+            $message = $data->channel_post->text;
+        }
         $entities = $data->channel_post->entities;
         $message_type = $this->checkMessageType();
-        // logger($message_type);
+        logger($message);
 
         // Store channel post in db
 
