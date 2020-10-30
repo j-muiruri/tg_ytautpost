@@ -253,8 +253,8 @@ class TelegramBotController extends Controller
         logger("this is a Channel Post");
         //Pluck Values
         $update_id = $data->update_id;
-        $user_id = $data->channel_post->from->id;
-        $username = $data->channel_post->chat->username;
+        $user_id = $data->channel_post->chat->username;
+        $username = $data->channel_post->chat->title;
         $chatId = $data->channel_post->chat->id;
         $chat_type = $data->channel_post->chat->type;
         $message_id = $data->channel_post->message_id;
