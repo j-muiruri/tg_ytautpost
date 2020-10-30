@@ -100,7 +100,7 @@ class TelegramBotController extends Controller
 
         $isInlineQuery = $this->isInlineQuery();
 
-        // Check if Update is a message or inline query, process message
+        // Check if Update is a message or inline query, process message or callback query
         if ($isInlineQuery === false) {
 
             $message_type = $this->checkMessageType();
@@ -109,6 +109,10 @@ class TelegramBotController extends Controller
 
                     //Process normal message
                 case 'normal_text':
+                    $this->processNormalMessage();
+                    break;
+
+                case 'reply_markup':
                     $this->processNormalMessage();
                     break;
 
@@ -318,7 +322,7 @@ class TelegramBotController extends Controller
                 $userDetails['action'] = 'myliked';
                 $userDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
                 $userDetails['callback_query_id'] = $data->callback_query->id;
-                
+
                 $message = $data->callback_query->message->reply_markup->inline_keyboard->text;
 
                 if ($message === "Next Page") {
@@ -550,6 +554,9 @@ class TelegramBotController extends Controller
         $chatId = $userDetails['chat_id'];
         $token = $userDetails['token'];
         $callbackQueryId = $userDetails['callback_query_id'];
+
+        logger($callbackQueryId);
+        logger($callbackQueryId);
         // $nextTokenKey = $userId . $action . 'next';
         // $prevTokenKey = $userId . $action . 'prev';
 
