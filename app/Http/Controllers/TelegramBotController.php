@@ -383,23 +383,28 @@ class TelegramBotController extends Controller
 
         $data = Telegram::getWebhookUpdates();
 
-        if ($data->message != null) {
+        if ($data->message->entities != null && $data->callback_query === null) {
 
+            //Normal Message
             $entities = $data->message->entities;
 
             $entityJson = response()->json($entities);
             logger($entityJson);
-        } else if ($data->channel_post != null) {
 
-            $entities = $data->channel_post->entities;
-        }
-
-        if ($entities != null) {
             $object  = $entities->toArray();
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
-        } elseif ($entities === null && $data->callback_query->message->reply_markup != null) {
+        } else if ($data->channel_post != null) {
+
+            //Channel Post
+            $entities = $data->channel_post->entities;
+
+            $object  = $entities->toArray();
+            $entityArray = $object['0'];
+            $message_type = $entityArray['type'];
+            return $message_type;
+        } elseif ($data->callback_query->message->reply_markup != null) {
 
             logger('reply_markup');
             $message_type = 'reply_markup';
