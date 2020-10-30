@@ -125,17 +125,17 @@ class LikedCommand extends Command
                     'reply_markup' => $reply_markup
                 ]);
 
-                $removeCustoKeyboards = Keyboard::remove(
-                    [
-                        'remove_keyboard' => true,
-                    ]
-                    );
+                // $removeCustoKeyboards = Keyboard::remove(
+                //     [
+                //         'remove_keyboard' => true,
+                //     ]
+                //     );
 
-                sleep(3);
-                $this->replyWithMessage([
-                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
-                    'reply_markup' => $removeCustoKeyboards
-                ]);
+                // sleep(3);
+                // $this->replyWithMessage([
+                //     'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                //     'reply_markup' => $removeCustoKeyboards
+                // ]);
             } else {
 
                 //user auth tokens has expired or user has not given app access
