@@ -371,7 +371,14 @@ class TelegramBotController extends Controller
 
         $data = Telegram::getWebhookUpdates();
 
-        $entities = $data->message->entities;
+        if ($data->message != null) {
+
+            $entities = $data->message->entities;
+        } else if ($data->channel_post != null) {
+
+            $entities = $data->channel_post->entities;
+        } 
+        
         if ($entities != null) {
             $object  = $entities->toArray();
             $entityArray = $object['0'];
