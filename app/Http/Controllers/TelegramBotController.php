@@ -607,8 +607,6 @@ class TelegramBotController extends Controller
                     'text' => 'For More videos: \n tap below to go to the next or previous pages',
                     'reply_markup' => $reply_markup
                 ]);
-                sleep(3);
-                Keyboard::remove();
             } else {
 
                 //user auth tokens has expired or user has not given app access
