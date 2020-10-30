@@ -9,6 +9,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\GoogleApiClientController;
 use App\Subscribers;
+use Telegram\Bot\Keyboard\Keyboard;
 
 /**
  * Class AuthCommand.
@@ -52,7 +53,7 @@ class AuthCommand extends Command
 
             //Send Message
             $this->replyWithMessage(['text' => 'You have already given me access  to your Youtube Account! Kindly wait as I check on the permissions']);
-            sleep(2);
+            sleep(1);
 
             $tokensRefresh = $link->refreshTokens($userId);
             if ($tokensRefresh === true) {
@@ -62,23 +63,33 @@ class AuthCommand extends Command
 
             //User has not given us access, generate url and wait for user to send us code
 
-            //Send Message
-            $this->replyWithMessage(['text' => 'Please click on the link following link to grant us access to your Youtube account:']);
-            sleep(2);
-
-
             $authLink = $link->authGoogleApi()->createAuthUrl();
             
             
 
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Authorize Youtube Account',
+                        'callback_data' => $authLink
+                    ]
+                ]
+            ];
 
-            $this->replyWithMessage(['text' => $authLink]);
-            sleep(2); //Wait 1 sec
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+
+            $this->replyWithMessage([
+                'text' => 'Please click on the link following link to grant us access to your Youtube account:',
+                'reply_markup' => $reply_markup
+            ]);
+            sleep(1); //Wait 1 sec
 
             // Trigger another command dynamically from within this command
             // $this->triggerCommand('subscribe');
 
-            $this->replyWithMessage(['text' => 'After Authorization, Please paste the code recieved below:']);
+            $this->replyWithMessage(['text' => 'After Authorization, Please paste the code received below:']);
         }
     }
 }
