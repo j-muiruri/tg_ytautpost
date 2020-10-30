@@ -138,7 +138,7 @@ class TelegramBotController extends Controller
         }
     }
     /**
-     * Save Updates
+     * Save Updates - Text, Inline Query, Channel Post etc
      * @return true Returns true on saving
      */
     public function saveUpdates()
@@ -153,70 +153,134 @@ class TelegramBotController extends Controller
         logger($data->message);
         if ($data->message != null) {
 
-            logger("this is a message");
-            //Pluck Values
-            $update_id = $data->update_id;
-            $user_id = $data->message->from->id;
-            $username = $data->message->from->username;
-            $chatId = $data->message->chat->id;
-            $chat_type = $data->message->chat->type;
-            $message_id = $data->message->message_id;
-            $message = $data->message->text;
-            $entities = $data->message->entities;
-            $message_type = $this->checkMessageType();
-            // logger($message_type);
+            return $this->saveText();
+        } else if ($data->channel_post != null) {
 
-            // Store messages in db
+            return $this->saveChannelPost();
+        } else if ($data->inline_query != null) {
 
-            TelegramBot::create(
-                [
-                    'update_id' => $update_id,
-                    'user_id' => $user_id,
-                    'username' => $username,
-                    'chat_id' => $chatId,
-                    'chat_type' => $chat_type,
-                    'message_id' => $message_id,
-                    'message' => $message,
-                    'message_type' => $message_type
-                ]
-            );
-
-
-            return true;
-        } else {
-
-            //Process Inline Query
-
-            //Pluck Values
-            $update_id = $data->update_id;
-            $user_id = $data->inline_query->from->id;
-            $username = $data->inline_query->from->username;
-            $chatId = '0';
-            $chat_type =  '0';
-            $message_id = $data->inline_query->id;
-            $message = $data->inline_query->query;
-            $message_type = 'inline_query';
-            // logger($message_type);
-
-            // Store messages in db
-
-            TelegramBot::create(
-                [
-                    'update_id' => $update_id,
-                    'user_id' => $user_id,
-                    'username' => $username,
-                    'chat_id' => $chatId,
-                    'chat_type' => $chat_type,
-                    'message_id' => $message_id,
-                    'message' => $message,
-                    'message_type' => $message_type
-                ]
-            );
-
-            return true;
+            return $this->saveInlineQuery();
         }
     }
+    /**
+     * Save Normal Text Messages
+     * @return true Returns true on saving
+     */
+    public function saveText()
+    {
+        //Get Json Update
+        $data = Telegram::getWebhookUpdates();
 
+        logger("this is a message");
+        //Pluck Values
+        $update_id = $data->update_id;
+        $user_id = $data->message->from->id;
+        $username = $data->message->from->username;
+        $chatId = $data->message->chat->id;
+        $chat_type = $data->message->chat->type;
+        $message_id = $data->message->message_id;
+        $message = $data->message->text;
+        $entities = $data->message->entities;
+        $message_type = $this->checkMessageType();
+        // logger($message_type);
+
+        // Store messages in db
+
+        TelegramBot::create(
+            [
+                'update_id' => $update_id,
+                'user_id' => $user_id,
+                'username' => $username,
+                'chat_id' => $chatId,
+                'chat_type' => $chat_type,
+                'message_id' => $message_id,
+                'message' => $message,
+                'message_type' => $message_type
+            ]
+        );
+
+
+        return true;
+    }
+    /**
+     * Save Inline Queries
+     * @return true Returns true on saving
+     */
+    public function saveInlineQuery()
+    {
+        //Get Telegram Updates
+        $data = Telegram::getWebhookUpdates();
+
+        //Process Inline Query
+
+        //Pluck Values
+        $update_id = $data->update_id;
+        $user_id = $data->inline_query->from->id;
+        $username = $data->inline_query->from->username;
+        $chatId = '0';
+        $chat_type =  '0';
+        $message_id = $data->inline_query->id;
+        $message = $data->inline_query->query;
+        $message_type = 'inline_query';
+        // logger($message_type);
+
+        // Store messages in db
+
+        TelegramBot::create(
+            [
+                'update_id' => $update_id,
+                'user_id' => $user_id,
+                'username' => $username,
+                'chat_id' => $chatId,
+                'chat_type' => $chat_type,
+                'message_id' => $message_id,
+                'message' => $message,
+                'message_type' => $message_type
+            ]
+        );
+
+        return true;
+    }
+    /**
+     * Save Channel Posts
+     * @return true Returns true on saving
+     */
+    public function saveChannelPost()
+    {
+        //Get Json Update
+        $data = Telegram::getWebhookUpdates();
+
+        logger("this is a Channel Post");
+        //Pluck Values
+        $update_id = $data->update_id;
+        $user_id = $data->channel_post->from->id;
+        $username = $data->channel_post->chat->username;
+        $chatId = $data->channel_post->chat->id;
+        $chat_type = $data->channel_post->chat->type;
+        $message_id = $data->channel_post->message_id;
+        $message = $data->channel_post->text;
+        $entities = $data->channel_post->entities;
+        $message_type = $this->checkMessageType();
+        // logger($message_type);
+
+        // Store channel post in db
+
+        TelegramBot::create(
+            [
+                'update_id' => $update_id,
+                'user_id' => $user_id,
+                'username' => $username,
+                'chat_id' => $chatId,
+                'chat_type' => $chat_type,
+                'message_id' => $message_id,
+                'message' => $message,
+                'message_type' => $message_type
+            ]
+        );
+
+
+        return true;
+    }
     /**
      * Process anormal text, check if theres a previous command, else send help message
      * @return true Returns true on saving
@@ -521,8 +585,10 @@ class TelegramBotController extends Controller
 
                 $inlineKeyboard = [
                     [
-                        'text' => 'Next Page',
-                        'callback_data' => $nextToken
+                        [
+                            'text' => 'Next Page',
+                            'callback_data' => $nextToken
+                        ]
                     ]
                 ];
 
