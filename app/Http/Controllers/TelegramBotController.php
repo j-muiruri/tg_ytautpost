@@ -287,7 +287,7 @@ class TelegramBotController extends Controller
         return true;
     }
     /**
-     * Process anormal text, check if theres a previous command, else send help message
+     * Process a normal text, check if theres a previous command, else send help message
      * @return true Returns true on saving
      */
     public function processNormalMessage()
@@ -315,9 +315,9 @@ class TelegramBotController extends Controller
                 $userDetails['user_id'] = $previousCommand["user_id"];
                 $userDetails['chat_id'] = $previousCommand["user_id"];
                 $userDetails['action'] = 'myliked';
-                $userDetails['token'] = $data->message->reply_markup->inline_keyboard->callback_data;
+                $userDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
 
-                $message = $data->message->reply_markup->inline_keyboard->text;
+                $message = $data->callback_query->message->reply_markup->inline_keyboard->text;
                 if ($message === "Next Page") {
                     return $this->nextResult($userDetails);
                 } elseif ($message === "Prev Page") {
@@ -391,7 +391,7 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
-        } elseif ($entities === null && $data->message->reply_markup != null) {
+        } elseif ($entities === null && $data->callback_query->message->reply_markup != null) {
 
             $message_type = 'reply_markup';
 
