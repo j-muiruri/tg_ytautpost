@@ -243,8 +243,8 @@ class TelegramBotController extends Controller
 
             case '/myliked':
                 //Process next or previous results
-                $userDetails['user_id'] = $previousCommand ["user_id"];
-                $userDetails['chat_id'] = $previousCommand ["user_id"];
+                $userDetails['user_id'] = $previousCommand["user_id"];
+                $userDetails['chat_id'] = $previousCommand["user_id"];
                 $userDetails['action'] = 'myliked';
 
                 if ($message === "Next Page") {
@@ -518,9 +518,12 @@ class TelegramBotController extends Controller
                 // update next pg tokens in cache
                 Cache::forget($nextTokenKey);
                 Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
-                
+
                 $inlineKeyboard = [
-                    ['Next Page', 'Prev Page'],
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => $nextToken
+                    ]
                 ];
 
                 $reply_markup = Keyboard::make([
@@ -537,15 +540,17 @@ class TelegramBotController extends Controller
 
                 //user auth tokens has expired or user has not given app access
                 Telegram::sendMessage([
-                    
+
                     'chat_id' => $chatId,
-                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
+                ]);
             }
         } else {
             //Next Page token or Previous page token not found in cache
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos']);
+                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos'
+            ]);
         }
     }
     /**
@@ -612,7 +617,7 @@ class TelegramBotController extends Controller
                 //update prev page tokens
                 Cache::forget($prevTokenKey);
                 Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10));
-                
+
 
                 $keyboard = [
                     ['Next Page', 'Prev Page'],
@@ -634,13 +639,15 @@ class TelegramBotController extends Controller
                 //user auth tokens has expired or user has not given app access
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
-                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
+                    'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
+                ]);
             }
         } else {
             //Next Page token or Previous page token not found in cache
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Ooops, Unable to access previous page, reply with /myliked to view your LikedYoutube Videos']);
+                'text' => 'Ooops, Unable to access previous page, reply with /myliked to view your LikedYoutube Videos'
+            ]);
         }
     }
 }
