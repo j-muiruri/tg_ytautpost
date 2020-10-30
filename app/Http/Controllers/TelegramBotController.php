@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
+use Telegram\Bot\Methods\Query;
 
 /**
  * The Telegram Bot  Class
@@ -316,8 +317,10 @@ class TelegramBotController extends Controller
                 $userDetails['chat_id'] = $previousCommand["user_id"];
                 $userDetails['action'] = 'myliked';
                 $userDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
-
+                $userDetails['callback_query_id'] = $data->callback_query->id;
+                
                 $message = $data->callback_query->message->reply_markup->inline_keyboard->text;
+
                 if ($message === "Next Page") {
                     return $this->nextResult($userDetails);
                 } elseif ($message === "Prev Page") {
@@ -546,6 +549,7 @@ class TelegramBotController extends Controller
         $userId = $userDetails['user_id'];
         $chatId = $userDetails['chat_id'];
         $token = $userDetails['token'];
+        $callbackQueryId = $userDetails['callback_query_id'];
         // $nextTokenKey = $userId . $action . 'next';
         // $prevTokenKey = $userId . $action . 'prev';
 
@@ -553,6 +557,12 @@ class TelegramBotController extends Controller
 
         // if ($tokenExists === true) {
         // $token = Cache::get($nextTokenKey);
+
+        $query = new Query;
+        $query->answerCallbackQuery([
+            'callback_query_id'  => $callbackQueryId,
+            'text'               => 'Fetching next page results ......',
+        ]);
 
         $userInfo = array(
             'user_id' => $userId,
