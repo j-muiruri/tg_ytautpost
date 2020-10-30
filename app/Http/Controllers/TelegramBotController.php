@@ -407,6 +407,7 @@ class TelegramBotController extends Controller
                 ['message_type', '=', 'bot_command'],
             ])->orderBy('id', 'desc')
             ->first();
+            logger($command);
         $message = $command->message;
         $message_id = $command->message_id;
         $status = $command->status;
