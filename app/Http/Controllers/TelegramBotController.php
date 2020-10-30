@@ -399,6 +399,8 @@ class TelegramBotController extends Controller
         $userId = $userDetails['user_id'];
         $chatId = $userDetails['chat_id'];
 
+        logger($userId);
+        logger($userId);
 
         $command = TelegramBot::select('message', 'message_id', 'status')
             ->where([
@@ -407,7 +409,7 @@ class TelegramBotController extends Controller
                 ['message_type', '=', 'bot_command'],
             ])->orderBy('id', 'desc')
             ->first();
-            logger($command);
+        logger($command);
         $message = $command->message;
         $message_id = $command->message_id;
         $status = $command->status;
