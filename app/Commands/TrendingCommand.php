@@ -61,7 +61,12 @@ class TrendingCommand extends Command
 
                 logger($region['name']);
                 $region = $region['region'];
-                $name[0] =$region['name'];
+                $name =
+                    array(
+                        [
+                            0 => $region['name']
+                        ]
+                    );
 
                 logger($name);
                 $keyboardButtons[] = [
