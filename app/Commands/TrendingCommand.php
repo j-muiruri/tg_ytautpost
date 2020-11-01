@@ -60,20 +60,15 @@ class TrendingCommand extends Command
             foreach ($regions as $region) {
 
                 logger($region['name']);
-                $region = $region['region'];
-                $name =
-                    array(
-                        [
-                            0 => $region['name']
-                        ]
-                    );
+                $id = $region['region'];
+                $name =$region['name'];
 
                 logger($name);
                 $keyboardButtons[] = [
-                    'text' => $name[0],
-                    'callback_data' => $region
+                    'text' => $name,
+                    'callback_data' => $id
                 ];
-
+                    logger();
                 $no++;
             }
 
