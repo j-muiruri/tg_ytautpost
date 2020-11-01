@@ -70,11 +70,11 @@ class TrendingCommand extends Command
             }
 
             $inlineKeyboard = [
-                [
-                    [
+                
+                    
                         $keyboardButtons
-                    ]
-                ]
+                    
+                
             ];
             logger($inlineKeyboard);
             
