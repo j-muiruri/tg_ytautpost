@@ -61,13 +61,15 @@ class TrendingCommand extends Command
 
                 logger($region['name']);
                 $region = $region['region'];
-                $name = $region['name'];
-                $no++;
+                $name[0] =$region['name'];
 
+                logger($name);
                 $keyboardButtons[] = [
-                    'text' => $name,
+                    'text' => $name[0],
                     'callback_data' => $region
                 ];
+
+                $no++;
             }
 
             $inlineKeyboard = [
