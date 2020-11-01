@@ -23,6 +23,7 @@ use Telegram\Bot\Methods\Query;
  */
 class TelegramBotController extends Controller
 {
+    use Query;
     /**
      * Get Updates(Messages from users or input) via Long polling
      * Cant work if a webhook is already setup
@@ -354,7 +355,6 @@ class TelegramBotController extends Controller
                 $userDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
                 $userDetails['callback_query_id'] = $data->callback_query->id;
 
-                $message = $data->callback_query->message->reply_markup->inline_keyboard->text;
                 return $this->nextResult($userDetails);
                 break;
             default:
@@ -594,7 +594,6 @@ class TelegramBotController extends Controller
         $token = $userDetails['token'];
         $callbackQueryId = $userDetails['callback_query_id'];
 
-        logger($callbackQueryId);
         logger($callbackQueryId);
         // $nextTokenKey = $userId . $action . 'next';
         // $prevTokenKey = $userId . $action . 'prev';
