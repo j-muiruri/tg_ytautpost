@@ -405,7 +405,7 @@ class TelegramBotController extends Controller
 
         $dataArray = $data->toArray();
 
-        if (isset($dataArray['message']) && isset($dataArray['message']['entitties']) && $data->callback_query === null) {
+        if (isset($dataArray['message']) && isset($dataArray['message']['entities']) && $data->callback_query === null) {
 
             //Bot Message
             $entities = $data->message->entities;
