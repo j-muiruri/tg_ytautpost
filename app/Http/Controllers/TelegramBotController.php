@@ -2,15 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Laravel\Facades\Telegram;
 use App\TelegramBot;
 use App\Http\Controllers\GoogleApiClientController as Google;
 use App\Subscribers;
-use Illuminate\Http\Request;
-use Telegram\Bot\Commands\Command;
-use Illuminate\Support\Str;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Methods\Query;
@@ -603,8 +598,7 @@ class TelegramBotController extends Controller
         // if ($tokenExists === true) {
         // $token = Cache::get($nextTokenKey);
 
-        $query = new Query;
-        $query->answerCallbackQuery([
+        $this->answerCallbackQuery([
             'callback_query_id'  => $callbackQueryId,
             'text'               => 'Fetching next page results ......',
         ]);
