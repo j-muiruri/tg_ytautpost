@@ -50,13 +50,13 @@ class TrendingCommand extends Command
         // } else {
 
             logger($regionData);
-            
+
             if ($regionData['status'] === true) {
 
                 // Reply with the Videos List
                 $no = 0;
 
-                $regions = $regionData['videos'];
+                $regions = $regionData['regions'];
                 foreach ($regions as $region) {
 
                    
