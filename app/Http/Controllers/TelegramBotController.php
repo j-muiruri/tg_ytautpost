@@ -315,30 +315,7 @@ class TelegramBotController extends Controller
                 //Process auth token
                 return $this->saveTokens($userDetails);
                 break;
-
-            case '/myliked':
-                //Process next or previous results
-                $userDetails['user_id'] = $previousCommand["user_id"];
-                $userDetails['chat_id'] = $previousCommand["user_id"];
-                $userDetails['action'] = 'myliked';
-                $userDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
-                $userDetails['callback_query_id'] = $data->callback_query->id;
-
-                $message = $data->callback_query->message->reply_markup->inline_keyboard->text;
-
-                if ($message === "Next Page") {
-                    return $this->nextResult($userDetails);
-                } elseif ($message === "Prev Page") {
-                    return $this->previousResult($userDetails);
-                } else {
-                    //new user message or next not from custom keyboard, reply with default msg
-                    Telegram::sendMessage([
-                        'chat_id' => $chatId,
-                        'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
-                    ]);
-                }
-                break;
-            default:
+                default:
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
@@ -357,8 +334,7 @@ class TelegramBotController extends Controller
         //Get Telegram Updates
         $data = Telegram::getWebhookUpdates();
         $chatId = $data->callback_query->message->chat->id;
-        $userId = $data->callback_query->message->from->id;
-        $userId = $data->callback_query->message->from->id;
+        $userId = $data->callback_query->from->id;
 
         $userDetails['chat_id'] = $chatId;
         $userDetails['user_id'] = $userId;
@@ -402,13 +378,14 @@ class TelegramBotController extends Controller
         logger($userId);
         logger($chatId);
 
-        $command = TelegramBot::select('message', 'message_id', 'status')
-            ->where([
+        $command = TelegramBot::where([
                 ['user_id', '=', $userId],
                 ['chat_id', '=', $chatId],
                 ['message_type', '=', 'bot_command'],
             ])->orderBy('id', 'desc')
             ->first();
+
+
         logger($command);
         $message = $command->message;
         $message_id = $command->message_id;
