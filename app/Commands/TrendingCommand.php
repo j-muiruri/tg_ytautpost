@@ -44,49 +44,48 @@ class TrendingCommand extends Command
         $regionData =  $googleClient->getRegions();
 
         // if ($type === 'supergroup') {
-        
+
         //     sleep(3);
         //     // Reply with the Videos List
         // } else {
 
-            logger($regionData);
+        logger($regionData);
 
-            if ($regionData['status'] === true) {
+        if ($regionData['status'] === true) {
 
-                // Reply with the Videos List
-                $no = 0;
+            // Reply with the Videos List
+            $no = 0;
 
-                $regions = $regionData['regions'];
-                foreach ($regions as $region) {
+            $regions = $regionData['regions'];
+            foreach ($regions as $region) {
 
-                    logger($region);
-                    $region = $region['region'];
-                    $name= $region['name'];
-                    // echo $link;
-                    $no++;
+                logger($region['name']);
+                $region = $region['region'];
+                $name = $region['name'];
+                $no++;
 
-                    $keyboardButtons[] =[
-                        'text' => $name,
-                        'callback_data' => $region
-                    ];
-                }
-
-                $inlineKeyboard = [
-                    [
-                        [
-                            $keyboardButtons
-                        ]
-                    ]
+                $keyboardButtons[] = [
+                    'text' => $name,
+                    'callback_data' => $region
                 ];
+            }
 
-                $reply_markup = Keyboard::make([
-                    'inline_keyboard' => $inlineKeyboard
-                ]);
+            $inlineKeyboard = [
+                [
+                    [
+                        $keyboardButtons
+                    ]
+                ]
+            ];
 
-                $this->replyWithMessage([
-                    'text' => 'Here is the list of Available Regions/Countries: ',
-                    'reply_markup' => $reply_markup
-                ]);
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+
+            $this->replyWithMessage([
+                'text' => 'Here is the list of Available Regions/Countries: ',
+                'reply_markup' => $reply_markup
+            ]);
             // } else {
 
             //     //user auth tokens has expired or user has not given app access
