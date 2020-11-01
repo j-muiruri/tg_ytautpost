@@ -311,7 +311,7 @@ class TelegramBotController extends Controller
                 //Process auth token
                 return $this->saveTokens($userDetails);
                 break;
-                default:
+            default:
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
                     'text' => 'Hey @' . $username . '!, Reply with /start to learn how to access your Youtube content and autopost or share'
@@ -350,12 +350,12 @@ class TelegramBotController extends Controller
                 $callbackDetails['token'] = $data->callback_query->data;
                 // logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
-                
+
                 return $this->nextResult($callbackDetails);
                 break;
-                case '/myliked':
-                    $callbackDetails['region'] = $data->callback_query->data;
-                    return $this->trendingVideos($callbackDetails);
+            case '/trending':
+                $callbackDetails['region'] = $data->callback_query->data;
+                return $this->trendingVideos($callbackDetails);
             default:
                 // Telegram::sendMessage([
                 //     'chat_id' => $chatId,
@@ -378,10 +378,10 @@ class TelegramBotController extends Controller
         logger($chatId);
 
         $command = TelegramBot::where([
-                ['user_id', '=', $userId],
-                ['chat_id', '=', $chatId],
-                ['message_type', '=', 'bot_command'],
-            ])->orderBy('id', 'desc')
+            ['user_id', '=', $userId],
+            ['chat_id', '=', $chatId],
+            ['message_type', '=', 'bot_command'],
+        ])->orderBy('id', 'desc')
             ->first();
 
 
@@ -426,7 +426,7 @@ class TelegramBotController extends Controller
 
             $object  = $entities->toArray();
             $entityArray = $object['0'];
-            $message_type = 'channel_post_'.$entityArray['type'];
+            $message_type = 'channel_post_' . $entityArray['type'];
             return $message_type;
             logger($message_type);
         } elseif (isset($dataArray['callback_query'])) {
@@ -599,7 +599,6 @@ class TelegramBotController extends Controller
                 'callback_query_id'  => $callbackQueryId,
                 'text'               => 'Fetching next page results ......',
             ]);
-
         } catch (\Throwable $th) {
             //throw $th;
             // Next Page token or Previous page token not found in cache
@@ -609,7 +608,7 @@ class TelegramBotController extends Controller
             ]);
 
             logger("Bad Request: query is too old and response timeout expired or query ID");
-            
+
             return false;
         }
 
@@ -644,7 +643,7 @@ class TelegramBotController extends Controller
             }
 
             $nextToken = $likedVideos['next'];
-            
+
             $inlineKeyboard = [
                 [
                     [
@@ -806,7 +805,7 @@ class TelegramBotController extends Controller
             }
 
             $nextToken = $trendingVideos['next'];
-            
+
             $inlineKeyboard = [
                 [
                     [
