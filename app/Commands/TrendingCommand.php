@@ -59,7 +59,7 @@ class TrendingCommand extends Command
                 $regions = $regionData['regions'];
                 foreach ($regions as $region) {
 
-                   
+                    logger($region);
                     $region = $region['region'];
                     $name= $region['name'];
                     // echo $link;
