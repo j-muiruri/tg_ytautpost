@@ -350,6 +350,7 @@ class TelegramBotController extends Controller
                 $callbackDetails['token'] = $data->callback_query->data;
                 // logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
+                
                 return $this->nextResult($callbackDetails);
                 break;
             default:
