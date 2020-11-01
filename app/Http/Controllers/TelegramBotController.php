@@ -590,16 +590,6 @@ class TelegramBotController extends Controller
         $token = $userDetails['token'];
         $callbackQueryId = $userDetails['callback_query_id'];
 
-        logger($callbackQueryId);
-        logger($token);
-        // $nextTokenKey = $userId . $action . 'next';
-        // $prevTokenKey = $userId . $action . 'prev';
-
-        // $tokenExists = Cache::has($nextTokenKey);
-
-        // if ($tokenExists === true) {
-        // $token = Cache::get($nextTokenKey);
-
         $query = new Api;
         try {
             $query->answerCallbackQuery([
@@ -612,7 +602,7 @@ class TelegramBotController extends Controller
             // Next Page token or Previous page token not found in cache
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos'
+                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your Liked Youtube Videos'
             ]);
 
             logger("Bad Request: query is too old and response timeout expired or query ID");
@@ -650,25 +640,8 @@ class TelegramBotController extends Controller
                 usleep(800000); //0.8 secs
             }
 
-            // $nextToken = $likedVideos['next'];
             $nextToken = $likedVideos['next'];
-            // $prevToken = $likedVideos['prev'];
-
-            // $cachePrevKeyExists = Cache::has($prevTokenKey);
-
-            // // check if previous key exists
-            // if ($cachePrevKeyExists != true) {
-            //     Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10)); //10 mins = 600 secs
-            // } else {
-            //     // update previous pg tokens in cache
-            //     Cache::forget($prevTokenKey);
-            //     Cache::put($prevTokenKey, $prevToken, now()->addMinutes(10));
-            // }
-
-            // // update next pg tokens in cache
-            // Cache::forget($nextTokenKey);
-            // Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10));
-
+            
             $inlineKeyboard = [
                 [
                     [
@@ -695,13 +668,6 @@ class TelegramBotController extends Controller
                 'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
             ]);
         }
-        // } else {
-        //     //Next Page token or Previous page token not found in cache
-        //     Telegram::sendMessage([
-        //         'chat_id' => $chatId,
-        //         'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos'
-        //     ]);
-        // }
     }
     /**
      * Return previous page of result to liked videos, channels, subscriptions etc

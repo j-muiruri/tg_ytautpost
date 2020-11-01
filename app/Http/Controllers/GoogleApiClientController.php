@@ -514,7 +514,7 @@ class GoogleApiClientController extends Controller
         // $code = $request->input('code');
 
         $code = $data;
-        logger("Code submitted by USER_ID: " . $userDetails['user_id'] . ", = " . $data);
+        // logger("Code submitted by USER_ID: " . $userDetails['user_id'] . ", = " . $data);
         // $pageToken = $request->input('next');
 
         $client = $this->authGoogleApi();
@@ -541,8 +541,8 @@ class GoogleApiClientController extends Controller
             ->update(['access_tokens' => $accessToken]);
 
         // log access tokens
-        $data = response()->json($accessToken);
-        logger($data);
+        // $data = response()->json($accessToken);
+        // logger($data);
         return true;
     }
     /**
@@ -677,7 +677,7 @@ class GoogleApiClientController extends Controller
 
             if (isset($userDetails['next'])) {
                 //next page token set
-                logger($userDetails['next']);
+                // logger($userDetails['next']);
                 $queryParams['pageToken'] =  $userDetails['next'];
             } else if (isset($userDetails['prev'])){
                 //prevpage token set
