@@ -590,6 +590,7 @@ class TelegramBotController extends Controller
         $callbackQueryId = $userDetails['callback_query_id'];
 
         logger($callbackQueryId);
+        logger($token);
         // $nextTokenKey = $userId . $action . 'next';
         // $prevTokenKey = $userId . $action . 'prev';
 

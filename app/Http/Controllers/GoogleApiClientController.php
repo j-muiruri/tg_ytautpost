@@ -677,6 +677,7 @@ class GoogleApiClientController extends Controller
 
             if (isset($userDetails['next'])) {
                 //next page token set
+                logger($userDetails['next']);
                 $queryParams['pageToken'] =  $userDetails['next'];
             } else if (isset($userDetails['prev'])){
                 //prevpage token set
