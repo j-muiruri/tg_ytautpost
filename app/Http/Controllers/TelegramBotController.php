@@ -400,7 +400,7 @@ class TelegramBotController extends Controller
         $chatId = $userDetails['chat_id'];
 
         logger($userId);
-        logger($userId);
+        logger($chatId);
 
         $command = TelegramBot::select('message', 'message_id', 'status')
             ->where([
