@@ -348,7 +348,7 @@ class TelegramBotController extends Controller
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
                 $callbackDetails['action'] = 'myliked';
                 $callbackDetails['token'] = $data->callback_query->message->reply_markup->inline_keyboard->callback_data;
-                logger($$data->callback_query->message->reply_markup->inline_keyboard->toArray());
+                logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
                 return $this->nextResult($callbackDetails);
