@@ -756,7 +756,7 @@ class GoogleApiClientController extends Controller
     }
 
     /**
-     * Get User Liked videos
+     * Get Youtube Supported Regions
      * @return array data 
      * 
      * Return Youtube supported Countries/Regions
@@ -787,7 +787,7 @@ class GoogleApiClientController extends Controller
         }
 
         $data['status'] = true;
-        // logger($data);
+        logger($data);
         return $data;
     }
     /**
