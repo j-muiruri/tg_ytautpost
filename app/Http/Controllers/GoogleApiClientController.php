@@ -787,7 +787,7 @@ class GoogleApiClientController extends Controller
         }
 
         $data['status'] = true;
-        logger($data);
+        // logger($data);
         return $data;
     }
     /**

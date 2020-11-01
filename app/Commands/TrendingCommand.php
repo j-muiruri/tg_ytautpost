@@ -49,7 +49,7 @@ class TrendingCommand extends Command
         //     // Reply with the Videos List
         // } else {
 
-        logger($regionData);
+        // logger($regionData);
 
         if ($regionData['status'] === true) {
 
@@ -59,16 +59,13 @@ class TrendingCommand extends Command
             $regions = $regionData['regions'];
             foreach ($regions as $region) {
 
-                logger($region['name']);
+                // logger($region['name']);
                 $id = $region['region'];
                 $name =$region['name'];
-
-                logger($name);
                 $keyboardButtons[] = [
                     'text' => $name,
                     'callback_data' => $id
                 ];
-                    logger();
                 $no++;
             }
 
@@ -79,7 +76,8 @@ class TrendingCommand extends Command
                     ]
                 ]
             ];
-
+            logger($inlineKeyboard);
+            
             $reply_markup = Keyboard::make([
                 'inline_keyboard' => $inlineKeyboard
             ]);
