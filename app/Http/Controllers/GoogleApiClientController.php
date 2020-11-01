@@ -26,13 +26,13 @@ use Illuminate\Support\Arr;
 class GoogleApiClientController extends Controller
 {
     /**
-     * Perform Authentication
+     * Perform Authentication with OAuth 2.0
      */
     public function getAuthGoogleApi()
     {
         $client = new Google_Client();
 
-        $client->setApplicationName('Autopost Telegram Bot');
+        $client->setApplicationName('Selecta Youtube Autopost Telegram Bot');
 
         $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly']);
 
@@ -452,8 +452,8 @@ class GoogleApiClientController extends Controller
         // return $client;
     }
     /**
-     * Prepare for Google Auth and generating Auth URL,
-     * Google Client
+     * Prepare for Google Auth and generating Auth URL, uses OAuth 2.0
+     * @return object Google Client
      */
     public function authGoogleApi()
     {
@@ -493,9 +493,41 @@ class GoogleApiClientController extends Controller
 
         return $client;
     }
+
+    /**
+     * Prepare for Google Auth through the API Console
+     * @return object Google Client
+     */
+    public function getGoogleApiAuth()
+    {
+        $client = new Google_Client();
+
+        $client->setApplicationName('Autopost Telegram Bot');
+
+        $client->setScopes(['https://www.googleapis.com/auth/youtube.readonly']);
+
+        //$client->setAuthConfig(env('CLIENT_SECRET'));
+
+        // $client->setClientId(env('CLIENT_ID'));
+
+        // $client->setClientSecret(env('CLIENT_SECRET_PASS'));
+
+        $client->setDeveloperKey(env('YOUTUBE_API_KEY', 'YOUR_API_KEY'));
+
+        // $client->setAccessType('offline');
+
+        // $client->setApprovalPrompt('force');
+
+        $redirect_uri = env('APP_URL') . '/auth';
+        //set redirect URL
+        // Route
+        $client->setRedirectUri($redirect_uri);
+
+        return $client;
+    }
     /**
      * Complete auth, return code to User
-     *
+     *@return var code and view 
      */
     public function authComplete(Request $request)
     {
@@ -604,7 +636,9 @@ class GoogleApiClientController extends Controller
 
     /**
      * Revoke Access to Users, Youtube Account and delete access tokens
-     * @return true/false Returns true if the revocation was successful, otherwise false
+     * @return true/false 
+     * 
+     * Returns true if the revocation was successful, otherwise false
      */
     public function revokeAccess(array $userId)
     {
@@ -624,7 +658,9 @@ class GoogleApiClientController extends Controller
 
     /**
      * Get User Liked videos
-     * @return array $data Return liked videos
+     * @return array $data 
+     * 
+     * Return liked videos
      */
     public function getLikedVideos(array $userDetails)
     {
@@ -679,7 +715,7 @@ class GoogleApiClientController extends Controller
                 //next page token set
                 // logger($userDetails['next']);
                 $queryParams['pageToken'] =  $userDetails['next'];
-            } else if (isset($userDetails['prev'])){
+            } else if (isset($userDetails['prev'])) {
                 //prevpage token set
                 $queryParams['pageToken'] =  $userDetails['prev'];
             }
@@ -700,17 +736,144 @@ class GoogleApiClientController extends Controller
                     'title' => $v['snippet']['title'],
                     'link' => $url . $v['id']
                 );
-
-                // $video['title'] = $t['snippet']['title'];
-                // // $video['description'] = $t['snippet']['description'];
-                // $video['link'] = $url . $t['id'];
-                // logger($video);
             }
 
             $data['status'] = true;
             $data['next']  = $response->nextPageToken;
             $data['prev'] = $response->prevPageToken;
-            logger($data);
+            // logger($data);
+            return $data;
+        } else {
+
+            $data = array(
+                "status" => false,
+                "results" => array()
+            );
+
+            logger("error, no tokens");
+            return $data;
+        }
+    }
+
+    /**
+     * Get User Liked videos
+     * @return array data 
+     * 
+     * Return Youtube supported Countries/Regions
+     */
+    public function getRegions()
+    {
+        $client = $this->getGoogleApiAuth();
+
+        //Init Service
+        $service = new Google_Service_YouTube($client);
+
+        $response = $service->i18nRegions->listI18nRegions('snippet');
+
+        // access items array/key from Google object reponse
+        $items = $response->items;
+        // $dataJson = response()->json($items);
+
+        // logger($dataJson);
+        $data = array();
+
+        foreach ($items as $t  => $v) {
+
+            $url = "https://youtube.com/watch?v=";
+            $data['regions'][] = array(
+                'region' => $v['snippet']['gl'],
+                'name' =>  $v['snippet']['name']
+            );
+        }
+
+        $data['status'] = true;
+        // logger($data);
+        return $data;
+    }
+    /**
+     * Get Trending Videos by Region code
+     * @return array $data Return list of trending videos
+     */
+    public function getTrendingVideos(array $userDetails)
+    {
+        $userId = $userDetails['user_id'];
+
+        $client = $this->authGoogleApi();
+
+        $tokenExists = Subscribers::where(
+            'user_id',
+            '=',
+            $userId
+        )
+            ->whereNotNull('access_tokens')
+            ->exists();
+
+
+        if ($tokenExists != false) {
+
+            // get tokens from db
+            $tokens =  Subscribers::select('access_tokens')
+                ->where(
+                    'user_id',
+                    '=',
+                    $userId
+                )
+                ->first();
+
+            //Get Our access token
+            $client->setAccessToken($tokens->access_tokens);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+                $data = array(
+                    "status" => false,
+                    "results" => array()
+                );
+
+                logger("error, requires auth");
+                return $data;
+            }
+
+
+            //Init Service
+            $service = new Google_Service_YouTube($client);
+
+            $queryParams = [
+                'chart' => 'mostPopular',
+                'regionCode' => $userDetails['region_code']
+            ];
+
+            if (isset($userDetails['next'])) {
+                //next page token set
+                // logger($userDetails['next']);
+                $queryParams['pageToken'] =  $userDetails['next'];
+            } else if (isset($userDetails['prev'])) {
+                //prevpage token set
+                $queryParams['pageToken'] =  $userDetails['prev'];
+            }
+            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
+
+
+            // access items array/key from Google object reponse
+            $items = $response->items;
+            // $dataJson = response()->json($items);
+
+            // logger($dataJson);
+            $data = array();
+
+            foreach ($items as $t  => $v) {
+
+                $url = "https://youtube.com/watch?v=";
+                $data['videos'][] = array(
+                    'title' => $v['snippet']['title'],
+                    'link' => $url . $v['id']
+                );
+            }
+
+            $data['status'] = true;
+            $data['next']  = $response->nextPageToken;
+            $data['prev'] = $response->prevPageToken;
+            // logger($data);
             return $data;
         } else {
 
