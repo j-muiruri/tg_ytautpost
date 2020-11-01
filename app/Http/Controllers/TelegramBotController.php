@@ -8,6 +8,7 @@ use App\Http\Controllers\GoogleApiClientController as Google;
 use App\Subscribers;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
+use Telegram\Bot\Api;
 use Telegram\Bot\Methods\Query;
 
 /**
@@ -18,7 +19,7 @@ use Telegram\Bot\Methods\Query;
  */
 class TelegramBotController extends Controller
 {
-    use Query;
+    use Api;
     /**
      * Get Updates(Messages from users or input) via Long polling
      * Cant work if a webhook is already setup
