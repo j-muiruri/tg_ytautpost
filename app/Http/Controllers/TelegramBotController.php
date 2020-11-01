@@ -792,7 +792,6 @@ class TelegramBotController extends Controller
             $videos = $trendingVideos['videos'];
             foreach ($videos as $video) {
 
-
                 $link = $video['link'];
                 $title = $video['title'];
                 // echo $link;
