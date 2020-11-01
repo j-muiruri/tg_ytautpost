@@ -354,6 +354,7 @@ class TelegramBotController extends Controller
                 return $this->nextResult($callbackDetails);
                 break;
             case '/trending':
+                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
                 $callbackDetails['region'] = $data->callback_query->data;
                 return $this->trendingVideos($callbackDetails);
             default:
