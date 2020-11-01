@@ -170,7 +170,7 @@ class TelegramBotController extends Controller
         //Get Json Update
         $data = Telegram::getWebhookUpdates();
 
-        logger("this is a message");
+        // logger("this is a message");
         //Pluck Values
         $update_id = $data->update_id;
         $user_id = $data->message->from->id;
@@ -410,12 +410,11 @@ class TelegramBotController extends Controller
             //Bot Message
             $entities = $data->message->entities;
 
-            $entityJson = response()->json($entities);
-            logger($dataArray);
-
             $object  = $entities->toArray();
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
+
+            logger($message_type);
             return $message_type;
         } else if (isset($dataArray['channel_post'])) {
 
@@ -426,6 +425,7 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = 'channel_post_'.$entityArray['type'];
             return $message_type;
+            logger($message_type);
         } elseif (isset($dataArray['callback_query'])) {
 
             //Callback Query
