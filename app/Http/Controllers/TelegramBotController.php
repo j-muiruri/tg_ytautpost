@@ -354,7 +354,8 @@ class TelegramBotController extends Controller
                 return $this->nextResult($callbackDetails);
                 break;
                 case '/myliked':
-                    return $this->trending
+                    $callbackDetails['region'] = $data->callback_query->data;
+                    return $this->trendingVideos($callbackDetails);
             default:
                 // Telegram::sendMessage([
                 //     'chat_id' => $chatId,
