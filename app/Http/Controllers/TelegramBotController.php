@@ -601,10 +601,24 @@ class TelegramBotController extends Controller
         // $token = Cache::get($nextTokenKey);
 
         $query = new Api;
-        $query->answerCallbackQuery([
-            'callback_query_id'  => $callbackQueryId,
-            'text'               => 'Fetching next page results ......',
-        ]);
+        try {
+            $query->answerCallbackQuery([
+                'callback_query_id'  => $callbackQueryId,
+                'text'               => 'Fetching next page results ......',
+            ]);
+
+        } catch (\Throwable $th) {
+            //throw $th;
+            // Next Page token or Previous page token not found in cache
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your LikedYoutube Videos'
+            ]);
+
+            logger("Bad Request: query is too old and response timeout expired or query ID");
+            
+            return false;
+        }
 
         $userInfo = array(
             'user_id' => $userId,
