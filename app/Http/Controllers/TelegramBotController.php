@@ -430,36 +430,38 @@ class TelegramBotController extends Controller
 
         $data = Telegram::getWebhookUpdates();
 
-        $messageArray = $data->toArray();
+        $dataArray = $data->toArray();
 
-        if (isset($messageArray['message']) && $data->callback_query === null) {
+        if (isset($dataArray['message']) && isset($dataArray['message']['entitties']) && $data->callback_query === null) {
 
-            //Normal Message
+            //Bot Message
             $entities = $data->message->entities;
 
             $entityJson = response()->json($entities);
-            logger($messageArray);
+            logger($dataArray);
 
             $object  = $entities->toArray();
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
             return $message_type;
-        } else if (isset($messageArray['channel_post'])) {
+        } else if (isset($dataArray['channel_post'])) {
 
             //Channel Post
             $entities = $data->channel_post->entities;
 
             $object  = $entities->toArray();
             $entityArray = $object['0'];
-            $message_type = $entityArray['type'];
+            $message_type = 'channel_post_'.$entityArray['type'];
             return $message_type;
-        } elseif (isset($messageArray['callback_query'])) {
+        } elseif (isset($dataArray['callback_query'])) {
 
+            //Callback Query
             logger('reply_markup');
             $message_type = 'reply_markup';
 
             return $message_type;
         } else {
+            // Normal Text
             $message_type = "normal_text";
             return $message_type;
         }
