@@ -794,64 +794,20 @@ class GoogleApiClientController extends Controller
      * Get Trending Videos by Region code
      * @return array $data Return list of trending videos
      */
-    public function getTrendingVideos(array $userDetails)
+    public function getTrendingVideos($userRegion)
     {
-        $userId = $userDetails['user_id'];
-
         $client = $this->authGoogleApi();
-
-        $tokenExists = Subscribers::where(
-            'user_id',
-            '=',
-            $userId
-        )
-            ->whereNotNull('access_tokens')
-            ->exists();
-
-
-        if ($tokenExists != false) {
-
-            // get tokens from db
-            $tokens =  Subscribers::select('access_tokens')
-                ->where(
-                    'user_id',
-                    '=',
-                    $userId
-                )
-                ->first();
-
-            //Get Our access token
-            $client->setAccessToken($tokens->access_tokens);
-
-            /* Refresh token when expired */
-            if ($client->isAccessTokenExpired()) {
-                $data = array(
-                    "status" => false,
-                    "results" => array()
-                );
-
-                logger("error, requires auth");
-                return $data;
-            }
-
 
             //Init Service
             $service = new Google_Service_YouTube($client);
 
             $queryParams = [
                 'chart' => 'mostPopular',
-                'regionCode' => $userDetails['region_code']
+                'regionCode' => $userRegion
             ];
 
-            if (isset($userDetails['next'])) {
-                //next page token set
-                // logger($userDetails['next']);
-                $queryParams['pageToken'] =  $userDetails['next'];
-            } else if (isset($userDetails['prev'])) {
-                //prevpage token set
-                $queryParams['pageToken'] =  $userDetails['prev'];
-            }
-            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
+            
+            $response = $service->videos->listVideos('snippet', $queryParams);
 
 
             // access items array/key from Google object reponse
@@ -872,18 +828,9 @@ class GoogleApiClientController extends Controller
 
             $data['status'] = true;
             $data['next']  = $response->nextPageToken;
-            $data['prev'] = $response->prevPageToken;
+            // $data['prev'] = $response->prevPageToken;
             // logger($data);
             return $data;
-        } else {
-
-            $data = array(
-                "status" => false,
-                "results" => array()
-            );
-
-            logger("error, no tokens");
-            return $data;
-        }
+        
     }
 }

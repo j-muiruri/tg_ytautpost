@@ -353,6 +353,8 @@ class TelegramBotController extends Controller
                 
                 return $this->nextResult($callbackDetails);
                 break;
+                case '/myliked':
+                    return $this->trending
             default:
                 // Telegram::sendMessage([
                 //     'chat_id' => $chatId,
@@ -763,6 +765,72 @@ class TelegramBotController extends Controller
             Telegram::sendMessage([
                 'chat_id' => $chatId,
                 'text' => 'Ooops, Unable to access previous page, reply with /myliked to view your LikedYoutube Videos'
+            ]);
+        }
+    }
+
+    /**
+     * Return Trending Videos after user has choosen Region/Country
+     * @return true
+     * @return array $data
+     * Send Message with data or error message
+     */
+    public function trendingVideos(array $userDetails)
+    {
+        $chatId = $userDetails['chat_id'];
+        $region = $userDetails['region'];
+
+        $googleClient = new GoogleApiClientController;
+
+        $trendingVideos =  $googleClient->getTrendingVideos($region);
+
+        if ($trendingVideos['status'] === true) {
+
+            // Reply with the Videos List
+            $no = 0;
+
+            $videos = $trendingVideos['videos'];
+            foreach ($videos as $video) {
+
+
+                $link = $video['link'];
+                $title = $video['title'];
+                // echo $link;
+                $no++;
+
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => $no . '. ' . $title . ' - ' . $link
+                ]);
+                usleep(800000); //0.8 secs
+            }
+
+            $nextToken = $trendingVideos['next'];
+            
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => $nextToken
+                    ]
+                ]
+            ];
+
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup
+            ]);
+        } else {
+
+            //user auth tokens has expired or user has not given app access
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access the Trending/Popular Youtube Videos. reply with /trending again'
             ]);
         }
     }

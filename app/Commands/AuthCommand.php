@@ -71,7 +71,7 @@ class AuthCommand extends Command
                 [
                     [
                         'text' => 'Authorize Youtube Account',
-                        'callback_data' => $authLink
+                        'url' => $authLink
                     ]
                 ]
             ];
