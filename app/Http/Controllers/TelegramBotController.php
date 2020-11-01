@@ -19,7 +19,6 @@ use Telegram\Bot\Methods\Query;
  */
 class TelegramBotController extends Controller
 {
-    use Api;
     /**
      * Get Updates(Messages from users or input) via Long polling
      * Cant work if a webhook is already setup
@@ -599,7 +598,8 @@ class TelegramBotController extends Controller
         // if ($tokenExists === true) {
         // $token = Cache::get($nextTokenKey);
 
-        $this->answerCallbackQuery([
+        $query = new Api;
+        $query->answerCallbackQuery([
             'callback_query_id'  => $callbackQueryId,
             'text'               => 'Fetching next page results ......',
         ]);
