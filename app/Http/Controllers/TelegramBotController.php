@@ -442,14 +442,25 @@ class TelegramBotController extends Controller
             return $message_type;
         } else if (isset($dataArray['channel_post'])) {
 
-            //Channel Post
-            $entities = $data->channel_post->entities;
+            $entitiesExist = isset($dataArray['message']['entities']);
+            switch ($entitiesExist) {
+                case true:
+                    //Channel Post
+                    $entities = $data->channel_post->entities;
 
-            $object  = $entities->toArray();
-            $entityArray = $object['0'];
-            $message_type = 'channel_post_' . $entityArray['type'];
-            return $message_type;
-            logger($message_type);
+                    $object  = $entities->toArray();
+                    $entityArray = $object['0'];
+                    $message_type = 'channel_post_' . $entityArray['type'];
+                    return $message_type;
+                    logger($message_type);
+                    break;
+
+                case false:
+                    $message_type = 'channel_post_' . 'file';
+                    return $message_type;
+                    logger($message_type);
+                    break;
+            }
         } elseif (isset($dataArray['callback_query'])) {
 
             //Callback Query
