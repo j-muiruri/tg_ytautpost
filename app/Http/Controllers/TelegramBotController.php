@@ -9,7 +9,7 @@ use App\Subscribers;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Api;
-use Telegram\Bot\Methods\Query;
+use Telegram\Bot\Commands\Command;
 
 /**
  * The Telegram Bot  Class
@@ -348,14 +348,25 @@ class TelegramBotController extends Controller
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
                 $callbackDetails['action'] = 'myliked';
                 $callbackDetails['token'] = $data->callback_query->data;
-                // logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
+                logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
                 return $this->nextResult($callbackDetails);
                 break;
-            case '/trending':
-                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
+            case '/region':
+
                 $callbackDetails['region'] = $data->callback_query->data;
+                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
+
+                //Store user Region to cache
+                Cache::put($callbackDetails['chat_id'], $callbackDetails['region'], 600);
+
+                return true;
+            case '/trending':
+
+                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
+                $callbackDetails['next'] = $data->callback_query->data;
+
                 return $this->trendingVideos($callbackDetails);
             default:
                 // Telegram::sendMessage([
@@ -778,52 +789,22 @@ class TelegramBotController extends Controller
      */
     public function trendingVideos(array $userDetails)
     {
+
+        $regionSet = Cache::has($userDetails['chat_id']);
+
         $chatId = $userDetails['chat_id'];
 
-        $regionCachedExists =  Cache::has($chatId);
+        if ($regionSet) {
 
-
-        //check if user has submitted region or has region in cache, if not, ask them to send /trending command again
-
-        try {
-            
-           $retVal = ($userDetails['region'] === null && $regionCachedExists != true) ? true : false ;
-        } catch (\Throwable $th) {
-            //throw $th;
-               //user auth tokens has expired or user has not given app access
-               Telegram::sendMessage([
-
-                'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access the Trending/Popular Youtube Videos. reply with /trending again'
-            ]);
-            return false;
-        }
-
-        //check if var $userRegion['region'] has user i
-        if ($regionCachedExists === false) {
-
-            //Store user region/country to cache on first request
-            Cache::put($chatId, $userDetails['region'], 600);
-
-            $userData['region'] = $userDetails['region'];
+            //region exists in cache
+            $userData['region'] =  Cache::get($chatId);
+            $userData['next'] = $userDetails['next'];
 
             $googleClient = new GoogleApiClientController;
 
             $trendingVideos =  $googleClient->getTrendingVideos($userData);
 
-        } elseif ($regionCachedExists === true) {
 
-            //get user region from cache
-            $userData['region'] = Cache::get($chatId);
-
-            //region data, on the 2nd and subsequent requests submitted used as next page Token
-            $userData['next'] = $userDetails['region'];
-
-            $googleClient = new GoogleApiClientController;
-
-            $trendingVideos =  $googleClient->getTrendingVideos($userData);
-        }
-         
 
             if ($trendingVideos['status'] === true) {
 
@@ -832,7 +813,6 @@ class TelegramBotController extends Controller
 
                 $videos = $trendingVideos['videos'];
                 foreach ($videos as $video) {
-
                     $link = $video['link'];
                     $title = $video['title'];
                     // echo $link;
@@ -861,7 +841,7 @@ class TelegramBotController extends Controller
                 ]);
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
-                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                    'text' => 'For More trending Youtube videos: tap below to go to the next or previous pages',
                     'reply_markup' => $reply_markup
                 ]);
             } else {
@@ -873,6 +853,18 @@ class TelegramBotController extends Controller
                     'text' => 'Ooops, There was an error trying to access the Trending/Popular Youtube Videos. reply with /trending again'
                 ]);
             }
-        
+        } else {
+
+            //user region not set, has to reply with regions command
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId, 'text' => 'Ooops, There was an error trying to access the videos, let us set your Country/Region'
+            ]);
+
+            // Trigger another /region command to set region
+            $commands = new Api;
+            $updateObject = Telegram::getWebhookUpdates();
+            $commands->triggerCommand('region', $updateObject);
+        }
     }
 }

@@ -10,6 +10,7 @@ use App\TelegramBot;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\GoogleApiClientController;
+use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 
 /**
@@ -37,62 +38,69 @@ class TrendingCommand extends Command
     {
         $googleClient = new GoogleApiClientController;
 
-        //Send Message
-        $this->replyWithMessage(['text' => 'Choose your preffered country below']); // Trending Videos from Youtube:
-        sleep(1);
 
-        $regionData =  $googleClient->getRegions();
+        // Get result from webhook update
+        $resultUpdate = $this->getUpdate();
+        $type = $resultUpdate->message->chat->type;
+        $userDetails['user_id'] = $resultUpdate->message->from->id;
+        $chatId = $resultUpdate->message->chat->id;
 
-        // if ($type === 'supergroup') {
+        $regionSet =  Cache::has($chatId);
 
-        //     sleep(3);
-        //     // Reply with the Videos List
-        // } else {
+        if ($regionSet) {
 
-        // logger($regionData);
+            //region exists in cache
+            $region = Cache::get($chatId);
 
-        if ($regionData['status'] === true) {
+            $trendingVideos =  $googleClient->getTrendingVideos($region);
 
-            // Reply with the Videos List
-            $no = 0;
+            if ($trendingVideos['status'] === true) {
 
-            $regions = $regionData['regions'];
-            foreach ($regions as $region) {
+                // Reply with the Videos List
+                $no = 0;
 
-                // logger($region['name']);
-                $id = $region['region'];
-                $name = $region['name'];
-                $keyboardButtons[] = array([
-                    'text' => $name,
-                    'callback_data' => $id
+                $videos = $trendingVideos['videos'];
+                foreach ($videos as $video) {
+                    $link = $video['link'];
+                    $title = $video['title'];
+                    // echo $link;
+                    $no++;
+
+                    $this->replyWithMessage([
+                        'text' => $no . '. ' . $title . ' - ' . $link
+                    ]);
+                    usleep(800000); //0.8 secs
+                }
+
+                $nextToken = $trendingVideos['next'];
+
+                $inlineKeyboard = [
+                    [
+                        [
+                            'text' => 'Next Page',
+                            'callback_data' => $nextToken
+                        ]
+                    ]
+                ];
+
+                $reply_markup = Keyboard::make([
+                    'inline_keyboard' => $inlineKeyboard
                 ]);
-                $no++;
+                $this->replyWithMessage([
+                    'text' => 'For More trending Youtube videos:  tap below to go to the next or previous pages',
+                    'reply_markup' => $reply_markup
+                ]);
+            } else {
+
+                //server error
+                $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the videos, try again with /trending command']);
             }
+        } else {
 
-            // $inlineKeyboard = [
-
-            //     [
-            //         $keyboardButtons
-            //     ]
-
-            // ];
-            logger($keyboardButtons);
-
-            $reply_markup = Keyboard::make([
-                'inline_keyboard' => $keyboardButtons
-            ]);
-
-            $this->replyWithMessage([
-                'text' => 'Here is the list of Available Regions/Countries: ',
-                'reply_markup' => $reply_markup
-            ]);
-            // } else {
-
-            //     //user auth tokens has expired or user has not given app access
-            //     $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos']);
-            // }
+            //user region not set, has to reply with regions command
+            $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the videos, let us set your Country/Region']);
             // Trigger another command dynamically from within this command
-            // $this->triggerCommand('subscribe');
+            $this->triggerCommand('region');
         }
     }
 }
