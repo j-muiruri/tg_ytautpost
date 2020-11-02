@@ -364,11 +364,10 @@ class TelegramBotController extends Controller
 
                 //answer callback query
                 $query = new Api;
-                $query->answerCallbackQuery([
+                return $query->answerCallbackQuery([
                     'callback_query_id'  => $callbackDetails['callback_query_id'],
                     'text'               => 'Fetching next page results ......',
                 ]);
-                return true;
             case '/trending':
 
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
@@ -823,7 +822,7 @@ class TelegramBotController extends Controller
             return false;
         }
 
-        if ($regionSet) {
+        if ($regionSet != false) {
 
             //region exists in cache
             $userData['region'] =  Cache::get($chatId);

@@ -41,13 +41,12 @@ class TrendingCommand extends Command
 
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
-        $type = $resultUpdate->message->chat->type;
         $userDetails['user_id'] = $resultUpdate->message->from->id;
         $chatId = $resultUpdate->message->chat->id;
 
         $regionSet =  Cache::has($chatId);
 
-        if ($regionSet) {
+        if ($regionSet != false) {
 
             //region exists in cache
             $userDetails['region'] = Cache::get($chatId);
