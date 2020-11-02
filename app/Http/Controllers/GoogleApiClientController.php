@@ -794,7 +794,7 @@ class GoogleApiClientController extends Controller
      * Get Trending Videos by Region code
      * @return array $data Return list of trending videos
      */
-    public function getTrendingVideos($userRegion)
+    public function getTrendingVideos(array $userData)
     {
         $client = $this->authGoogleApi();
 
@@ -803,9 +803,14 @@ class GoogleApiClientController extends Controller
 
             $queryParams = [
                 'chart' => 'mostPopular',
-                'regionCode' => $userRegion
+                'regionCode' => $userData['region']
             ];
 
+            if (isset($userData['next'])) {
+                //next page token set
+                // logger($userDetails['next']);
+                $queryParams['pageToken'] =  $userData['next'];
+            }
             
             $response = $service->videos->listVideos('snippet', $queryParams);
 

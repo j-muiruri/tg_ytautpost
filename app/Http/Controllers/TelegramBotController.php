@@ -779,59 +779,99 @@ class TelegramBotController extends Controller
     public function trendingVideos(array $userDetails)
     {
         $chatId = $userDetails['chat_id'];
-        $region = $userDetails['region'];
+        $userRegion['region'] = $userDetails['region'];
 
-        $googleClient = new GoogleApiClientController;
+        $regionCachedExists =  Cache::has($chatId);
 
-        $trendingVideos =  $googleClient->getTrendingVideos($region);
 
-        if ($trendingVideos['status'] === true) {
+        //check if user has submitted region or has region in cache, if not, ask them to send /trending command again
 
-            // Reply with the Videos List
-            $no = 0;
-
-            $videos = $trendingVideos['videos'];
-            foreach ($videos as $video) {
-
-                $link = $video['link'];
-                $title = $video['title'];
-                // echo $link;
-                $no++;
-
-                Telegram::sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => $no . '. ' . $title . ' - ' . $link
-                ]);
-                usleep(800000); //0.8 secs
-            }
-
-            $nextToken = $trendingVideos['next'];
-
-            $inlineKeyboard = [
-                [
-                    [
-                        'text' => 'Next Page',
-                        'callback_data' => $nextToken
-                    ]
-                ]
-            ];
-
-            $reply_markup = Keyboard::make([
-                'inline_keyboard' => $inlineKeyboard
-            ]);
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'For More videos: \n tap below to go to the next or previous pages',
-                'reply_markup' => $reply_markup
-            ]);
-        } else {
-
-            //user auth tokens has expired or user has not given app access
-            Telegram::sendMessage([
+        try {
+            
+           $retVal = ($userRegion === null && $regionCachedExists != true) ? true : false ;
+        } catch (\Throwable $th) {
+            //throw $th;
+               //user auth tokens has expired or user has not given app access
+               Telegram::sendMessage([
 
                 'chat_id' => $chatId,
                 'text' => 'Ooops, There was an error trying to access the Trending/Popular Youtube Videos. reply with /trending again'
             ]);
+            return false;
         }
+
+        //check if var $userRegion['region'] has user inout
+        if ($userRegion['region'] != null) {
+
+            //Store user region/country to cache on first request
+            Cache::put($chatId, $userRegion, 600);
+
+            $googleClient = new GoogleApiClientController;
+
+            $trendingVideos =  $googleClient->getTrendingVideos($userRegion['region']);
+
+        } elseif ($regionCachedExists === true) {
+
+            //get user region from cache
+            $userData['region'] = Cache::get($chatId);
+
+            //region data, on the 2nd and subsequent requests submitted used as next page Token
+            $userData['next'] = $userDetails['region'];
+
+            $googleClient = new GoogleApiClientController;
+
+            $trendingVideos =  $googleClient->getTrendingVideos($userData);
+        }
+         
+
+            if ($trendingVideos['status'] === true) {
+
+                // Reply with the Videos List
+                $no = 0;
+
+                $videos = $trendingVideos['videos'];
+                foreach ($videos as $video) {
+
+                    $link = $video['link'];
+                    $title = $video['title'];
+                    // echo $link;
+                    $no++;
+
+                    Telegram::sendMessage([
+                        'chat_id' => $chatId,
+                        'text' => $no . '. ' . $title . ' - ' . $link
+                    ]);
+                    usleep(800000); //0.8 secs
+                }
+
+                $nextToken = $trendingVideos['next'];
+
+                $inlineKeyboard = [
+                    [
+                        [
+                            'text' => 'Next Page',
+                            'callback_data' => $nextToken
+                        ]
+                    ]
+                ];
+
+                $reply_markup = Keyboard::make([
+                    'inline_keyboard' => $inlineKeyboard
+                ]);
+                Telegram::sendMessage([
+                    'chat_id' => $chatId,
+                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                    'reply_markup' => $reply_markup
+                ]);
+            } else {
+
+                //user auth tokens has expired or user has not given app access
+                Telegram::sendMessage([
+
+                    'chat_id' => $chatId,
+                    'text' => 'Ooops, There was an error trying to access the Trending/Popular Youtube Videos. reply with /trending again'
+                ]);
+            }
+        
     }
 }
