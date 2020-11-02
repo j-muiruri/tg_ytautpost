@@ -61,25 +61,25 @@ class TrendingCommand extends Command
 
                 // logger($region['name']);
                 $id = $region['region'];
-                $name =$region['name'];
-                $keyboardButtons[] = [
+                $name = $region['name'];
+                $keyboardButtons[] = array([
                     'text' => $name,
                     'callback_data' => $id
-                ];
+                ]);
                 $no++;
             }
 
-            $inlineKeyboard = [
-                
-                    [
-                        $keyboardButtons
-                    ]
-                
-            ];
-            logger($inlineKeyboard);
-            
+            // $inlineKeyboard = [
+
+            //     [
+            //         $keyboardButtons
+            //     ]
+
+            // ];
+            logger($keyboardButtons);
+
             $reply_markup = Keyboard::make([
-                'inline_keyboard' => $inlineKeyboard
+                'inline_keyboard' => $keyboardButtons
             ]);
 
             $this->replyWithMessage([
