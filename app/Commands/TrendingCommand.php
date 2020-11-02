@@ -50,9 +50,9 @@ class TrendingCommand extends Command
         if ($regionSet) {
 
             //region exists in cache
-            $region = Cache::get($chatId);
+            $userDetails['region'] = Cache::get($chatId);
 
-            $trendingVideos =  $googleClient->getTrendingVideos($region);
+            $trendingVideos =  $googleClient->getTrendingVideos($userDetails['region']);
 
             if ($trendingVideos['status'] === true) {
 

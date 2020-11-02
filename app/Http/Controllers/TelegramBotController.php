@@ -357,15 +357,23 @@ class TelegramBotController extends Controller
 
                 $callbackDetails['region'] = $data->callback_query->data;
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
+                $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
                 //Store user Region to cache
                 Cache::put($callbackDetails['chat_id'], $callbackDetails['region'], 600);
 
+                //answer callback query
+                $query = new Api;
+                $query->answerCallbackQuery([
+                    'callback_query_id'  => $callbackDetails['callback_query_id'],
+                    'text'               => 'Fetching next page results ......',
+                ]);
                 return true;
             case '/trending':
 
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
                 $callbackDetails['next'] = $data->callback_query->data;
+                $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
                 return $this->trendingVideos($callbackDetails);
             default:
@@ -790,9 +798,30 @@ class TelegramBotController extends Controller
     public function trendingVideos(array $userDetails)
     {
 
+
         $regionSet = Cache::has($userDetails['chat_id']);
 
         $chatId = $userDetails['chat_id'];
+        $callbackQueryId = $userDetails['callback_query_id'];
+
+        $query = new Api;
+        try {
+            $query->answerCallbackQuery([
+                'callback_query_id'  => $callbackQueryId,
+                'text'               => 'Fetching next page results ......',
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            // Next Page token or Previous page token not found in cache
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access next page, reply with /trending to view your Liked Youtube Videos'
+            ]);
+
+            logger("Bad Request: query is too old and response timeout expired or query ID");
+
+            return false;
+        }
 
         if ($regionSet) {
 
