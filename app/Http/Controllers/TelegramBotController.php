@@ -779,7 +779,6 @@ class TelegramBotController extends Controller
     public function trendingVideos(array $userDetails)
     {
         $chatId = $userDetails['chat_id'];
-        $userRegion['region'] = $userDetails['region'];
 
         $regionCachedExists =  Cache::has($chatId);
 
@@ -788,7 +787,7 @@ class TelegramBotController extends Controller
 
         try {
             
-           $retVal = ($userRegion === null && $regionCachedExists != true) ? true : false ;
+           $retVal = ($userDetails['region'] === null && $regionCachedExists != true) ? true : false ;
         } catch (\Throwable $th) {
             //throw $th;
                //user auth tokens has expired or user has not given app access
@@ -800,15 +799,17 @@ class TelegramBotController extends Controller
             return false;
         }
 
-        //check if var $userRegion['region'] has user inout
-        if ($userRegion['region'] != null) {
+        //check if var $userRegion['region'] has user i
+        if ($regionCachedExists === false) {
 
             //Store user region/country to cache on first request
-            Cache::put($chatId, $userRegion, 600);
+            Cache::put($chatId, $userDetails['region'], 600);
+
+            $userData['region'] = $userDetails['region'];
 
             $googleClient = new GoogleApiClientController;
 
-            $trendingVideos =  $googleClient->getTrendingVideos($userRegion['region']);
+            $trendingVideos =  $googleClient->getTrendingVideos($userData);
 
         } elseif ($regionCachedExists === true) {
 
