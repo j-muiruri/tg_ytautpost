@@ -359,6 +359,8 @@ class TelegramBotController extends Controller
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
+                logger($callbackDetails['callback_query_id']);
+
                 //Store user Region to cache
                 Cache::put($callbackDetails['chat_id'], $callbackDetails['region'], 600);
 
