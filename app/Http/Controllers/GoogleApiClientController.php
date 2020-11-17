@@ -915,7 +915,7 @@ class GoogleApiClientController extends Controller
 
             foreach ($items as $t  => $v) {
 
-                $url = "https://youtube.com/watch?v=";
+                $url = "https://youtube.com/channel/";
                 $data['subscriptions'][] = array(
                     'title' => $v['snippet']['title'],
                     'link' => $url . $v['snippet']['resourceId']['channelId']
