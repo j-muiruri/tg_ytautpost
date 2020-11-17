@@ -353,7 +353,7 @@ class TelegramBotController extends Controller
 
                 return $this->nextResult($callbackDetails);
                 break;
-            case '/subscriptions':
+            case '/subscriptions/subscriptions':
                 //Process next or previous results
                 $callbackDetails['user_id'] = $previousCommand["user_id"];
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
@@ -653,7 +653,7 @@ class TelegramBotController extends Controller
             // Next Page token or Previous page token not found in cache
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your Liked Youtube Videos'
+                'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
             ]);
 
             logger("Bad Request: query is too old and response timeout expired or query ID");
@@ -674,6 +674,7 @@ class TelegramBotController extends Controller
                 break;
             case '/subscriptions':
 
+                logger($userDetails['action']);
                 $this->nextSubscriptions($userInfo, $chatId);
 
                 break;
