@@ -368,7 +368,12 @@ class TelegramBotController extends Controller
                 $query = new Api;
                 return $query->answerCallbackQuery([
                     'callback_query_id'  => $callbackDetails['callback_query_id'],
-                    'text'               => 'Fetching next page results ......',
+                    'text'               => 'Saving Region ......',
+                ]);
+
+                Telegram::sendMessage([
+                    'chat_id' =>  $callbackDetails['chat_id'],
+                    'text' => 'Region Set Successfully! Reply with /trending to view Trending Youtube Videos'
                 ]);
             case '/trending':
 
