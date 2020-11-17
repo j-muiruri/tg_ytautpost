@@ -667,12 +667,12 @@ class TelegramBotController extends Controller
         );
 
         switch ($userDetails['action']) {
-            case '/myliked':
+            case 'myliked':
 
                 $this->nextLikedVideos($userInfo, $chatId);
 
                 break;
-            case '/subscriptions':
+            case 'subscriptions':
 
                 logger($userDetails['action']);
                 $this->nextSubscriptions($userInfo, $chatId);
