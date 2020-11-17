@@ -353,7 +353,7 @@ class TelegramBotController extends Controller
 
                 return $this->nextResult($callbackDetails);
                 break;
-            case '/subscriptions/subscriptions':
+            case '/subscriptions':
                 //Process next or previous results
                 $callbackDetails['user_id'] = $previousCommand["user_id"];
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
