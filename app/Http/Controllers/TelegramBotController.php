@@ -366,7 +366,7 @@ class TelegramBotController extends Controller
 
                 //answer callback query
                 $query = new Api;
-                return $query->answerCallbackQuery([
+                $query->answerCallbackQuery([
                     'callback_query_id'  => $callbackDetails['callback_query_id'],
                     'text'               => 'Saving Region ......',
                 ]);
@@ -375,6 +375,7 @@ class TelegramBotController extends Controller
                     'chat_id' =>  $callbackDetails['chat_id'],
                     'text' => 'Region Set Successfully! Reply with /trending to view Trending Youtube Videos'
                 ]);
+                return true;
             case '/trending':
 
                 $callbackDetails['chat_id'] = $previousCommand["chat_id"];
