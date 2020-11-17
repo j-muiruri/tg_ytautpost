@@ -353,6 +353,17 @@ class TelegramBotController extends Controller
 
                 return $this->nextResult($callbackDetails);
                 break;
+            case '/subscriptions':
+                //Process next or previous results
+                $callbackDetails['user_id'] = $previousCommand["user_id"];
+                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
+                $callbackDetails['action'] = 'subscriptions';
+                $callbackDetails['token'] = $data->callback_query->data;
+                logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
+                $callbackDetails['callback_query_id'] = $data->callback_query->id;
+
+                return $this->nextResult($callbackDetails);
+                break;
             case '/region':
 
                 $callbackDetails['region'] = $data->callback_query->data;
@@ -655,58 +666,20 @@ class TelegramBotController extends Controller
             'next' => $token
         );
 
-        $googleClient = new GoogleApiClientController;
+        switch ($userDetails['action']) {
+            case '/myliked':
 
-        $likedVideos =  $googleClient->getLikedVideos($userInfo);
+                $this->nextLikedVideos($userInfo, $chatId);
 
-        if ($likedVideos['status'] === true) {
+                break;
+            case '/subscriptions':
 
-            // Reply with the Videos List
-            $no = 0;
+                $this->nextSubscriptions($userInfo, $chatId);
 
-            $videos = $likedVideos['videos'];
-            foreach ($videos as $video) {
-
-
-                $link = $video['link'];
-                $title = $video['title'];
-                // echo $link;
-                $no++;
-
-                Telegram::sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => $no . '. ' . $title . ' - ' . $link
-                ]);
-                usleep(800000); //0.8 secs
-            }
-
-            $nextToken = $likedVideos['next'];
-
-            $inlineKeyboard = [
-                [
-                    [
-                        'text' => 'Next Page',
-                        'callback_data' => $nextToken
-                    ]
-                ]
-            ];
-
-            $reply_markup = Keyboard::make([
-                'inline_keyboard' => $inlineKeyboard
-            ]);
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'For More videos: \n tap below to go to the next or previous pages',
-                'reply_markup' => $reply_markup
-            ]);
-        } else {
-
-            //user auth tokens has expired or user has not given app access
-            Telegram::sendMessage([
-
-                'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
-            ]);
+                break;
+            default:
+                return true;
+                break;
         }
     }
     /**
@@ -912,6 +885,128 @@ class TelegramBotController extends Controller
             $commands = new Api;
             $updateObject = Telegram::getWebhookUpdates();
             $commands->triggerCommand('region', $updateObject);
+        }
+    }
+
+    /**
+     * Return next user-liked videos
+     * @return true/false
+     * @return $data videos
+     */
+    public function nextLikedVideos(array $userInfo, $chatId)
+    {
+        $googleClient = new GoogleApiClientController;
+
+        $likedVideos =  $googleClient->getLikedVideos($userInfo);
+
+        if ($likedVideos['status'] === true) {
+            // Reply with the Videos List
+            $no = 0;
+
+            $videos = $likedVideos['videos'];
+            foreach ($videos as $video) {
+
+
+                $link = $video['link'];
+                $title = $video['title'];
+                // echo $link;
+                $no++;
+
+                Telegram::sendMessage([
+                    'chat_id' =>  $chatId,
+                    'text' => $no . '. ' . $title . ' - ' . $link
+                ]);
+                usleep(800000); //0.8 secs
+            }
+
+            $nextToken = $likedVideos['next'];
+
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => $nextToken
+                    ]
+                ]
+            ];
+
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup
+            ]);
+        } else {
+
+            //user auth tokens has expired or user has not given app access
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
+            ]);
+        }
+    }
+
+    /**
+     * Return next Subscription list page
+     * @return true/false
+     * @return $data Subscription Channels
+     */
+    public function nextSubscriptions(array $userInfo, $chatId)
+    {
+        $googleClient = new GoogleApiClientController;
+
+        $userSubs =  $googleClient->getUserSubscriptions($userInfo);
+
+        if ($userSubs['status'] === true) {
+            // Reply with the Videos List
+            $no = 0;
+
+            $subscriptions = $userSubs['subscriptions'];
+            foreach ($subscriptions as $subscription) {
+
+
+                $link = $subscription['link'];
+                $title = $subscription['title'];
+                // echo $link;
+                $no++;
+
+                Telegram::sendMessage([
+                    'chat_id' =>  $chatId,
+                    'text' => $no . '. ' . $title . ' - ' . $link
+                ]);
+                usleep(800000); //0.8 secs
+            }
+
+            $nextToken = $userSubs['next'];
+
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => $nextToken
+                    ]
+                ]
+            ];
+
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'For More Subscription Channels: \n tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup
+            ]);
+        } else {
+
+            //user auth tokens has expired or user has not given app access
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access the Subscriptions, reply with /auth to grant us access to your Youtube Videos'
+            ]);
         }
     }
 }
