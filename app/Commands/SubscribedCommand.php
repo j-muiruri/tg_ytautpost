@@ -81,7 +81,7 @@ class SubscribedCommand extends Command
                 // Reply with the Subscription Channel List
                 $no = 0;
 
-                $subscriptions = $userSubscriptions['videos'];
+                $subscriptions = $userSubscriptions['subscriptions'];
                 foreach ($subscriptions as $subscription) {
 
 

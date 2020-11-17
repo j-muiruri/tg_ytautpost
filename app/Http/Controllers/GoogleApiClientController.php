@@ -903,7 +903,7 @@ class GoogleApiClientController extends Controller
 
                 $queryParams['pageToken'] =  $userDetails['prev'];
             }
-            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
+            $response = $service->subscriptions->listSubscriptions('snippet,contentDetails', $queryParams);
 
 
             // access items array/key from Google object reponse
@@ -916,7 +916,7 @@ class GoogleApiClientController extends Controller
             foreach ($items as $t  => $v) {
 
                 $url = "https://youtube.com/watch?v=";
-                $data['videos'][] = array(
+                $data['subscriptions'][] = array(
                     'title' => $v['snippet']['title'],
                     'link' => $url . $v['snippet']['resourceId']['channelId']
                 );
