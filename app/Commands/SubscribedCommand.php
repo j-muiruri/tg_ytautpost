@@ -2,16 +2,18 @@
 
 namespace App\Commands;
 
+use App\Http\Controllers\GoogleApiClientController;
 use App\MySubscriptions;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
 use Telegram\Bot\Commands\CommandInterface;
 use App\YoutubeVideos;
 use App\TelegramBot;
+use Telegram\Bot\Keyboard\Keyboard;
 
 /**
- * Class LikedCommand.
- * Get list of liked videos
+ * Class SubscribedCommand.
+ * Get list of User Subscriptions
  * 
  * @author John Muiruri <jontedev@gmail.com>
  */
@@ -25,7 +27,7 @@ class SubscribedCommand extends Command
     /**
      * @var string Command Description
      */
-    protected $description = "List Channels I have Subscribed to";
+    protected $description = "List  My Channel Subscriptions";
 
     /**
      * @inheritdoc
@@ -34,49 +36,118 @@ class SubscribedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following Channel subscriptions:']);
-        // sleep(1);
+        
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        sleep(2);
         $channels = MySubscriptions::paginate(20);
 
-        // Reply with the Videos List
+         // Get result from webhook update
+         $resultUpdate = $this->getUpdate();
+         $type = $resultUpdate->message->chat->type;
+         $userDetails['user_id'] = $resultUpdate->message->from->id;
+ 
+         $googleClient = new GoogleApiClientController;
+ 
+         $userSubscriptions =  $googleClient->getUserSubscriptions($userDetails);
 
         $no = 0;
-        // Get result from webhook update
-        $resultUpdate = $this->getUpdate();
-        //  Log::debug($resultUpdate);
-        $type = $resultUpdate->message->chat->type;
+        
 
         if ($type === 'supergroup') {
-            $videoList = "";
+            $subscriptionList = "";
             foreach ($channels as $ch) {
                 $link = $ch['link'];
                 $title = $ch['title'];
                 // echo $link;
                 $no++;
 
-                $videoList .= sprintf('%s. %s - https://youtube.com/channel/%s' . PHP_EOL, $no, $title, $link);
+                $subscriptionList .= sprintf('%s. %s - https://youtube.com/channel/%s' . PHP_EOL, $no, $title, $link);
                 // $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
 
                 // Trigger another command dynamically from within this command
                 // $this->triggerCommand('subscribe');
             }
 
-            $this->replyWithMessage(['text' => $videoList]);
+            $this->replyWithMessage(['text' => $subscriptionList]);
         sleep(3);
         } else {
-            $videoList = "";
-            foreach ($channels as $ch) {
-                $link = $ch['link'];
-                $title = $ch['title'];
-                // echo $link;
-                $no++;
 
-                // $videoLi.= sprintf('%s. %s - https://youtube.com/channel/%s' . PHP_EOL, $no, $title, $link);
-                $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
+            $subscriptions = $userSubscriptions;
+            // logger($subscriptions);
+            // logger($subscriptions);
+            if ($userSubscriptions['status'] === true) {
+
+                // Reply with the Subscription Channel List
+                $no = 0;
+
+                $subscriptions = $userSubscriptions['videos'];
+                foreach ($subscriptions as $subscription) {
+
+
+                    $link = $subscription['link'];
+                    $title = $subscription['title'];
+                    // echo $link;
+                    $no++;
+
+                    $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                    usleep(800000); //0.8 secs
+                }
+
+                // $nextToken = $subscriptions['next'];
+                $nextToken = $userSubscriptions['next'];
+
+                //store next token to cache
+                // $nextTokenKey = $userDetails['user_id'] . $this->name.'next';
+                // $cacheKeyExists = Cache::has($nextTokenKey);
+
+                // //check if it next exists
+                // if ($cacheKeyExists != false) {
+
+                //     //update next pg token
+                //     Cache::forget($nextTokenKey);
+                //     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
+                // } else {
+                //     //store new next pg token
+                //     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
+                // }
+
+                $inlineKeyboard = [
+                    [
+                        [
+                            'text' => 'Next Page',
+                            'callback_data' => $nextToken
+                        ]
+                    ]
+                ];
+
+                $reply_markup = Keyboard::make([
+                    'inline_keyboard' => $inlineKeyboard
+                ]);
+
+                $this->replyWithMessage([
+                    'text' => 'For More Subscriptions: \n tap below to go to the next or previous pages',
+                    'reply_markup' => $reply_markup
+                ]);
+
+                // $removeCustoKeyboards = Keyboard::remove(
+                //     [
+                //         'remove_keyboard' => true,
+                //     ]
+                //     );
+
+                // sleep(3);
+                // $this->replyWithMessage([
+                //     'text' => 'For More Subscriptions: \n tap below to go to the next or previous pages',
+                //     'reply_markup' => $removeCustoKeyboards
+                // ]);
+            } else {
+
+                //user auth tokens has expired or user has not given app access
+                $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the Subscriptions, reply with /auth to grant us access to your Youtube Videos']);
             }
+            // Trigger another command dynamically from within this command
+            // $this->triggerCommand('subscribe');
         }
     }
 }

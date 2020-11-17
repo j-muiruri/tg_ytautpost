@@ -798,21 +798,112 @@ class GoogleApiClientController extends Controller
     {
         $client = $this->authGoogleApi();
 
+        //Init Service
+        $service = new Google_Service_YouTube($client);
+
+        $queryParams = [
+            'chart' => 'mostPopular',
+            'regionCode' => $userData['region']
+        ];
+
+        if (isset($userData['next'])) {
+            //next page token set
+            // logger($userDetails['next']);
+            $queryParams['pageToken'] =  $userData['next'];
+        }
+
+        $response = $service->videos->listVideos('snippet', $queryParams);
+
+
+        // access items array/key from Google object reponse
+        $items = $response->items;
+        // $dataJson = response()->json($items);
+
+        // logger($dataJson);
+        $data = array();
+
+        foreach ($items as $t  => $v) {
+
+            $url = "https://youtube.com/watch?v=";
+            $data['videos'][] = array(
+                'title' => $v['snippet']['title'],
+                'link' => $url . $v['id']
+            );
+        }
+
+        $data['status'] = true;
+        $data['next']  = $response->nextPageToken;
+        // $data['prev'] = $response->prevPageToken;
+        // logger($data);
+        return $data;
+    }
+
+    /**
+     * Get User Subscriptions
+     * @return array $data 
+     * 
+     * Return Subscription List
+     */
+    public function getUserSubscriptions(array $userDetails)
+    {
+        $userId = $userDetails['user_id'];
+
+        $client = $this->authGoogleApi();
+
+        $tokenExists = Subscribers::where(
+            'user_id',
+            '=',
+            $userId
+        )
+            ->whereNotNull('access_tokens')
+            ->exists();
+
+
+        if ($tokenExists != false) {
+
+            //check if User-Token exists on the database
+            $tokens =  Subscribers::select('access_tokens')
+                ->where(
+                    'user_id',
+                    '=',
+                    $userId
+                )
+                ->first();
+
+            //Get Our access token
+            $client->setAccessToken($tokens->access_tokens);
+
+            /* Refresh token when expired */
+            if ($client->isAccessTokenExpired()) {
+                $data = array(
+                    "status" => false,
+                    "results" => array()
+                );
+
+                logger("error, requires auth");
+                return $data;
+            }
+
+
             //Init Service
             $service = new Google_Service_YouTube($client);
 
             $queryParams = [
-                'chart' => 'mostPopular',
-                'regionCode' => $userData['region']
+                'mine'       => 'true',
+                'maxResults' => 10,
             ];
 
-            if (isset($userData['next'])) {
+            if (isset($userDetails['next'])) {
                 //next page token set
+
                 // logger($userDetails['next']);
-                $queryParams['pageToken'] =  $userData['next'];
+                $queryParams['pageToken'] =  $userDetails['next'];
+            } else if (isset($userDetails['prev'])) {
+                //prevpage token set
+
+                $queryParams['pageToken'] =  $userDetails['prev'];
             }
-            
-            $response = $service->videos->listVideos('snippet', $queryParams);
+            $response = $service->videos->listVideos('snippet,contentDetails', $queryParams);
 
 
             // access items array/key from Google object reponse
@@ -827,15 +918,24 @@ class GoogleApiClientController extends Controller
                 $url = "https://youtube.com/watch?v=";
                 $data['videos'][] = array(
                     'title' => $v['snippet']['title'],
-                    'link' => $url . $v['id']
+                    'link' => $url . $v['snippet']['resourceId']['channelId']
                 );
             }
 
             $data['status'] = true;
             $data['next']  = $response->nextPageToken;
-            // $data['prev'] = $response->prevPageToken;
+            $data['prev'] = $response->prevPageToken;
             // logger($data);
             return $data;
-        
+        } else {
+
+            $data = array(
+                "status" => false,
+                "results" => array()
+            );
+
+            logger("error, no tokens");
+            return $data;
+        }
     }
 }
