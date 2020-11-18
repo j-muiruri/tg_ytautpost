@@ -398,7 +398,7 @@ class TelegramBotController extends Controller
   
                   logger($callbackData);
   
-                  $this->trending($callbackDetails, $chatId);
+                  $this->trendingVideos($callbackDetails, $chatId);
                 
             default:
                 // Telegram::sendMessage([
