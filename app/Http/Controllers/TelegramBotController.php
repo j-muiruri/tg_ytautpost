@@ -860,7 +860,7 @@ class TelegramBotController extends Controller
                     [
                         [
                             'text' => 'Next Page',
-                            'callback_data' => $nextToken
+                            'callback_data' => 'nexttrending-'.$nextToken
                         ]
                     ]
                 ];
@@ -954,7 +954,7 @@ class TelegramBotController extends Controller
                 [
                     [
                         'text' => 'Next Page',
-                        'callback_data' => $nextToken
+                        'callback_data' => 'nextliked-'.$nextToken
                     ]
                 ]
             ];
@@ -1034,7 +1034,7 @@ class TelegramBotController extends Controller
                 [
                     [
                         'text' => 'Next Page',
-                        'callback_data' => $nextToken
+                        'callback_data' => 'nextsubscriptions-'.$nextToken
                     ]
                 ]
             ];
