@@ -803,7 +803,7 @@ class TelegramBotController extends Controller
     {
 
 
-        $regionSet = Cache::has($userDetails['chat_id']);
+        $regionSet = Cache::has($chatId);
 
         $query = new Api;
         try {

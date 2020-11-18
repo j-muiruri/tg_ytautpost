@@ -102,9 +102,11 @@ class TrendingCommand extends Command
         } else {
 
             //user region not set, has to reply with regions command
-            $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the videos, to set your Country/Region reply with the Set Region/Country Command: \n /region']);
+
+            $this->replyWithMessage(['text' => 'Ooops, There was an error trying to access the videos, let us set your Country/Region']);
+           
             // Trigger another command dynamically from within this command
-            // $this->triggerCommand('region');
+            $this->triggerCommand('region');
         }
     }
 }
