@@ -99,7 +99,7 @@ class SubscribedCommand extends Command
 
                 //data to be retrieved in callback_query
                 $callbackData =  array(
-                    'action' => 'nextsubscription',
+                    'action' => 'nextsubscriptions',
                     'data' => $nextToken
                 );
 
