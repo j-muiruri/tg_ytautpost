@@ -351,7 +351,7 @@ class TelegramBotController extends Controller
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
                 logger($callbackData);
-                $this->nextLikedVideos($callbackDetails, $chatId);
+                $this->likedVideos($callbackDetails, $chatId);
 
                 break;
             case 'nextsubscriptions':
