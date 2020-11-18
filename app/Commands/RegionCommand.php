@@ -64,7 +64,7 @@ class RegionCommand extends Command
 
 
                 //data to be retrieved in callback_query
-                $callbackData =   'setregion-'.$nextToken;
+                $callbackData =   'setregion-'.$id;
 
                 $name = $region['name'];
                 $keyboardButtons[] = array([
