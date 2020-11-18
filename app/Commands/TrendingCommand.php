@@ -75,10 +75,7 @@ class TrendingCommand extends Command
 
 
                 //data to be retrieved in callback_query
-                $callbackData =  array(
-                    'action' => 'nexttrending',
-                    'data' => $nextToken
-                );
+                $callbackData =  'nexttrendin-'.$nextToken;
 
 
                 $inlineKeyboard = [

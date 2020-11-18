@@ -93,10 +93,7 @@ class LikedCommand extends Command
                 $nextToken = $likedVideos['next'];
 
                 //data to be retrieved in callback_query
-                $callbackData =  array(
-                    'action' => 'nextliked',
-                    'data' => $nextToken
-                 );
+                $callbackData =  'nextliked-'.$nextToken;
 
                 $inlineKeyboard = [
                     [

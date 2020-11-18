@@ -98,10 +98,7 @@ class SubscribedCommand extends Command
                 $nextToken = $userSubscriptions['next'];
 
                 //data to be retrieved in callback_query
-                $callbackData =  array(
-                    'action' => 'nextsubscriptions',
-                    'data' => $nextToken
-                );
+                $callbackData =  'nextsubscriptions-'.$nextToken;
 
                 $inlineKeyboard = [
                     [

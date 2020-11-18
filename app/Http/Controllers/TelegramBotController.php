@@ -9,6 +9,7 @@ use App\Subscribers;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Api;
+use Illuminate\Support\Str;
 use Telegram\Bot\Commands\Command;
 
 /**
@@ -337,7 +338,7 @@ class TelegramBotController extends Controller
 
         $userRequestData =  $data->callback_query->data;
 
-        $action = $userRequestData['action'];
+        $action = Str::before($userRequestData, '-');
 
         logger($action);
         //Get previous command to process this message
