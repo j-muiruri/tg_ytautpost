@@ -339,6 +339,7 @@ class TelegramBotController extends Controller
         $userRequestData =  $data->callback_query->data;
 
         $action = Str::before($userRequestData, '-');
+        $callbackData = Str::after($userRequestData, '-');
 
         logger($action);
         //Get previous command to process this message
@@ -346,10 +347,10 @@ class TelegramBotController extends Controller
             case 'nextliked':
                 //Process next or previous results
                 $callbackDetails['user_id'] = $userId;
-                $callbackDetails['next'] = $userRequestData['data'];
+                $callbackDetails['next'] = $callbackData;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
-                logger($userRequestData['data']);
+                logger($callbackData);
                 $this->nextLikedVideos($callbackDetails, $chatId);
 
                 break;
@@ -357,17 +358,17 @@ class TelegramBotController extends Controller
 
                 //Process next or previous results
                 $callbackDetails['user_id'] = $userId;
-                $callbackDetails['next'] = $userRequestData['data'];
+                $callbackDetails['next'] = $callbackData;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
-                logger($userRequestData['data']);
+                logger($callbackData);
 
                 $this->subscribedChannels($callbackDetails, $chatId);
 
                 break;
             case 'setregion':
 
-                $callbackDetails['region'] = $userRequestData['data'];
+                $callbackDetails['region'] = $callbackData;
                 $callbackDetails['chat_id'] = $userId;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
@@ -392,10 +393,10 @@ class TelegramBotController extends Controller
 
                   //Process next or previous results
                   $callbackDetails['user_id'] = $userId;
-                  $callbackDetails['next'] = $userRequestData['data'];
+                  $callbackDetails['next'] = $callbackData;
                   $callbackDetails['callback_query_id'] = $data->callback_query->id;
   
-                  logger($userRequestData['data']);
+                  logger($callbackData);
   
                   $this->trending($callbackDetails, $chatId);
                 
