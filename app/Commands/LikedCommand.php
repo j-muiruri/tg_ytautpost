@@ -92,26 +92,17 @@ class LikedCommand extends Command
                 // $nextToken = $videos['next'];
                 $nextToken = $likedVideos['next'];
 
-                //store next token to cache
-                // $nextTokenKey = $userDetails['user_id'] . $this->name.'next';
-                // $cacheKeyExists = Cache::has($nextTokenKey);
-
-                // //check if it next exists
-                // if ($cacheKeyExists != false) {
-
-                //     //update next pg token
-                //     Cache::forget($nextTokenKey);
-                //     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
-                // } else {
-                //     //store new next pg token
-                //     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
-                // }
+                //data to be retrieved in callback_query
+                $callbackData =  array(
+                    'action' => 'nextliked',
+                    'data' => $nextToken
+                 );
 
                 $inlineKeyboard = [
                     [
                         [
                             'text' => 'Next Page',
-                            'callback_data' => $nextToken
+                            'callback_data' => $callbackData
                         ]
                     ]
                 ];

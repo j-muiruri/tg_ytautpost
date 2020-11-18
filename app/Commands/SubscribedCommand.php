@@ -36,23 +36,23 @@ class SubscribedCommand extends Command
     {
         //Send Message
         $this->replyWithMessage(['text' => 'Great! Seleqta Autopost has found the following Channel subscriptions:']);
-        
+
         // This will update the chat status to typing...
         $this->replyWithChatAction(['action' => Actions::TYPING]);
 
         $channels = MySubscriptions::paginate(20);
 
-         // Get result from webhook update
-         $resultUpdate = $this->getUpdate();
-         $type = $resultUpdate->message->chat->type;
-         $userDetails['user_id'] = $resultUpdate->message->from->id;
- 
-         $googleClient = new GoogleApiClientController;
- 
-         $userSubscriptions =  $googleClient->getUserSubscriptions($userDetails);
+        // Get result from webhook update
+        $resultUpdate = $this->getUpdate();
+        $type = $resultUpdate->message->chat->type;
+        $userDetails['user_id'] = $resultUpdate->message->from->id;
+
+        $googleClient = new GoogleApiClientController;
+
+        $userSubscriptions =  $googleClient->getUserSubscriptions($userDetails);
 
         $no = 0;
-        
+
 
         if ($type === 'supergroup') {
             $subscriptionList = "";
@@ -70,7 +70,7 @@ class SubscribedCommand extends Command
             }
 
             $this->replyWithMessage(['text' => $subscriptionList]);
-        sleep(3);
+            sleep(3);
         } else {
 
             $subscriptions = $userSubscriptions;
@@ -97,26 +97,17 @@ class SubscribedCommand extends Command
                 // $nextToken = $subscriptions['next'];
                 $nextToken = $userSubscriptions['next'];
 
-                //store next token to cache
-                // $nextTokenKey = $userDetails['user_id'] . $this->name.'next';
-                // $cacheKeyExists = Cache::has($nextTokenKey);
-
-                // //check if it next exists
-                // if ($cacheKeyExists != false) {
-
-                //     //update next pg token
-                //     Cache::forget($nextTokenKey);
-                //     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
-                // } else {
-                //     //store new next pg token
-                //     Cache::put($nextTokenKey, $nextToken, now()->addMinutes(10)); //10 minus = 600 secs
-                // }
+                //data to be retrieved in callback_query
+                $callbackData =  array(
+                    'action' => 'nextsubscription',
+                    'data' => $nextToken
+                );
 
                 $inlineKeyboard = [
                     [
                         [
                             'text' => 'Next Page',
-                            'callback_data' => $nextToken
+                            'callback_data' => $callbackData
                         ]
                     ]
                 ];

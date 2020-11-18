@@ -61,10 +61,18 @@ class RegionCommand extends Command
 
                 // logger($region['name']);
                 $id = $region['region'];
+
+
+                //data to be retrieved in callback_query
+                $callbackData =  array(
+                    'action' => 'setregion',
+                    'data' => $id
+                );
+
                 $name = $region['name'];
                 $keyboardButtons[] = array([
                     'text' => $name,
-                    'callback_data' => $id
+                    'callback_data' => $callbackData
                 ]);
                 $no++;
             }

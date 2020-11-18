@@ -73,11 +73,19 @@ class TrendingCommand extends Command
 
                 $nextToken = $trendingVideos['next'];
 
+
+                //data to be retrieved in callback_query
+                $callbackData =  array(
+                    'action' => 'nexttrending',
+                    'data' => $nextToken
+                );
+
+
                 $inlineKeyboard = [
                     [
                         [
                             'text' => 'Next Page',
-                            'callback_data' => $nextToken
+                            'callback_data' => $callbackData
                         ]
                     ]
                 ];
