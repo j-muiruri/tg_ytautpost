@@ -48,3 +48,8 @@ Route::any('/auth', 'GoogleApiClientController@authComplete');
 
 //My test
 Route::get('yt-liked', 'MyTests@index');
+
+
+Route::group(['prefix' => 'admin'], function () {
+    Voyager::routes();
+});
