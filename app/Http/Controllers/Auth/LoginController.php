@@ -58,13 +58,13 @@ class LoginController extends Controller
 
             $tokenResult = $user->generateToken();
 
-            response()->json([
+            return response()->json([
                 'access_token' => $tokenResult->accessToken,
                 'token_type' => 'Bearer'
 
 
             ]);
-            return true;
+            //return true;
         }
         return $this->sendFailedLoginResponse($request);
     }
