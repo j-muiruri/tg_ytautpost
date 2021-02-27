@@ -9,6 +9,7 @@ use App\Subscribers;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Api;
+use Illuminate\Support\Str;
 use Telegram\Bot\Commands\Command;
 
 /**
@@ -335,34 +336,43 @@ class TelegramBotController extends Controller
         $userDetails['chat_id'] = $chatId;
         $userDetails['user_id'] = $userId;
 
-        $previousCommand = $this->previousCommand($userDetails);
+        $userRequestData =  $data->callback_query->data;
 
-        $command = $previousCommand['message'];
+        $action = Str::before($userRequestData, '-');
+        $callbackData = Str::after($userRequestData, '-');
 
-        logger($command);
+        logger($action);
         //Get previous command to process this message
-        switch ($command) {
-            case '/myliked':
+        switch ($action) {
+            case 'nextliked':
                 //Process next or previous results
-                $callbackDetails['user_id'] = $previousCommand["user_id"];
-                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
-                $callbackDetails['action'] = 'myliked';
-                $callbackDetails['token'] = $data->callback_query->data;
-                logger($data->callback_query->message->reply_markup->inline_keyboard->toArray());
+                $callbackDetails['user_id'] = $userId;
+                $callbackDetails['next'] = $callbackData;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
-                return $this->nextResult($callbackDetails);
-                break;
-            case '/region':
+                logger($callbackData);
+                $this->likedVideos($callbackDetails, $chatId);
 
-                $callbackDetails['region'] = $data->callback_query->data;
-                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
+                break;
+            case 'nextsubscriptions':
+
+                //Process next or previous results
+                $callbackDetails['user_id'] = $userId;
+                $callbackDetails['next'] = $callbackData;
+                $callbackDetails['callback_query_id'] = $data->callback_query->id;
+
+                logger($callbackData);
+
+                $this->subscribedChannels($callbackDetails, $chatId);
+
+                break;
+            case 'setregion':
+
+                $callbackDetails['region'] = $callbackData;
+                $callbackDetails['chat_id'] = $userId;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
                 logger($callbackDetails['callback_query_id']);
-
-                //Store user Region to cache
-                Cache::put($callbackDetails['chat_id'], $callbackDetails['region'], 600);
 
                 //answer callback query
                 $query = new Api;
@@ -371,18 +381,25 @@ class TelegramBotController extends Controller
                     'text'               => 'Saving Region ......',
                 ]);
 
+                //Store user Region to cache
+                Cache::put($callbackDetails['chat_id'], $callbackDetails['region'], 600);
+
                 Telegram::sendMessage([
-                    'chat_id' =>  $callbackDetails['chat_id'],
+                    'chat_id' =>  $chatId,
                     'text' => 'Region Set Successfully! Reply with /trending to view Trending Youtube Videos'
                 ]);
                 return true;
-            case '/trending':
+            case 'nexttrending':
 
-                $callbackDetails['chat_id'] = $previousCommand["chat_id"];
-                $callbackDetails['next'] = $data->callback_query->data;
-                $callbackDetails['callback_query_id'] = $data->callback_query->id;
-
-                return $this->trendingVideos($callbackDetails);
+                  //Process next or previous results
+                  $callbackDetails['user_id'] = $userId;
+                  $callbackDetails['next'] = $callbackData;
+                  $callbackDetails['callback_query_id'] = $data->callback_query->id;
+  
+                  logger($callbackData);
+  
+                  $this->trendingVideos($callbackDetails, $chatId);
+                
             default:
                 // Telegram::sendMessage([
                 //     'chat_id' => $chatId,
@@ -642,7 +659,7 @@ class TelegramBotController extends Controller
             // Next Page token or Previous page token not found in cache
             Telegram::sendMessage([
                 'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access next page, reply with /myliked to view your Liked Youtube Videos'
+                'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
             ]);
 
             logger("Bad Request: query is too old and response timeout expired or query ID");
@@ -655,58 +672,27 @@ class TelegramBotController extends Controller
             'next' => $token
         );
 
-        $googleClient = new GoogleApiClientController;
+        switch ($userDetails['action']) {
+            case 'myliked':
 
-        $likedVideos =  $googleClient->getLikedVideos($userInfo);
+                $this->nextLikedVideos($userInfo, $chatId);
 
-        if ($likedVideos['status'] === true) {
+                break;
+            case 'subscriptions':
 
-            // Reply with the Videos List
-            $no = 0;
+                logger($userDetails['action']);
+                $this->nextSubscriptions($userInfo, $chatId);
 
-            $videos = $likedVideos['videos'];
-            foreach ($videos as $video) {
+                break;
+            case 'subscriptions':
 
+                logger($userDetails['action']);
+                $this->nextSubscriptions($userInfo, $chatId);
 
-                $link = $video['link'];
-                $title = $video['title'];
-                // echo $link;
-                $no++;
-
-                Telegram::sendMessage([
-                    'chat_id' => $chatId,
-                    'text' => $no . '. ' . $title . ' - ' . $link
-                ]);
-                usleep(800000); //0.8 secs
-            }
-
-            $nextToken = $likedVideos['next'];
-
-            $inlineKeyboard = [
-                [
-                    [
-                        'text' => 'Next Page',
-                        'callback_data' => $nextToken
-                    ]
-                ]
-            ];
-
-            $reply_markup = Keyboard::make([
-                'inline_keyboard' => $inlineKeyboard
-            ]);
-            Telegram::sendMessage([
-                'chat_id' => $chatId,
-                'text' => 'For More videos: \n tap below to go to the next or previous pages',
-                'reply_markup' => $reply_markup
-            ]);
-        } else {
-
-            //user auth tokens has expired or user has not given app access
-            Telegram::sendMessage([
-
-                'chat_id' => $chatId,
-                'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
-            ]);
+                break;
+            default:
+                return true;
+                break;
         }
     }
     /**
@@ -808,24 +794,21 @@ class TelegramBotController extends Controller
     }
 
     /**
-     * Return Trending Videos after user has choosen Region/Country
+     * Return Next Trending Videos after user has choosen Region/Country
      * @return true
      * @return array $data
      * Send Message with data or error message
      */
-    public function trendingVideos(array $userDetails)
+    public function trendingVideos(array $userDetails, $chatId)
     {
 
 
-        $regionSet = Cache::has($userDetails['chat_id']);
-
-        $chatId = $userDetails['chat_id'];
-        $callbackQueryId = $userDetails['callback_query_id'];
+        $regionSet = Cache::has($chatId);
 
         $query = new Api;
         try {
             $query->answerCallbackQuery([
-                'callback_query_id'  => $callbackQueryId,
+                'callback_query_id'  => $userDetails['callback_query_id'],
                 'text'               => 'Fetching next page results ......',
             ]);
         } catch (\Throwable $th) {
@@ -878,7 +861,7 @@ class TelegramBotController extends Controller
                     [
                         [
                             'text' => 'Next Page',
-                            'callback_data' => $nextToken
+                            'callback_data' => 'nexttrending-'.$nextToken
                         ]
                     ]
                 ];
@@ -912,6 +895,167 @@ class TelegramBotController extends Controller
             $commands = new Api;
             $updateObject = Telegram::getWebhookUpdates();
             $commands->triggerCommand('region', $updateObject);
+        }
+    }
+
+    /**
+     * Return next user-liked videos
+     * @return true/false
+     * @return $data videos
+     */
+    public function likedVideos(array $userInfo, $chatId)
+    {
+        $googleClient = new GoogleApiClientController;
+
+        $likedVideos =  $googleClient->getLikedVideos($userInfo);
+
+        $query = new Api;
+        try {
+            $query->answerCallbackQuery([
+                'callback_query_id'  => $userInfo['callback_query_id'],
+                'text'               => 'Fetching next page results ......',
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            // Next Page token or Previous page token not found in cache
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
+            ]);
+
+            logger("Bad Request: query is too old and response timeout expired or query ID");
+
+            return false;
+        }
+
+        if ($likedVideos['status'] === true) {
+
+            // Reply with the Videos List
+            $no = 0;
+
+            $videos = $likedVideos['videos'];
+            foreach ($videos as $video) {
+
+
+                $link = $video['link'];
+                $title = $video['title'];
+                // echo $link;
+                $no++;
+
+                Telegram::sendMessage([
+                    'chat_id' =>  $chatId,
+                    'text' => $no . '. ' . $title . ' - ' . $link
+                ]);
+                usleep(800000); //0.8 secs
+            }
+
+            $nextToken = $likedVideos['next'];
+
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => 'nextliked-'.$nextToken
+                    ]
+                ]
+            ];
+
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup
+            ]);
+        } else {
+
+            //user auth tokens has expired or user has not given app access
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access the videos, reply with /auth to grant us access to your Youtube Videos'
+            ]);
+        }
+    }
+
+    /**
+     * Return next Subscription list page
+     * @return true/false
+     * @return $data Subscription Channels
+     */
+    public function subscribedChannels(array $userInfo, $chatId)
+    {
+        $googleClient = new GoogleApiClientController;
+
+        $userSubs =  $googleClient->getUserSubscriptions($userInfo);
+
+        $query = new Api;
+        try {
+            $query->answerCallbackQuery([
+                'callback_query_id'  => $userInfo['callback_query_id'],
+                'text'               => 'Fetching next page results ......',
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            // Next Page token or Previous page token not found in cache
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
+            ]);
+
+            logger("Bad Request: query is too old and response timeout expired or query ID");
+
+            return false;
+        }
+
+        if ($userSubs['status'] === true) {
+            // Reply with the Videos List
+            $no = 0;
+
+            $subscriptions = $userSubs['subscriptions'];
+            foreach ($subscriptions as $subscription) {
+
+
+                $link = $subscription['link'];
+                $title = $subscription['title'];
+                // echo $link;
+                $no++;
+
+                Telegram::sendMessage([
+                    'chat_id' =>  $chatId,
+                    'text' => $no . '. ' . $title . ' - ' . $link
+                ]);
+                usleep(800000); //0.8 secs
+            }
+
+            $nextToken = $userSubs['next'];
+
+            $inlineKeyboard = [
+                [
+                    [
+                        'text' => 'Next Page',
+                        'callback_data' => 'nextsubscriptions-'.$nextToken
+                    ]
+                ]
+            ];
+
+            $reply_markup = Keyboard::make([
+                'inline_keyboard' => $inlineKeyboard
+            ]);
+            Telegram::sendMessage([
+                'chat_id' => $chatId,
+                'text' => 'For More Subscription Channels: \n tap below to go to the next or previous pages',
+                'reply_markup' => $reply_markup
+            ]);
+        } else {
+
+            //user auth tokens has expired or user has not given app access
+            Telegram::sendMessage([
+
+                'chat_id' => $chatId,
+                'text' => 'Ooops, There was an error trying to access the Subscriptions, reply with /auth to grant us access to your Youtube Videos'
+            ]);
         }
     }
 }

@@ -45,12 +45,26 @@ class LoginController extends Controller
         $this->validateLogin($request);
         if ($this->attemptLogin($request)) {
             $user = $this->guard()->user();
-            $tokenResult =$user->generateToken();
-            
+
+            // Get URLs
+            $urlPrevious = url()->previous();
+            $urlBase = url()->to('/');
+
+            // Set the previous url that we came from to redirect to after successful login but only if is internal
+            if (($urlPrevious != $urlBase . '/login') && (substr($urlPrevious, 0, strlen($urlBase)) === $urlBase)) {
+                session()->put('url.intended', $urlPrevious);
+                $this->redirectTo = url()->previous();
+            }
+
+            $tokenResult = $user->generateToken();
+
             return response()->json([
-            'access_token' => $tokenResult->accessToken,
-            'token_type' => 'Bearer'
-        ]);
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer'
+
+
+            ]);
+            //return true;
         }
         return $this->sendFailedLoginResponse($request);
     }
