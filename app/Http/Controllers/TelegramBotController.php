@@ -90,7 +90,7 @@ class TelegramBotController extends Controller
         //Get Telegram Updates
         $data = Telegram::getWebhookUpdates();
 
-        logger($data);
+        // logger($data);
 
         //Save Updates to db
         $this->saveUpdates();
@@ -150,7 +150,7 @@ class TelegramBotController extends Controller
 
         // $updateIsMessage = isset($data->message->message_id);
 
-        logger($data->message);
+        // logger($data->message);
         if ($data->message != null) {
 
             return $this->saveText();
@@ -250,7 +250,7 @@ class TelegramBotController extends Controller
         //Get Json Update
         $data = Telegram::getWebhookUpdates();
 
-        logger("this is a Channel Post");
+        // logger("this is a Channel Post");
         //Pluck Values
         $update_id = $data->update_id;
         $user_id = $data->channel_post->chat->username;
@@ -266,7 +266,7 @@ class TelegramBotController extends Controller
         }
         $entities = $data->channel_post->entities;
         $message_type = $this->checkMessageType();
-        logger($message);
+        // logger($message);
 
         // Store channel post in db
 
@@ -305,7 +305,7 @@ class TelegramBotController extends Controller
 
         $command = $previousCommand['message'];
 
-        logger($command);
+        // logger($command);
         //Get previous command to process this message
         switch ($command) {
             case '/auth':
@@ -341,7 +341,7 @@ class TelegramBotController extends Controller
         $action = Str::before($userRequestData, '-');
         $callbackData = Str::after($userRequestData, '-');
 
-        logger($action);
+        // logger($action);
         //Get previous command to process this message
         switch ($action) {
             case 'nextliked':
@@ -361,7 +361,7 @@ class TelegramBotController extends Controller
                 $callbackDetails['next'] = $callbackData;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
-                logger($callbackData);
+                // logger($callbackData);
 
                 $this->subscribedChannels($callbackDetails, $chatId);
 
@@ -372,7 +372,7 @@ class TelegramBotController extends Controller
                 $callbackDetails['chat_id'] = $userId;
                 $callbackDetails['callback_query_id'] = $data->callback_query->id;
 
-                logger($callbackDetails['callback_query_id']);
+                // logger($callbackDetails['callback_query_id']);
 
                 //answer callback query
                 $query = new Api;
@@ -396,7 +396,7 @@ class TelegramBotController extends Controller
                   $callbackDetails['next'] = $callbackData;
                   $callbackDetails['callback_query_id'] = $data->callback_query->id;
   
-                  logger($callbackData);
+                  // logger($callbackData);
   
                   $this->trendingVideos($callbackDetails, $chatId);
                 
@@ -418,8 +418,8 @@ class TelegramBotController extends Controller
         $userId = $userDetails['user_id'];
         $chatId = $userDetails['chat_id'];
 
-        logger($userId);
-        logger($chatId);
+        // logger($userId);
+        // logger($chatId);
 
         $command = TelegramBot::where([
             ['user_id', '=', $userId],
@@ -429,7 +429,7 @@ class TelegramBotController extends Controller
             ->first();
 
 
-        logger($command);
+        // logger($command);
         $message = $command->message;
         $message_id = $command->message_id;
         $status = $command->status;
@@ -461,7 +461,7 @@ class TelegramBotController extends Controller
             $entityArray = $object['0'];
             $message_type = $entityArray['type'];
 
-            logger($message_type);
+            // logger($message_type);
             return $message_type;
         } else if (isset($dataArray['channel_post'])) {
 
@@ -475,19 +475,19 @@ class TelegramBotController extends Controller
                     $entityArray = $object['0'];
                     $message_type = 'channel_post_' . $entityArray['type'];
                     return $message_type;
-                    logger($message_type);
+                    // logger($message_type);
                     break;
 
                 case false:
                     $message_type = 'channel_post_' . 'file';
                     return $message_type;
-                    logger($message_type);
+                    // logger($message_type);
                     break;
             }
         } elseif (isset($dataArray['callback_query'])) {
 
             //Callback Query
-            logger('reply_markup');
+            // logger('reply_markup');
             $message_type = 'reply_markup';
 
             return $message_type;
@@ -515,7 +515,7 @@ class TelegramBotController extends Controller
         if ($command['status'] != "completed" && $command['status'] != "failed") {
 
             if ($this->generateTokens($command) === true) {
-                logger("Yeeeaa!!!!");
+                // logger("Yeeeaa!!!!");
                 $data['status'] = true;
                 $data['action'] = true;
 
@@ -534,7 +534,7 @@ class TelegramBotController extends Controller
 
                 return true;
             } else {
-                logger("Should be false");
+                // logger("Should be false");
 
                 //Error
                 Telegram::sendMessage([
@@ -662,7 +662,7 @@ class TelegramBotController extends Controller
                 'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
             ]);
 
-            logger("Bad Request: query is too old and response timeout expired or query ID");
+            // logger("Bad Request: query is too old and response timeout expired or query ID");
 
             return false;
         }
@@ -680,13 +680,13 @@ class TelegramBotController extends Controller
                 break;
             case 'subscriptions':
 
-                logger($userDetails['action']);
+                // logger($userDetails['action']);
                 $this->nextSubscriptions($userInfo, $chatId);
 
                 break;
             case 'subscriptions':
 
-                logger($userDetails['action']);
+                // logger($userDetails['action']);
                 $this->nextSubscriptions($userInfo, $chatId);
 
                 break;
@@ -819,7 +819,7 @@ class TelegramBotController extends Controller
                 'text' => 'Ooops, There was an error trying to access next page, reply with /trending to view your Liked Youtube Videos'
             ]);
 
-            logger("Bad Request: query is too old and response timeout expired or query ID");
+            // logger("Bad Request: query is too old and response timeout expired or query ID");
 
             return false;
         }
@@ -923,7 +923,7 @@ class TelegramBotController extends Controller
                 'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
             ]);
 
-            logger("Bad Request: query is too old and response timeout expired or query ID");
+            // logger("Bad Request: query is too old and response timeout expired or query ID");
 
             return false;
         }
@@ -1004,7 +1004,7 @@ class TelegramBotController extends Controller
                 'text' => 'Ooops, There was an error trying to access next page, reply with /help to try again'
             ]);
 
-            logger("Bad Request: query is too old and response timeout expired or query ID");
+            // logger("Bad Request: query is too old and response timeout expired or query ID");
 
             return false;
         }
