@@ -2,13 +2,7 @@
 
 namespace App\Commands;
 
-use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
-use Telegram\Bot\Commands\CommandInterface;
-use App\YoutubeVideos;
-use App\TelegramBot;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\GoogleApiClientController;
 use Telegram\Bot\Keyboard\Keyboard;
 
@@ -64,7 +58,7 @@ class RegionCommand extends Command
 
 
                 //data to be retrieved in callback_query
-                $callbackData =   'setregion-'.$id;
+                $callbackData =   'setregion-' . $id;
 
                 $name = $region['name'];
                 $keyboardButtons[] = array([
@@ -81,7 +75,7 @@ class RegionCommand extends Command
             //     ]
 
             // ];
-            logger($keyboardButtons);
+            // logger($keyboardButtons);
 
             $reply_markup = Keyboard::make([
                 'inline_keyboard' => $keyboardButtons
