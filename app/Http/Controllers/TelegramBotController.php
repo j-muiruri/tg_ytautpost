@@ -736,7 +736,7 @@ class TelegramBotController extends Controller
 
                     Telegram::sendMessage([
                         'chat_id' => $chatId,
-                        'text' => $no . '. ' . $title . ' - ' . $link
+                        'text' => $title . ' - ' . $link
                     ]);
                     usleep(800000); //0.8 secs
                 }
@@ -850,7 +850,7 @@ class TelegramBotController extends Controller
 
                     Telegram::sendMessage([
                         'chat_id' => $chatId,
-                        'text' => $no . '. ' . $title . ' - ' . $link
+                        'text' => $title . ' - ' . $link
                     ]);
                     usleep(800000); //0.8 secs
                 }
@@ -944,7 +944,7 @@ class TelegramBotController extends Controller
 
                 Telegram::sendMessage([
                     'chat_id' =>  $chatId,
-                    'text' => $no . '. ' . $title . ' - ' . $link
+                    'text' => $title . ' - ' . $link
                 ]);
                 usleep(800000); //0.8 secs
             }
@@ -1024,7 +1024,7 @@ class TelegramBotController extends Controller
 
                 Telegram::sendMessage([
                     'chat_id' =>  $chatId,
-                    'text' => $no . '. ' . $title . ' - ' . $link
+                    'text' => $title . ' - ' . $link
                 ]);
                 usleep(800000); //0.8 secs
             }

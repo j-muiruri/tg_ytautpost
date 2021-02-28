@@ -60,17 +60,16 @@ class LikedCommand extends Command
                 // echo $link;
                 $no++;
 
-                $videoList .= sprintf('/%s. %s - %s' . PHP_EOL, $no, $title, $link);
+                $videoList .= sprintf('/%s - %s' . PHP_EOL, $no, $title, $link);
             }
-            // $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+            // $this->replyWithMessage(['text' => $title . ' - ' . $link]);
             $this->replyWithMessage(['text' => $videoList]);
             sleep(3);
             // Reply with the Videos List
         } else {
 
             $videos = $likedVideos;
-            // logger($videos);
-            // logger($videos);
+            
             if ($likedVideos['status'] === true) {
 
                 // Reply with the Videos List
@@ -85,7 +84,7 @@ class LikedCommand extends Command
                     // echo $link;
                     $no++;
 
-                    $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                    $this->replyWithMessage(['text' => $title . ' - ' . $link]);
                     usleep(800000); //0.8 secs
                 }
 

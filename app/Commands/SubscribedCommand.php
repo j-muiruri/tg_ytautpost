@@ -63,7 +63,7 @@ class SubscribedCommand extends Command
                 $no++;
 
                 $subscriptionList .= sprintf('%s. %s - https://youtube.com/channel/%s' . PHP_EOL, $no, $title, $link);
-                // $this->replyWithMessage(['text' => $no . '. ' . $title . ' -  https://youtube.com/channel/' . $link]);
+                // $this->replyWithMessage(['text' => $title . ' -  https://youtube.com/channel/' . $link]);
 
                 // Trigger another command dynamically from within this command
                 // $this->triggerCommand('subscribe');
@@ -90,7 +90,7 @@ class SubscribedCommand extends Command
                     // echo $link;
                     $no++;
 
-                    $this->replyWithMessage(['text' => $no . '. ' . $title . ' - ' . $link]);
+                    $this->replyWithMessage(['text' => $title . ' - ' . $link]);
                     usleep(800000); //0.8 secs
                 }
 
