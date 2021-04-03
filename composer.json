@@ -22,6 +22,7 @@
         "laravel/passport": "^10.0",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
+        "norkunas/youtube-dl-php": "dev-master",
         "tcg/voyager": "^1.4"
     },
     "require-dev": {

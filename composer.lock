@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "81eac2d79c4efe6503c7a49647fad0ff",
+    "content-hash": "4e4435b3891ca4ac579ac6b2a00dc93d",
     "packages": [
         {
             "name": "alaouy/youtube",
@@ -3420,6 +3420,62 @@
                 "php"
             ],
             "time": "2020-12-20T10:01:03+00:00"
+        },
+        {
+            "name": "norkunas/youtube-dl-php",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/norkunas/youtube-dl-php.git",
+                "reference": "5557e3eb32aec30bf4e86b04cef7df0e66840a75"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/norkunas/youtube-dl-php/zipball/5557e3eb32aec30bf4e86b04cef7df0e66840a75",
+                "reference": "5557e3eb32aec30bf4e86b04cef7df0e66840a75",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": ">=7.4.0",
+                "symfony/filesystem": "^4.4|^5.1",
+                "symfony/polyfill-php80": "^1.18",
+                "symfony/process": "^4.4|^5.1"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.18",
+                "mikey179/vfsstream": "^1.6.7",
+                "phpstan/phpstan": "^0.12.42",
+                "phpstan/phpstan-phpunit": "^0.12.16",
+                "symfony/phpunit-bridge": "^5.1.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "YoutubeDl\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tomas Norkūnas",
+                    "email": "norkunas.tom@gmail.com"
+                }
+            ],
+            "description": "youtube-dl wrapper for php",
+            "keywords": [
+                "youtube",
+                "youtube-dl"
+            ],
+            "time": "2021-03-17T07:43:03+00:00"
         },
         {
             "name": "nyholm/psr7",
@@ -9312,7 +9368,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "norkunas/youtube-dl-php": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
