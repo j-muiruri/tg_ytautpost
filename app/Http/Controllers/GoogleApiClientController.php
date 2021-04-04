@@ -63,6 +63,11 @@ class GoogleApiClientController extends Controller
         //set redirect URL
         $client->setRedirectUri($redirect_uri);
 
+        if (env('APP_ENV') === 'local') {
+            return response()->json([
+                $client
+            ]);
+        }
         return $client;
     }
 

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use TCG\Voyager\Facades\Voyager;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,8 +47,13 @@ Route::any('my-auth', 'GoogleApiClientController@getAuthGoogleApi');
 Route::any('my-subs', 'GoogleApiClientController@getMySubscriptions');
 Route::any('/auth', 'GoogleApiClientController@authComplete');
 
+//Youtube_dl
+Route::get('youtube-dl-video/{url}', 'YoutubeDlController@downloadVideo')->name('audio-download');
+Route::get('youtube-dl-audio/{url}', 'YoutubeDlController@downloadAudio')->name('video-download');
+
 //My test
 Route::get('yt-liked', 'MyTests@index');
+
 
 
 Route::group(['prefix' => 'admin'], function () {
