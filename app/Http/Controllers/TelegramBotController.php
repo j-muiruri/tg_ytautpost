@@ -313,7 +313,7 @@ class TelegramBotController extends Controller
                 //Process auth token
                 return $this->saveTokens($userDetails);
                 break;
-            case '/getaudion':
+            case '/getaudio':
                 //download url audio
                 return $this->saveTokens($userDetails);
                 break;
