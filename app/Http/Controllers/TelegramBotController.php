@@ -11,6 +11,7 @@ use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Api;
 use Illuminate\Support\Str;
 use Telegram\Bot\Commands\Command;
+use App\Http\Controllers\YoutubeDlController;
 
 /**
  * The Telegram Bot  Class
@@ -312,6 +313,10 @@ class TelegramBotController extends Controller
                 //Process auth token
                 return $this->saveTokens($userDetails);
                 break;
+            case '/getaudion':
+                //download url audio
+                return $this->saveTokens($userDetails);
+                break;
             default:
                 Telegram::sendMessage([
                     'chat_id' => $chatId,
@@ -391,15 +396,15 @@ class TelegramBotController extends Controller
                 return true;
             case 'nexttrending':
 
-                  //Process next or previous results
-                  $callbackDetails['user_id'] = $userId;
-                  $callbackDetails['next'] = $callbackData;
-                  $callbackDetails['callback_query_id'] = $data->callback_query->id;
-  
-                  // logger($callbackData);
-  
-                  $this->trendingVideos($callbackDetails, $chatId);
-                
+                //Process next or previous results
+                $callbackDetails['user_id'] = $userId;
+                $callbackDetails['next'] = $callbackData;
+                $callbackDetails['callback_query_id'] = $data->callback_query->id;
+
+                // logger($callbackData);
+
+                $this->trendingVideos($callbackDetails, $chatId);
+
             default:
                 // Telegram::sendMessage([
                 //     'chat_id' => $chatId,
@@ -861,7 +866,7 @@ class TelegramBotController extends Controller
                     [
                         [
                             'text' => 'Next Page',
-                            'callback_data' => 'nexttrending-'.$nextToken
+                            'callback_data' => 'nexttrending-' . $nextToken
                         ]
                     ]
                 ];
@@ -955,7 +960,7 @@ class TelegramBotController extends Controller
                 [
                     [
                         'text' => 'Next Page',
-                        'callback_data' => 'nextliked-'.$nextToken
+                        'callback_data' => 'nextliked-' . $nextToken
                     ]
                 ]
             ];
@@ -1035,7 +1040,7 @@ class TelegramBotController extends Controller
                 [
                     [
                         'text' => 'Next Page',
-                        'callback_data' => 'nextsubscriptions-'.$nextToken
+                        'callback_data' => 'nextsubscriptions-' . $nextToken
                     ]
                 ]
             ];
@@ -1056,6 +1061,94 @@ class TelegramBotController extends Controller
                 'chat_id' => $chatId,
                 'text' => 'Ooops, There was an error trying to access the Subscriptions, reply with /auth to grant us access to your Youtube Videos'
             ]);
+        }
+    }
+
+    /**
+     * Download Youtube audio
+     */
+    /**
+     * Complete Authentication to store  User Tokens
+     * @return  array $data Returns data on saving the tokens with array of the result status either true or false if unable to save, 
+     * @return true/false returns true only if no token was sent
+     */
+    public function audioDownload(array $userDetails)
+    {
+
+        // $message_type = $this->checkMessageType();
+
+        $command = $this->previousCommand($userDetails);
+        // $authCommand = Str::contains($command["message"], "/auth");
+
+        //check if previous command was  not marked as completed or failed
+        if ($command['status'] != "completed" && $command['status'] != "failed") {
+
+            //Get the Url from db
+            $data = TelegramBot::select('message')
+                ->where([
+                    ['user_id', '=', $userDetails["user_id"]],
+                    ['chat_id', '=', $userDetails["chat_id"]],
+                    ['message_type', '=', 'normal_text'],
+                ])->orderBy('id', 'desc')
+                ->first();
+
+            $url = $data->message;
+
+            $urlIsYoutube = Str::startsWith('https://youtube.com', $url);
+            if ($urlIsYoutube) {
+
+                try {
+                    Telegram::sendMessage([
+                        'chat_id' => $command["chat_id"],
+                        'text'               => 'Fetching audio file......',
+                    ]);
+                } catch (\Throwable $th) {
+                    //throw $th;
+                    // Next Page token or Previous page token not found in cache
+                    Telegram::sendMessage([
+                        'chat_id' => $command["chat_id"],
+                        'text' => 'Ooops, There was an error trying to access Youtube, please try again'
+                    ]);
+        
+                    // logger("Bad Request: query is too old and response timeout expired or query ID");
+        
+                    return false;
+                }
+
+                $youtubeDl = new YoutubeDlController;
+
+                $fileName = $youtubeDl->downloadUserAudio($url);
+                //Success
+                Telegram::sendMessage([
+                    'chat_id' => $command["chat_id"],
+                    'text' => 'Audio was fetched successfully!, Audio File Name: ' .$fileName
+                ]);
+
+                $chatDetails['status'] = "completed";
+                $chatDetails['user_id'] = $userDetails['user_id'];
+                $chatDetails['chat_id'] = $userDetails['chat_id'];
+                $this->updateStatus($chatDetails);
+                $this->updateCommand($chatDetails);
+
+                return true;
+            } else {
+                // logger("Should be false");
+
+                //Error
+                Telegram::sendMessage([
+                    'chat_id' => $command["chat_id"],
+                    'text' => 'Audio fetching encountered an error, please try again'
+                ]);
+
+                $chatDetails['status'] = "failed";
+                $chatDetails['user_id'] = $userDetails['user_id'];
+                $chatDetails['chat_id'] = $userDetails['chat_id'];
+                $this->updateStatus($chatDetails);
+                $this->updateCommand($chatDetails);
+                return false;
+            }
+        } else {
+            return true;
         }
     }
 }

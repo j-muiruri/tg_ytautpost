@@ -38,19 +38,12 @@ class AudioCommand extends Command
 
         // Get result from webhook update
         $resultUpdate = $this->getUpdate();
-        $url = $resultUpdate->message->text;
 
-        $urlIsYoutube = Str::startsWith('https://youtube.com', $url);
-        if($urlIsYoutube)
-        {
-            $youtubeDl =new YoutubeDlController;
-            
-            $fileName = $youtubeDl->downloadUserAudio($url);
-
-            $this->replyWithMessage([
-                                'text' => $fileName
-                            ]);
-        }
+        $username = $resultUpdate->message->from->username;
+        $this->replyWithMessage([
+            'text' => 'Hello' .$username .', Please send me the url to the Youtube video.'
+        ]);
+        
 
         // if ($regionSet != false) {
 
