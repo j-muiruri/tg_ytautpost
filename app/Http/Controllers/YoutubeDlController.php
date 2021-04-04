@@ -147,11 +147,8 @@ class YoutubeDlController extends Controller
                 logger("Error downloading video: {$video->getError()}.");
             } else {
                 logger("Audio downloaded successfully at: " . $video->getFile()); // audio file
-                return response()->json(
-                    [
-                        $status = true
-                    ]
-                );
+                logger("File name is: ". $video->getFilename());
+                return  $video->getFilename();
             }
         }
     }
