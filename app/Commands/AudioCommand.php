@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
  * 
  * @author John Muiruri <jontedev@gmail.com>
  */
-class GetAudioCommand extends Command
+class AudioCommand extends Command
 {
     /**
      * @var string Command Name
