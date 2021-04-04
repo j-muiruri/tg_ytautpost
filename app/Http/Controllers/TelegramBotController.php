@@ -315,7 +315,7 @@ class TelegramBotController extends Controller
                 break;
             case '/getaudio':
                 //download url audio
-                return $this->saveTokens($userDetails);
+                return $this->audioDownload($userDetails);
                 break;
             default:
                 Telegram::sendMessage([
@@ -1066,10 +1066,7 @@ class TelegramBotController extends Controller
 
     /**
      * Download Youtube audio
-     */
-    /**
-     * Complete Authentication to store  User Tokens
-     * @return  array $data Returns data on saving the tokens with array of the result status either true or false if unable to save, 
+     * @return  $fileName Name of file
      * @return true/false returns true only if no token was sent
      */
     public function audioDownload(array $userDetails)
