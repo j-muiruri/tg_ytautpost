@@ -1097,10 +1097,17 @@ class TelegramBotController extends Controller
             if ($urlIsYoutube) {
 
                 try {
+
+
                     Telegram::sendMessage([
                         'chat_id' => $command["chat_id"],
                         'text'               => 'Fetching audio file......',
                     ]);
+
+                $youtubeDl = new YoutubeDlController;
+
+                $fileDetails = $youtubeDl->downloadUserAudio($url);
+
                 } catch (\Throwable $th) {
                     //throw $th;
                     // Application error
@@ -1113,11 +1120,6 @@ class TelegramBotController extends Controller
 
                     return false;
                 }
-
-                $youtubeDl = new YoutubeDlController;
-
-                $fileDetails = $youtubeDl->downloadUserAudio($url);
-
                 //send audio file
                 // Telegram::sendMessage([
                 //     'chat_id' => $command["chat_id"],
