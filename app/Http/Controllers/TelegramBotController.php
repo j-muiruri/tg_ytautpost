@@ -110,10 +110,15 @@ class TelegramBotController extends Controller
                     $this->processNormalMessage();
                     break;
 
+                    //callback query from keyboard or link etc
                 case 'reply_markup':
                     $this->processCallbackQuery();
                     break;
 
+                    //a url link sent by user as a message
+                case 'url':
+                    $this->processNormalMessage();
+                    break;
                 default:
                     return true;
                     break;
@@ -306,7 +311,7 @@ class TelegramBotController extends Controller
 
         $command = $previousCommand['message'];
 
-        // logger($command);
+
         //Get previous command to process this message
         switch ($command) {
             case '/auth':
@@ -1071,11 +1076,7 @@ class TelegramBotController extends Controller
      */
     public function audioDownload(array $userDetails)
     {
-
-        // $message_type = $this->checkMessageType();
-
         $command = $this->previousCommand($userDetails);
-        // $authCommand = Str::contains($command["message"], "/auth");
 
         //check if previous command was  not marked as completed or failed
         if ($command['status'] != "completed" && $command['status'] != "failed") {
@@ -1085,13 +1086,12 @@ class TelegramBotController extends Controller
                 ->where([
                     ['user_id', '=', $userDetails["user_id"]],
                     ['chat_id', '=', $userDetails["chat_id"]],
-                    ['message_type', '=', 'normal_text'],
+                    ['message_type', '=', 'url'],
                 ])->orderBy('id', 'desc')
                 ->first();
-
             $url = $data->message;
 
-            $urlIsYoutube = Str::startsWith('https://youtube.com', $url);
+            $urlIsYoutube = Str::contains($url, 'https://youtube.com/');
             if ($urlIsYoutube) {
 
                 try {
@@ -1101,24 +1101,25 @@ class TelegramBotController extends Controller
                     ]);
                 } catch (\Throwable $th) {
                     //throw $th;
-                    // Next Page token or Previous page token not found in cache
+                    // Application error
                     Telegram::sendMessage([
                         'chat_id' => $command["chat_id"],
-                        'text' => 'Ooops, There was an error trying to access Youtube, please try again'
+                        'text' => 'Ooops, I encountered an error! Please try again.'
                     ]);
-        
+
                     // logger("Bad Request: query is too old and response timeout expired or query ID");
-        
+
                     return false;
                 }
 
                 $youtubeDl = new YoutubeDlController;
 
                 $fileName = $youtubeDl->downloadUserAudio($url);
-                //Success
+
+                //send audio file
                 Telegram::sendMessage([
                     'chat_id' => $command["chat_id"],
-                    'text' => 'Audio was fetched successfully!, Audio File Name: ' .$fileName
+                    'text' => 'Audio was fetched successfully!, Audio File Name: ' . $fileName
                 ]);
 
                 $chatDetails['status'] = "completed";
@@ -1129,7 +1130,6 @@ class TelegramBotController extends Controller
 
                 return true;
             } else {
-                // logger("Should be false");
 
                 //Error
                 Telegram::sendMessage([

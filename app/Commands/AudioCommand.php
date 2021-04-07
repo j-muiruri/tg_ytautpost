@@ -41,7 +41,7 @@ class AudioCommand extends Command
 
         $username = $resultUpdate->message->from->username;
         $this->replyWithMessage([
-            'text' => 'Hello' .$username .', Please send me the url to the Youtube video.'
+            'text' => 'Hello @' .$username .', Please send me the url to the Youtube video.'
         ]);
         
 

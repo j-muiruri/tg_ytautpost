@@ -548,7 +548,8 @@ class GoogleApiClientController extends Controller
      */
     public function authSave($data, $userDetails)
     {
-        // $code = $request->input('code');
+        try {
+            // $code = $request->input('code');
 
         $code = $data;
         // logger("Code submitted by USER_ID: " . $userDetails['user_id'] . ", = " . $data);
@@ -581,6 +582,12 @@ class GoogleApiClientController extends Controller
         // $data = response()->json($accessToken);
         // logger($data);
         return true;
+
+        } catch (\Throwable $th) {
+            logger()->error( $th);
+            return true;
+        }
+        
     }
     /**
      * Refresh Tokens if access is already granted
