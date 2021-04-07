@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use YoutubeDl\Options;
 use YoutubeDl\YoutubeDl;
 
@@ -31,7 +34,7 @@ class YoutubeDlController extends Controller
 
 
         foreach ($collection->getVideos() as $video) {
-            
+
             if ($video->getError() !== null) {
                 logger("Error downloading video: {$video->getError()}.");
             } else {
@@ -97,7 +100,7 @@ class YoutubeDlController extends Controller
 
     /**Application functions */
 
-     /**
+    /**
      * Download Video in .mp4 format
      * @param string $url
      */
@@ -113,7 +116,7 @@ class YoutubeDlController extends Controller
 
 
         foreach ($collection->getVideos() as $video) {
-            
+
             if ($video->getError() !== null) {
                 logger("Error downloading video: {$video->getError()}.");
             } else {
@@ -127,29 +130,46 @@ class YoutubeDlController extends Controller
     /**
      * Download Audio in .mp3 format
      * @param string $url
+     * @return Array $fileDetails
      */
     public function downloadUserAudio(string $url)
     {
-        $yt = new YoutubeDl();
-        $this->downloadProgress();
-        $collection = $yt->download(
-            Options::create()
-                ->downloadPath(storage_path())
-                ->extractAudio(true)
-                ->audioFormat('mp3')
-                ->audioQuality(0) // best
-                ->output('%(title)s.%(ext)s')
-                ->url($url)
-        );
+        try {
 
-        foreach ($collection->getVideos() as $video) {
-            if ($video->getError() !== null) {
-                logger("Error downloading video: {$video->getError()}.");
-            } else {
-                logger("Audio downloaded successfully at: " . $video->getFile()); // audio file
-                logger("File name is: ". $video->getFilename());
-                return  $video->getFilename();
+            $yt = new YoutubeDl();
+            $filePath = public_path().'/storage/audio';
+            $this->downloadProgress();
+            $collection = $yt->download(
+                Options::create()
+                    ->downloadPath($filePath)
+                    ->extractAudio(true)
+                    ->audioFormat('mp3')
+                    ->audioQuality(0) // best
+                    ->output('%(title)s.%(ext)s')
+                    ->url($url)
+            );
+
+            foreach ($collection->getVideos() as $video) {
+                if ($video->getError() !== null) {
+                    logger("Error downloading video: {$video->getError()}.");
+                    return true;
+                } else {
+                    $filepath = $video->getFilename();
+                    $file = Str::replaceFirst($filePath. '/', '', $filepath);
+                    $fileName = Str::of($file)->replace('_', ' ');
+                    $fileDetails['status']  = true;
+                    $fileDetails['audio'] = storage_path().'/app/public/audio/'.$file; //audio file
+                    // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
+                    $fileDetails['name'] = $fileName;
+
+                    return $fileDetails;
+                }
             }
+        } catch (\Throwable $th) {
+
+            $fileDetails['status']  = false;
+            logger($th);
+            return $fileDetails;
         }
     }
 }

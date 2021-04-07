@@ -9,6 +9,7 @@ use App\Subscribers;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 use Telegram\Bot\Api;
+use Telegram\Bot\FileUpload\InputFile;
 use Illuminate\Support\Str;
 use Telegram\Bot\Commands\Command;
 use App\Http\Controllers\YoutubeDlController;
@@ -1076,6 +1077,7 @@ class TelegramBotController extends Controller
      */
     public function audioDownload(array $userDetails)
     {
+        $botApi = new Api;
         $command = $this->previousCommand($userDetails);
 
         //check if previous command was  not marked as completed or failed
@@ -1114,27 +1116,46 @@ class TelegramBotController extends Controller
 
                 $youtubeDl = new YoutubeDlController;
 
-                $fileName = $youtubeDl->downloadUserAudio($url);
+                $fileDetails = $youtubeDl->downloadUserAudio($url);
 
                 //send audio file
-                Telegram::sendMessage([
-                    'chat_id' => $command["chat_id"],
-                    'text' => 'Audio was fetched successfully!, Audio File Name: ' . $fileName
-                ]);
+                // Telegram::sendMessage([
+                //     'chat_id' => $command["chat_id"],
+                //     'text' => 'Audio was fetched successfully!, Audio File Name: ' . $fileDetails['name']
+                // ]);
 
-                $chatDetails['status'] = "completed";
-                $chatDetails['user_id'] = $userDetails['user_id'];
-                $chatDetails['chat_id'] = $userDetails['chat_id'];
-                $this->updateStatus($chatDetails);
-                $this->updateCommand($chatDetails);
+                if($fileDetails['status'] == true) {
 
-                return true;
+                    Telegram::sendAudio([
+                        'chat_id' => $command["chat_id"],
+                        'audio' => InputFile::create($fileDetails['audio'], $fileDetails['name']),
+                        'title' => $fileDetails['name'],
+                        'caption' => 'Made by Youtube Bot by @jontelov'
+                    ]);
+    
+                    $chatDetails['status'] = "completed";
+                    $chatDetails['user_id'] = $userDetails['user_id'];
+                    $chatDetails['chat_id'] = $userDetails['chat_id'];
+                    $this->updateStatus($chatDetails);
+                    $this->updateCommand($chatDetails);
+    
+                    return true;
+                } else {
+
+                    //server errror - Youtube_dl API
+                    Telegram::sendMessage([
+                        'chat_id' => $command["chat_id"],
+                        'text'               => 'Oops, I encountered an error! Please try again after a while',
+                    ]);
+                    return false;
+                }
+              
             } else {
 
-                //Error
+                //Error - not a youtub.com link
                 Telegram::sendMessage([
                     'chat_id' => $command["chat_id"],
-                    'text' => 'Audio fetching encountered an error, please try again'
+                    'text' => 'Audio fetching encountered an error! Please try again by sending me a Youtube url or link'
                 ]);
 
                 $chatDetails['status'] = "failed";
@@ -1145,7 +1166,13 @@ class TelegramBotController extends Controller
                 return false;
             }
         } else {
-            return true;
+
+            //Server error - Bot error
+            Telegram::sendMessage([
+                'chat_id' => $command["chat_id"],
+                'text'               => 'Oops, I encountered an error! Please reply with /getaudio command again or /help command for help',
+            ]);
+            return false;
         }
     }
 }
