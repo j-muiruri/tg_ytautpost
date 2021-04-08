@@ -85,6 +85,12 @@ class AudioDownload implements ShouldQueue
                 $telegram->updateStatus($chatDetails);
                 $telegram->updateCommand($chatDetails);
                 return true;
+            } else {
+                Telegram::sendMessage([
+                    'chat_id' => $this->chatId,
+                    'text' => 'Ooops, an error occured while fetching the audio, please try again'
+                ]);
+                return false;
             }
         } catch (\Throwable $th) {
 

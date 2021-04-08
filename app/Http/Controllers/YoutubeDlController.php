@@ -137,7 +137,7 @@ class YoutubeDlController extends Controller
         try {
 
             $yt = new YoutubeDl();
-            $filePath = public_path().'/storage/audio';
+            $filePath = public_path() . '/storage/audio';
             $this->downloadProgress();
             $collection = $yt->download(
                 Options::create()
@@ -151,16 +151,17 @@ class YoutubeDlController extends Controller
 
             foreach ($collection->getVideos() as $video) {
                 if ($video->getError() !== null) {
-                    
+
                     logger("Error downloading video: {$video->getError()}.");
-                    return true;
+                    $fileDetails['status']  = false;
+                    return $fileDetails;
                 } else {
 
                     $filepath = $video->getFilename();
-                    $file = Str::replaceFirst($filePath. '/', '', $filepath);
+                    $file = Str::replaceFirst($filePath . '/', '', $filepath);
                     $fileName = Str::of($file)->replace('_', ' ');
                     $fileDetails['status']  = true;
-                    $fileDetails['audio'] = storage_path().'/app/public/audio/'.$file; //audio file
+                    $fileDetails['audio'] = storage_path() . '/app/public/audio/' . $file; //audio file
                     // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
                     $fileDetails['name'] = $fileName;
 
