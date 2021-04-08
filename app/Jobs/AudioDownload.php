@@ -90,13 +90,6 @@ class AudioDownload implements ShouldQueue
 
             Telegram::sendMessage([
                 'chat_id' => $this->chatId,
-                'audio' => InputFile::create($fileDetails['audio'], $fileDetails['name']),
-                'title' => $fileDetails['name'],
-                'caption' => 'Made by Youtube Bot by @jontelov'
-            ]);
-
-            Telegram::sendMessage([
-                'chat_id' => $this->chatId,
                 'text' => 'Ooops, an error occured while fetching the audio, please note the audio should be not be more than a duration of 10:00 minutes'
             ]);
 
