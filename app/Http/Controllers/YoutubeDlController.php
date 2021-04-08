@@ -151,9 +151,11 @@ class YoutubeDlController extends Controller
 
             foreach ($collection->getVideos() as $video) {
                 if ($video->getError() !== null) {
+                    
                     logger("Error downloading video: {$video->getError()}.");
                     return true;
                 } else {
+
                     $filepath = $video->getFilename();
                     $file = Str::replaceFirst($filePath. '/', '', $filepath);
                     $fileName = Str::of($file)->replace('_', ' ');
