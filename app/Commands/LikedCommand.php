@@ -10,6 +10,7 @@ use App\TelegramBot;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\GoogleApiClientController;
+use App\Http\Controllers\TelegramBotController;
 use Illuminate\Support\Facades\Cache;
 use Telegram\Bot\Keyboard\Keyboard;
 
@@ -68,6 +69,17 @@ class LikedCommand extends Command
             // Reply with the Videos List
         } else {
 
+            //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
+        $telegrambot = new TelegramBotController;
+        $userExists = $telegrambot ->isSubscriber($userDetails['user_id']);
+        
+        if ($userExists === false) {
+        
+        $this->triggerCommand('subscribe');
+
+         }
+
+         sleep(2);
             $videos = $likedVideos;
             
             if ($likedVideos['status'] === true) {

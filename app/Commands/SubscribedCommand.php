@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Http\Controllers\GoogleApiClientController;
+use App\Http\Controllers\TelegramBotController;
 use App\MySubscriptions;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
@@ -72,6 +73,18 @@ class SubscribedCommand extends Command
             $this->replyWithMessage(['text' => $subscriptionList]);
             sleep(3);
         } else {
+
+            //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
+        $telegrambot = new TelegramBotController;
+        $userExists = $telegrambot ->isSubscriber($userDetails['user_id']);
+        
+        if ($userExists === false) {
+        
+        $this->triggerCommand('subscribe');
+
+         }
+
+         sleep(1);
 
             $subscriptions = $userSubscriptions;
             // logger($subscriptions);
