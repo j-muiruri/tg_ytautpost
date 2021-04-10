@@ -48,8 +48,10 @@ Route::any('my-subs', 'GoogleApiClientController@getMySubscriptions');
 Route::any('/auth', 'GoogleApiClientController@authComplete');
 
 //Youtube_dl
-Route::get('youtube-dl-video/{url}', 'YoutubeDlController@downloadVideo')->name('audio-download');
-Route::get('youtube-dl-audio/{url}', 'YoutubeDlController@downloadAudio')->name('video-download');
+// Route::get('youtube-dl-video/{url}', 'YoutubeDlController@downloadVideo');
+Route::get('/download', 'YoutubeDlController@downloadAudio');
+
+// Route::get('/test-route', 'YoutubeDlController@testRoute');
 
 //My test
 Route::get('yt-liked', 'MyTests@index');

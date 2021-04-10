@@ -48,10 +48,10 @@ class YoutubeDlController extends Controller
     /**
      * Download Audio in .mp3 format
      */
-    public function downloadAudio(Request $request)
+    public function downloadAudio()
     {
         $yt = new YoutubeDl();
-        $url = $request->input('url');
+        $url = 'https://youtube.com/watch?v=9Bt-nV-wz3c';
         logger('route success');
         $this->downloadProgress();
         $collection = $yt->download(
@@ -174,5 +174,9 @@ class YoutubeDlController extends Controller
             logger($th);
             return $fileDetails;
         }
+    }
+    public function testRoute()
+    {
+        dd('hello route is working');
     }
 }
