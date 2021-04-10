@@ -70,7 +70,7 @@ class AudioDownload implements ShouldQueue
 
             $fileDetails = $youtubeDl->downloadUserAudio($this->url);
 
-            if ($fileDetails['status'] == true) {
+            // if ($fileDetails['status'] == true) {
 
                 Telegram::sendAudio([
                     'chat_id' => $this->chatId,
@@ -85,13 +85,13 @@ class AudioDownload implements ShouldQueue
                 $telegram->updateStatus($chatDetails);
                 $telegram->updateCommand($chatDetails);
                 return true;
-            } else {
-                Telegram::sendMessage([
-                    'chat_id' => $this->chatId,
-                    'text' => 'Ooops, an error occured while fetching the audio, please try again'
-                ]);
-                return false;
-            }
+            // } else {
+            //     Telegram::sendMessage([
+            //         'chat_id' => $this->chatId,
+            //         'text' => 'Ooops, an error occured while fetching the audio, please try again'
+            //     ]);
+            //     return false;
+            // }
         } catch (\Throwable $th) {
 
             Telegram::sendMessage([
