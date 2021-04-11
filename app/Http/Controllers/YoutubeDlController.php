@@ -170,6 +170,7 @@ class YoutubeDlController extends Controller
                 }
             }
 
+            logger($fileDetails);
              return $fileDetails;
         } catch (\Throwable $th) {
 
