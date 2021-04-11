@@ -150,6 +150,7 @@ class YoutubeDlController extends Controller
                     ->url($url)
             );
 
+            // $fileDetails ='';
             foreach ($collection->getVideos() as $video) {
                 if ($video->getError() !== null) {
 
@@ -162,15 +163,15 @@ class YoutubeDlController extends Controller
                     $file = Str::replaceFirst($filePath . '/', '', $filepath);
                     $fileName = Str::of($file)->replace('_', ' ');
                     $fileDetails['status']  = true;
-                    $fileDetails['audio']['location'] = storage_path() . '/app/public/audio/' . $file; //audio file
+                    $fileDetails['audio']['location'][] = storage_path() . '/app/public/audio/' . $file; //audio file
                     // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
-                    $fileDetails['audio']['name'] = $fileName;
+                    $fileDetails['audio']['name'][] = $fileName;
 
                    
                 }
             }
 
-            logger($fileDetails);
+            dd($fileDetails);
              return $fileDetails;
         } catch (\Throwable $th) {
 
