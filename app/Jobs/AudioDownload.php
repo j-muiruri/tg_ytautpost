@@ -73,13 +73,17 @@ class AudioDownload implements ShouldQueue
             if ($fileDetails['status'] == true) {
 
                 // logger($fileDetails['audio']);
+                foreach ($fileDetails['audio'] as $audio) {
+                    
                 Telegram::sendAudio([
                     'chat_id' => $this->chatId,
-                    'audio' => InputFile::create($fileDetails['audio'], $fileDetails['name']),
-                    'title' => $fileDetails['name'],
+                    'audio' => InputFile::create($audio['location'], $audio['name']),
+                    'title' => $audio['name'],
                     'caption' => 'Made by Youtube Bot by @jontelov'
                 ]);
 
+                # code...
+            }
                 $chatDetails['status'] = "completed";
                 $chatDetails['user_id'] = $this->userId;
                 $chatDetails['chat_id'] = $this->chatId;

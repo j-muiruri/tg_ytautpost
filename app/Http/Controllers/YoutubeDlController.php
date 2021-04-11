@@ -162,13 +162,15 @@ class YoutubeDlController extends Controller
                     $file = Str::replaceFirst($filePath . '/', '', $filepath);
                     $fileName = Str::of($file)->replace('_', ' ');
                     $fileDetails['status']  = true;
-                    $fileDetails['audio'] = storage_path() . '/app/public/audio/' . $file; //audio file
+                    $fileDetails['audio']['location'] = storage_path() . '/app/public/audio/' . $file; //audio file
                     // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
-                    $fileDetails['name'] = $fileName;
+                    $fileDetails['audio']['name'] = $fileName;
 
-                    return $fileDetails;
+                   
                 }
             }
+
+             return $fileDetails;
         } catch (\Throwable $th) {
 
             $fileDetails['status']  = false;
