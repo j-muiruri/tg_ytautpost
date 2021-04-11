@@ -56,6 +56,7 @@ class YoutubeDlController extends Controller
         $this->downloadProgress();
         $collection = $yt->download(
             Options::create()
+            ->yesPlaylist()
                 ->downloadPath(storage_path())
                 ->extractAudio(true)
                 ->audioFormat('mp3')
