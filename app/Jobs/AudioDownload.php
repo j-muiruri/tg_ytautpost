@@ -72,7 +72,7 @@ class AudioDownload implements ShouldQueue
 
             if ($fileDetails['status'] == true) {
 
-                logger($fileDetails['audio']);
+                logger($fileDetails);
                 foreach ($fileDetails['audio'] as $audio) {
                     
                 Telegram::sendAudio([
