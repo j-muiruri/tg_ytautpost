@@ -25,7 +25,7 @@ class YoutubeDlController extends Controller
         $yt = new YoutubeDl();
         $url = $request->input('url');
         logger('route success');
-        $this->downloadProgress();
+        // $this->downloadProgress();
         $collection = $yt->download(
             Options::create()
                 ->downloadPath(storage_path())
@@ -53,10 +53,9 @@ class YoutubeDlController extends Controller
         $yt = new YoutubeDl();
         $url = 'https://youtube.com/watch?v=9Bt-nV-wz3c';
         logger('route success');
-        $this->downloadProgress();
         $collection = $yt->download(
             Options::create()
-            ->yesPlaylist()
+                ->yesPlaylist()
                 ->downloadPath(storage_path())
                 ->extractAudio(true)
                 ->audioFormat('mp3')
@@ -65,6 +64,7 @@ class YoutubeDlController extends Controller
                 ->url($url)
         );
 
+        $this->downloadProgress($yt);
         foreach ($collection->getVideos() as $video) {
             if ($video->getError() !== null) {
                 logger("Error downloading video: {$video->getError()}.");
@@ -82,9 +82,9 @@ class YoutubeDlController extends Controller
     /**
      * Get Download Progress of a file
      */
-    private function downloadProgress()
+    private function downloadProgress($yt)
     {
-        $yt = new YoutubeDl();
+        // $yt = new YoutubeDl();
         $yt->onProgress(static function (string $progressTarget, string $percentage, string $size, string $speed, string $eta, ?string $totalTime): void {
             logger("Download file: $progressTarget; Percentage: $percentage; Size: $size");
             if ($speed) {
@@ -108,7 +108,7 @@ class YoutubeDlController extends Controller
     public function downloadUserVideo(string $url)
     {
         $yt = new YoutubeDl();
-        $this->downloadProgress();
+        $this->downloadProgress($yt);
         $collection = $yt->download(
             Options::create()
                 ->downloadPath(storage_path())
@@ -139,7 +139,7 @@ class YoutubeDlController extends Controller
 
             $yt = new YoutubeDl();
             $filePath = public_path() . '/storage/audio';
-            $this->downloadProgress();
+
             $collection = $yt->download(
                 Options::create()
                     ->downloadPath($filePath)
@@ -150,33 +150,45 @@ class YoutubeDlController extends Controller
                     ->url($url)
             );
 
-            // $fileDetails ='';
+            //simulate download, no video download
+            // $collection = $yt->download(
+            //     Options::create()
+            //      ->downloadPath($filePath)
+            //     ->skipDownload(true)->url($url)
+            // );
+
+            $this->downloadProgress($yt);
+            $fileDetails = array();
             foreach ($collection->getVideos() as $video) {
                 if ($video->getError() !== null) {
 
-                    logger("Error downloading video: {$video->getError()}.");
-                    $fileDetails['status']  = false;
-                    return $fileDetails;
+                    logger()->error("Error downloading video: {$video->getError()}.");
+                    $fileDetails['data'][] = [
+                        'status' => false
+                    ];
                 } else {
 
                     $filepath = $video->getFilename();
+                    $fileDesc = $video->getDescription();
                     $file = Str::replaceFirst($filePath . '/', '', $filepath);
                     $fileName = Str::of($file)->replace('_', ' ');
-                    $fileDetails['status']  = true;
-                    $fileDetails['audio']['location'][] = storage_path() . '/app/public/audio/' . $file; //audio file
-                    // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
-                    $fileDetails['audio']['name'][] = $fileName;
-
-                   
+                    // // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
+                    $fileDetails['data'][] = [
+                        'name' => $fileName . "\n" . $fileDesc,
+                        'artist' => $video->getUploader(),
+                        'description' => $fileDesc,
+                        'status' => true,
+                        'audio' => storage_path() . '/app/public/audio/' . $file
+                    ];
                 }
             }
+            $fileDetails['status'] = true;
 
-            dd($fileDetails);
-             return $fileDetails;
+            return $fileDetails;
         } catch (\Throwable $th) {
 
-            $fileDetails['status']  = false;
-            logger($th);
+            $fileDetails['status'] = false;
+            logger()->error($th);
             return $fileDetails;
         }
     }

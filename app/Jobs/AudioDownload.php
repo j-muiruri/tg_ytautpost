@@ -40,7 +40,7 @@ class AudioDownload implements ShouldQueue
      *
      * @var int
      */
-    public $timeout = 300;
+    public $timeout = 0;
 
     /**
      * Create a new job instance.
@@ -72,18 +72,22 @@ class AudioDownload implements ShouldQueue
 
             if ($fileDetails['status'] == true) {
 
-                logger($fileDetails);
-                foreach ($fileDetails['audio'] as $audio) {
+                // logger($fileDetails);
+                foreach ($fileDetails['data'] as $audio) {
                     
                 Telegram::sendAudio([
                     'chat_id' => $this->chatId,
-                    'audio' => InputFile::create($audio['location'], $audio['name']),
+                    'audio' => InputFile::create($audio['audio'], $audio['name']),
+                    'performer' =>$audio['artist'],
                     'title' => $audio['name'],
-                    'caption' => 'Made by Youtube Bot by @jontelov'
+                    'caption' => $audio['name']."\n".$audio['description']
                 ]);
-
-                # code...
             }
+
+            Telegram::sendMessage([
+                'chat_id' => $this->chatId,
+                'text' => 'Made by Youtube Bot - @selectatube_bot & @jontelov'
+            ]);
                 $chatDetails['status'] = "completed";
                 $chatDetails['user_id'] = $this->userId;
                 $chatDetails['chat_id'] = $this->chatId;
@@ -91,6 +95,7 @@ class AudioDownload implements ShouldQueue
                 $telegram->updateCommand($chatDetails);
                 return true;
             } else {
+                // logger($fileDetails);
                 Telegram::sendMessage([
                     'chat_id' => $this->chatId,
                     'text' => 'Ooops, an error occured while fetching the audio, please try again'
@@ -104,7 +109,7 @@ class AudioDownload implements ShouldQueue
                 'text' => 'Ooops, an error occured while fetching the audio, please note the audio should be not be more than a duration of 10:00 minutes'
             ]);
 
-            $chatDetails['status'] = "completed";
+            $chatDetails['status'] = "failed";
             $chatDetails['user_id'] = $this->userId;
             $chatDetails['chat_id'] = $this->chatId;
             $telegram->updateStatus($chatDetails);
