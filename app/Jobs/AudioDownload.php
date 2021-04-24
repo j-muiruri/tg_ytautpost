@@ -80,10 +80,15 @@ class AudioDownload implements ShouldQueue
                     'audio' => InputFile::create($audio['audio'], $audio['name']),
                     'performer' =>$audio['artist'],
                     'title' => $audio['name'],
-                    'caption' => $audio['name']."\n".$audio['description']
+                    'caption' => $audio['name']
                 ]);
             }
 
+            //description - need to add job/options  for with caption and without caption
+            Telegram::sendMessage([
+                'chat_id' => $this->chatId,
+                'text' => $audio['name']."\n".$audio['description']
+            ]);
             Telegram::sendMessage([
                 'chat_id' => $this->chatId,
                 'text' => 'Made by Youtube Bot - @selectatube_bot & @jontelov'

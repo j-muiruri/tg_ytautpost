@@ -174,7 +174,7 @@ class YoutubeDlController extends Controller
                     $fileName = Str::of($file)->replace('_', ' ');
                     // // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
                     $fileDetails['data'][] = [
-                        'name' => $fileName . "\n" . $fileDesc,
+                        'name' => $fileName,
                         'artist' => $video->getUploader(),
                         'description' => $fileDesc,
                         'status' => true,
