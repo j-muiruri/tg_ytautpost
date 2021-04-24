@@ -169,7 +169,7 @@ class YoutubeDlController extends Controller
                 } else {
 
                     $filepath = $video->getFilename();
-                    $fileDesc = Str::limit($video->getDescription(), 1000, $end = '...');
+                    $fileDesc = Str::limit($video->getDescription(), 800, $end = '...');
                     $file = Str::replaceFirst($filePath . '/', '', $filepath);
                     $fileName = Str::of($file)->replace('_', ' ');
                     // // $fileDetails['audio'] = url('public/audio/'.$file); //audio file
