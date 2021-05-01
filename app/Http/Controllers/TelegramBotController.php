@@ -411,6 +411,15 @@ class TelegramBotController extends Controller
                 // logger($callbackData);
 
                 $this->trendingVideos($callbackDetails, $chatId);
+                case 'url':
+
+                    //Get video url and user details
+                    $url = $callbackData;
+                    $callbackDetails['callback_query_id'] = $data->callback_query->id;
+    
+                    // logger($callbackData);
+    
+                    AudioDownload::dispatch($url, $chatId, $userId);
 
             default:
                 // Telegram::sendMessage([
@@ -1078,7 +1087,6 @@ class TelegramBotController extends Controller
      */
     public function audioDownload(array $userDetails)
     {
-        $botApi = new Api;
         $command = $this->previousCommand($userDetails);
 
         //check if previous command was  not marked as completed or failed
@@ -1122,7 +1130,7 @@ class TelegramBotController extends Controller
                 }
             } else {
 
-                //Error - not a youtub.com link
+                //Error - not a youtube link
                 Telegram::sendMessage([
                     'chat_id' => $command["chat_id"],
                     'text' => 'Audio fetching encountered an error! Please try again by sending me a Youtube url or link'

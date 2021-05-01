@@ -101,7 +101,7 @@ class LikedCommand extends Command
                     $inlineKeyboard = [
                         [
                             [
-                                'text' => 'Click for video Mp3',
+                                'text' => 'Click for video Mp3 download',
                                 'callback_data' => $callbackData
                             ]
                         ]
