@@ -70,18 +70,17 @@ class LikedCommand extends Command
         } else {
 
             //check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
-        $telegrambot = new TelegramBotController;
-        $userExists = $telegrambot ->isSubscriber($userDetails['user_id']);
-        
-        if ($userExists === false) {
-        
-        $this->triggerCommand('subscribe');
+            $telegrambot = new TelegramBotController;
+            $userExists = $telegrambot->isSubscriber($userDetails['user_id']);
 
-         }
+            if ($userExists === false) {
 
-         sleep(2);
+                $this->triggerCommand('subscribe');
+            }
+
+            sleep(2);
             $videos = $likedVideos;
-            
+
             if ($likedVideos['status'] === true) {
 
                 // Reply with the Videos List
@@ -96,7 +95,27 @@ class LikedCommand extends Command
                     // echo $link;
                     $no++;
 
-                    $this->replyWithMessage(['text' => $title . ' - ' . $link]);
+                    //data to be retrieved in callback_query
+                    $callbackData =  'url-' . $link;
+
+                    $inlineKeyboard = [
+                        [
+                            [
+                                'text' => 'Click for video Mp3',
+                                'callback_data' => $callbackData
+                            ]
+                        ]
+                    ];
+
+                    $reply_markup = Keyboard::make([
+                        'inline_keyboard' => $inlineKeyboard
+                    ]);
+                    $this->replyWithMessage([
+                        'text' => $title . ' - ' . $link,
+                        'reply_markup' => $reply_markup
+                    ]);
+
+                    $resultUpdate->message->chat->id;
                     usleep(800000); //0.8 secs
                 }
 
@@ -104,7 +123,7 @@ class LikedCommand extends Command
                 $nextToken = $likedVideos['next'];
 
                 //data to be retrieved in callback_query
-                $callbackData =  'nextliked-'.$nextToken;
+                $callbackData =  'nextliked-' . $nextToken;
 
                 $inlineKeyboard = [
                     [
@@ -120,7 +139,7 @@ class LikedCommand extends Command
                 ]);
 
                 $this->replyWithMessage([
-                    'text' => 'For More videos: \n tap below to go to the next or previous pages',
+                    'text' => "For More videos: \n tap below to go to the next or previous pages",
                     'reply_markup' => $reply_markup
                 ]);
 
