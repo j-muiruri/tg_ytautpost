@@ -877,9 +877,28 @@ class TelegramBotController extends Controller
                     // echo $link;
                     $no++;
 
+                    
+                    //data to be retrieved in callback_query
+                    $callbackDataVideo =  'url-' . $link;
+
+                    $inlineKeyboardVideo = [
+                        [
+                            [
+                                'text' => 'Click for video Mp3 download',
+                                'callback_data' => $callbackDataVideo
+                            ]
+                        ]
+                    ];
+
+                    $reply_markup_video = Keyboard::make([
+                        'inline_keyboard' => $inlineKeyboardVideo
+                    ]);
+
+                    //reply with video details and option to download mp3
                     Telegram::sendMessage([
                         'chat_id' => $chatId,
-                        'text' => $title . ' - ' . $link
+                        'text' => $title . ' - ' . $link,
+                        'reply_markup' => $reply_markup_video
                     ]);
                     usleep(800000); //0.8 secs
                 }
@@ -971,10 +990,28 @@ class TelegramBotController extends Controller
                 // echo $link;
                 $no++;
 
-                Telegram::sendMessage([
-                    'chat_id' =>  $chatId,
-                    'text' => $title . ' - ' . $link
-                ]);
+                 //data to be retrieved in callback_query
+                    $callbackDataVideo =  'url-' . $link;
+
+                    $inlineKeyboardVideo = [
+                        [
+                            [
+                                'text' => 'Click for video Mp3 download',
+                                'callback_data' => $callbackDataVideo
+                            ]
+                        ]
+                    ];
+
+                    $reply_markup_video = Keyboard::make([
+                        'inline_keyboard' => $inlineKeyboardVideo
+                    ]);
+
+                    //reply with video details and option to download mp3
+                    Telegram::sendMessage([
+                        'chat_id' => $chatId,
+                        'text' => $title . ' - ' . $link,
+                        'reply_markup' => $reply_markup_video
+                    ]);
                 usleep(800000); //0.8 secs
             }
 
