@@ -110,12 +110,12 @@ class LikedCommand extends Command
                     $reply_markup = Keyboard::make([
                         'inline_keyboard' => $inlineKeyboard
                     ]);
+
+                    //reply with video details and option to download mp3
                     $this->replyWithMessage([
                         'text' => $title . ' - ' . $link,
                         'reply_markup' => $reply_markup
                     ]);
-
-                    $resultUpdate->message->chat->id;
                     usleep(800000); //0.8 secs
                 }
 
