@@ -411,6 +411,7 @@ class TelegramBotController extends Controller
                 // logger($callbackData);
 
                 $this->trendingVideos($callbackDetails, $chatId);
+                return true;
             case 'url':
 
                 //Get video url and user details

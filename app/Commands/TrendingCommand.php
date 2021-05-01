@@ -66,25 +66,25 @@ class TrendingCommand extends Command
                     $no++;
 
                     //data to be retrieved in callback_query
-                    $callbackData =  'url-' . $link;
+                    $callbackDataVideo =  'url-' . $link;
 
-                    $inlineKeyboard = [
+                    $inlineKeyboardVideo = [
                         [
                             [
                                 'text' => 'Click for video Mp3 download',
-                                'callback_data' => $callbackData
+                                'callback_data' => $callbackDataVideo
                             ]
                         ]
                     ];
 
-                    $reply_markup = Keyboard::make([
-                        'inline_keyboard' => $inlineKeyboard
+                    $reply_markup_video = Keyboard::make([
+                        'inline_keyboard' => $inlineKeyboardVideo
                     ]);
 
                     //reply with video details and option to download mp3
                     $this->replyWithMessage([
                         'text' => $title . ' - ' . $link,
-                        'reply_markup' => $reply_markup
+                        'reply_markup' => $reply_markup_video
                     ]);
                     usleep(800000); //0.8 secs
                 }
