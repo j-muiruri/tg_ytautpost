@@ -1094,7 +1094,7 @@ class TelegramBotController extends Controller
                 ->first();
             $url = $data->message;
 
-            $urlIsYoutube = Str::contains($url, 'https://youtube.com/');
+            $urlIsYoutube = Str::contains($url, 'youtube.com/') || Str::contains($url, 'youtu.be') ;
             if ($urlIsYoutube) {
                 try {
 
