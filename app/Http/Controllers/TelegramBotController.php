@@ -411,15 +411,22 @@ class TelegramBotController extends Controller
                 // logger($callbackData);
 
                 $this->trendingVideos($callbackDetails, $chatId);
-                case 'url':
+            case 'url':
 
-                    //Get video url and user details
-                    $url = $callbackData;
-                    $callbackDetails['callback_query_id'] = $data->callback_query->id;
-    
-                    // logger($callbackData);
-    
-                    AudioDownload::dispatch($url, $chatId, $userId);
+                //Get video url and user details
+                $url = $callbackData;
+                $callbackDetails['callback_query_id'] = $data->callback_query->id;
+
+                // logger($callbackData);
+
+                //answer callback query
+                $query = new Api;
+                $query->answerCallbackQuery([
+                    'callback_query_id'  => $callbackDetails['callback_query_id'],
+                    'text'               => 'Downloading Audio......',
+                ]);
+
+                AudioDownload::dispatch($url, $chatId, $userId);
 
             default:
                 // Telegram::sendMessage([
@@ -1102,7 +1109,7 @@ class TelegramBotController extends Controller
                 ->first();
             $url = $data->message;
 
-            $urlIsYoutube = Str::contains($url, 'youtube.com/') || Str::contains($url, 'youtu.be') ;
+            $urlIsYoutube = Str::contains($url, 'youtube.com/') || Str::contains($url, 'youtu.be');
             if ($urlIsYoutube) {
                 try {
 
