@@ -55,7 +55,6 @@ class TelegramBotController extends Controller
 	//check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
 	$userExists = $this->isSubscriber($userId);
 	if($userExists == true) {
-
 	  $this->processUpdates();
 	}
 	return response()->json(['status' => 'success']);
