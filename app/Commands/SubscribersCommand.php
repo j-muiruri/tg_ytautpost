@@ -44,6 +44,9 @@ class SubscribersCommand extends Command
         $username = $data->from->username;
         $firstname = $data->from->first_name;
         // logger($data);
+	if(empty($username)) {
+	  $username ="User - ".$firstname;
+	}
 
         //Check if user is already subscribed
         $userExists = Subscribers::where('user_id', '=', $userId)->exists();
