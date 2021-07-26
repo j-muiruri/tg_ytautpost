@@ -49,13 +49,18 @@ class TelegramBotController extends Controller
     {
         //$response = $update = Telegram::commandsHandler(true);
         Telegram::commandsHandler(true);
-        // Telegram::getWebhookUpdates();
-        $this->processUpdates();
+	$data = Telegram::getWebhookUpdates();
+	$userId = $data->message->from->id;
 
-        response()->json(['status' => 'success']);
-    }
+	//check if user is subscribed to bot updates, if not: added to subcribers table and sent subcription message
+	$userExists = $this->isSubscriber($userId);
+	if($userId == true) {
 
-    /**
+	  $this->processUpdates();
+	}
+	return response()->json(['status' => 'success']);
+     }
+     /**
      * Set Webhook
      */
     public function runWebhook()
