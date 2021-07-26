@@ -47,7 +47,7 @@ class SubscribersCommand extends Command
 	if(empty($username)) {
 	  $this->replyWithMessage(['text' => 'Hello '. $firstname.', Please set a Telegram username in order to continue using the bot. Do this by going to settings and clicking username. This is used to identify the user making the request and to also protect your data. Thank you!']);
 	  return true;
-	}
+	} else {
 
         //Check if user is already subscribed
         $userExists = Subscribers::where('user_id', '=', $userId)->exists();
@@ -78,5 +78,6 @@ class SubscribersCommand extends Command
 
             $this->replyWithMessage(['text' => 'Hello! ' . $firstname . ',  You have already subscribed to Seleqta Youtube Autopost!']);
         }
+	}
     }
 }
