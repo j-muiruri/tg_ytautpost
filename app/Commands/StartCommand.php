@@ -50,7 +50,7 @@ class StartCommand extends Command
         
         $this->triggerCommand('subscribe');
 
-         }
+         } else {
 
          sleep(2);
 
@@ -80,6 +80,6 @@ class StartCommand extends Command
         $this->replyWithMessage(['text' => $response]);
 
         sleep(3);
-        
+        }
     }
 }
