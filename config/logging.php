@@ -99,6 +99,12 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+        'file' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/php-deprecation-warnings.log'),
+            'level' => 'debug',
+            'days' => 7,
+        ],
     ],
 
 ];
